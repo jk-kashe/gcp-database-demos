@@ -38,7 +38,7 @@ resource "null_resource" "cymbal_air_demo_create_db_script" {
 }
 
 resource "null_resource" "cymbal_air_demo_exec_db_script" {
-  depends_on = [null_resource.cymbal_air_demo_create_db_script]
+  depends_on = [null_resource.alloydb_pgauth]
 
   triggers = {
     instance_ip     = "${google_alloydb_instance.primary_instance.ip_address}"
@@ -48,12 +48,15 @@ resource "null_resource" "cymbal_air_demo_exec_db_script" {
 
   provisioner "local-exec" {
     command = <<EOT
+      gcloud compute scp cymbal-air-demo-create-db.sql ${var.clientvm-name}:~/ \
+      --zone=${var.region}-a \
+      --tunnel-through-iap \
+      --project ${local.project_id}
+
       gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a \
       --tunnel-through-iap \
       --project ${local.project_id} \
-      --command='export PGHOST=${google_alloydb_instance.primary_instance.ip_address}
-      export PGUSER=postgres
-      export PGPASSWORD=${var.alloydb_password}
+      --command='source pgauth.env
       psql -f ~/cymbal-air-demo-create-db.sql'
     EOT
   }
@@ -70,6 +73,19 @@ resource "null_resource" "cymbal_air_demo_exec_db_script" {
   # }
 }
 
+resource "local_file" "cymbal_air_config" {
+  filename = "config.yml"
+  content  = templatefile("cymbal-air-config.yml.tftpl", {
+    project = local.project_id
+    region = var.region
+    cluster = google_alloydb_cluster.alloydb_cluster.cluster_id
+    instance = google_alloydb_instance.primary_instance.instance_id
+    database = "assistantdemo"
+    username = "postgres"
+    password = var.alloydb_password
+  })
+}
+
 #Fetch and Configure the demo 
 resource "null_resource" "cymbal_air_demo_fetch_and_config" {
   depends_on = [null_resource.cymbal_air_demo_exec_db_script,
@@ -80,24 +96,25 @@ resource "null_resource" "cymbal_air_demo_fetch_and_config" {
       gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a \
       --tunnel-through-iap \
       --project ${local.project_id} \
-      --command='export PGHOST=${google_alloydb_instance.primary_instance.ip_address}
-      export PGUSER=postgres
-      export PGPASSWORD=${var.alloydb_password}
+      --command='source pgauth.env
       sudo apt-get update
       sudo apt install -y python3.11-venv git
       python3 -m venv .venv
       source .venv/bin/activate
       pip install --upgrade pip
-      git clone --depth 1 --branch v0.1.0  https://github.com/GoogleCloudPlatform/genai-databases-retrieval-app.git
+      git clone --depth 1 --branch v0.1.0  https://github.com/GoogleCloudPlatform/genai-databases-retrieval-app.git'
+      
+      gcloud compute scp config.yml ${var.clientvm-name}:~/genai-databases-retrieval-app/retrieval_service/ \
+      --zone=${var.region}-a \
+      --tunnel-through-iap \
+      --project ${local.project_id}
+      
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a \
+      --tunnel-through-iap \
+      --project ${local.project_id} \
+      --command='source pgauth.env
+      source .venv/bin/activate
       cd genai-databases-retrieval-app/retrieval_service
-      cp example-config-alloydb.yml config.yml
-      sed -i s/my-project/${local.project_id}/g config.yml
-      sed -i s/my-region/${var.region}/g config.yml
-      sed -i s/my-cluster/${var.alloydb_cluster_name}/g config.yml
-      sed -i s/my-instance/${var.alloydb_primary_name}/g config.yml    
-      sed -i s/my-password/${var.alloydb_password}/g config.yml
-      sed -i s/my_database/assistantdemo/g config.yml
-      sed -i s/my-user/postgres/g config.yml
       sed -i s/PUBLIC/PRIVATE/g datastore/providers/alloydb.py
       cat config.yml
       pip install -r requirements.txt
@@ -192,12 +209,12 @@ resource "null_resource" "cymbal_air_build_retrieval_service" {
 
 #Deploy retrieval service to cloud run
 resource "google_cloud_run_v2_service" "retrieval_service" {
-  name       = "retrieval-service"
-  location   = var.region
-  ingress    = "INGRESS_TRAFFIC_ALL"
-  project    = local.project_id
-  depends_on = [ null_resource.cymbal_air_build_retrieval_service ]
-
+  name                = "retrieval-service"
+  location            = var.region
+  ingress             = "INGRESS_TRAFFIC_ALL"
+  project             = local.project_id
+  depends_on          = [ null_resource.cymbal_air_build_retrieval_service ]
+  deletion_protection = false
   template {
     containers {
       image = "${var.region}-docker.pkg.dev/${local.project_id

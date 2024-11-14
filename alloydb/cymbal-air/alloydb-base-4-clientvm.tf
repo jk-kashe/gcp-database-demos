@@ -45,3 +45,24 @@ gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a --tunnel-through-
 --project ${local.project_id} 
   EOT
 }
+
+resource "local_sensitive_file" "alloydb_pgauth" {
+  filename = "pgauth.env"
+  content = templatefile("alloydb-base-5-pgauth.env.tftpl", {
+    pghost = google_alloydb_instance.primary_instance.ip_address
+    pguser = "postgres"
+    pgpassword = var.alloydb_password
+    pgsslmode = "require"
+  })
+}
+
+resource null_resource "alloydb_pgauth" {
+  provisioner "local-exec" {
+  command = <<-EOT
+  gcloud compute scp ${local_sensitive_file.alloydb_pgauth.filename} ${var.clientvm-name}:~/ \
+      --zone=${var.region}-a \
+      --tunnel-through-iap \
+      --project ${local.project_id}
+    EOT
+  }
+}
