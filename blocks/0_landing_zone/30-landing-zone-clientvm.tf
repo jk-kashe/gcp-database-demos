@@ -29,8 +29,18 @@ resource "google_compute_instance" "database-clientvm" {
 
 }
 
+#this is just to make sure we have ssh keys
+resource "null_resource" "lz-init-gcloud-ssh" {
+  provisioner "local-exec" {
+    command = <<EOT
+      gcloud compute config-ssh
+    EOT
+  }
+}
+
 resource "time_sleep" "wait_for_database_clientvm_boot" {
   create_duration = "120s"  # Adjust the wait time based on your VM boot time
 
-  depends_on = [google_compute_instance.database-clientvm]
+  depends_on = [google_compute_instance.database-clientvm,
+                null_resource.lz-init-gcloud-ssh]
 }
