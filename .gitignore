@@ -36,3 +36,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 alloydb/cymbal-air/.terraform.lock.hcl
+alloydb/alloydb-client.sh
+alloydb/cymbal-air/config.yml
+alloydb/cymbal-air/pgauth.env

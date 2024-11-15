@@ -38,7 +38,8 @@ resource "google_project_iam_member" "default_compute_sa_roles_expanded" {
 # }
 
 resource "null_resource" "cymbal_air_demo_exec_db_script" {
-  depends_on = [null_resource.alloydb_pgauth]
+  depends_on = [null_resource.alloydb_pgauth,
+                null_resource.install_postgresql_client]
 
   triggers = {
     instance_ip     = "${google_alloydb_instance.primary_instance.ip_address}"
