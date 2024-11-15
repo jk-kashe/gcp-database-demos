@@ -1,0 +1,1 @@
+/home/jkashe/repo/gcp-database-demos/blocks/db/alloydb/92-landing-zone-clivm-vars.tf

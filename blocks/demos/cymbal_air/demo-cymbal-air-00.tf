@@ -21,21 +21,21 @@ resource "google_project_iam_member" "default_compute_sa_roles_expanded" {
 
 
 #Create and run Create db script
-resource "null_resource" "cymbal_air_demo_create_db_script" {
-  depends_on = [null_resource.install_postgresql_client]
+# resource "null_resource" "cymbal_air_demo_create_db_script" {
+#   depends_on = [null_resource.install_postgresql_client]
 
-  provisioner "local-exec" {
-    command = <<-EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a --tunnel-through-iap \
-      --project ${local.project_id} \
-      --command='cat <<EOF > ~/cymbal-air-demo-create-db.sql
-      CREATE DATABASE assistantdemo;
-      \c assistantdemo
-      CREATE EXTENSION vector;
-      EOF'
-    EOT
-  }
-}
+#   provisioner "local-exec" {
+#     command = <<-EOT
+#       gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a --tunnel-through-iap \
+#       --project ${local.project_id} \
+#       --command='cat <<EOF > ~/demo-cymbal-air-create-db.sql
+#       CREATE DATABASE assistantdemo;
+#       \c assistantdemo
+#       CREATE EXTENSION vector;
+#       EOF'
+#     EOT
+#   }
+# }
 
 resource "null_resource" "cymbal_air_demo_exec_db_script" {
   depends_on = [null_resource.alloydb_pgauth]
@@ -48,7 +48,7 @@ resource "null_resource" "cymbal_air_demo_exec_db_script" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute scp cymbal-air-demo-create-db.sql ${var.clientvm-name}:~/ \
+      gcloud compute scp demo-cymbal-air-create-db.sql ${var.clientvm-name}:~/ \
       --zone=${var.region}-a \
       --tunnel-through-iap \
       --project ${local.project_id}
@@ -57,7 +57,7 @@ resource "null_resource" "cymbal_air_demo_exec_db_script" {
       --tunnel-through-iap \
       --project ${local.project_id} \
       --command='source pgauth.env
-      psql -f ~/cymbal-air-demo-create-db.sql'
+      psql -f ~/demo-cymbal-air-create-db.sql'
     EOT
   }
 
@@ -75,7 +75,7 @@ resource "null_resource" "cymbal_air_demo_exec_db_script" {
 
 resource "local_file" "cymbal_air_config" {
   filename = "config.yml"
-  content  = templatefile("cymbal-air-config.yml.tftpl", {
+  content  = templatefile("demo-cymbal-air-config.yml.tftpl", {
     project = local.project_id
     region = var.region
     cluster = google_alloydb_cluster.alloydb_cluster.cluster_id

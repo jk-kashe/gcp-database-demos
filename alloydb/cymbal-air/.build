@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#landing zone
+../../blocks/0_landing_zone/block_landing_zone_existing_proj.sh "$(pwd)"
+
+#AlloyDB Free Trial
+../../blocks/db/alloydb/block_alloydb_trial.sh "$(pwd)"
+
+#Cymbal-air
+../../blocks/demos/cymbal_air/block_cymbal_air_alloydb.sh "$(pwd)"
+
+script_dir=$(dirname "$(readlink -f "$0")")
+
+source ../../blocks/utils/lns.sh
+lns ../../blocks/utils/set-vars.sh $script_dir
