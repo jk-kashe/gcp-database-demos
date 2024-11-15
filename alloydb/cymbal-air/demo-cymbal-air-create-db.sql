@@ -1,1 +1,1 @@
-/home/jkashe/repo/gcp-database-demos/blocks/demos/cymbal_air/demo-cymbal-air-create-db.sql
+../../blocks/demos/cymbal_air/demo-cymbal-air-create-db.sql

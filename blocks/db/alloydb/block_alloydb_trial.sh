@@ -10,7 +10,7 @@ files=(
     "$script_dir/92-landing-zone-clivm-vars.tf"
     "$script_dir/db-alloydb-00-apis.tf"
     "$script_dir/db-alloydb-10-cluster.tf"
-    "$script_dir/db-alloydb-20-instance.tf "
+    "$script_dir/db-alloydb-20-instance.tf"
     "$script_dir/db-alloydb-30-clientvm.tf"
     "$script_dir/db-alloydb-90-vars.tf"
     "$script_dir/db-alloydb-95b-trial-instance-vars.tf"

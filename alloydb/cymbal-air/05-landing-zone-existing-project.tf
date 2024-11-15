@@ -1,1 +1,1 @@
-/home/jkashe/repo/gcp-database-demos/blocks/0_landing_zone/05-landing-zone-existing-project.tf
+../../blocks/0_landing_zone/05-landing-zone-existing-project.tf

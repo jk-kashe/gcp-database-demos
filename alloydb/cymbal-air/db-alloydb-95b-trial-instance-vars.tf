@@ -1,1 +1,1 @@
-/home/jkashe/repo/gcp-database-demos/blocks/db/alloydb/db-alloydb-95b-trial-instance-vars.tf
+../../blocks/db/alloydb/db-alloydb-95b-trial-instance-vars.tf

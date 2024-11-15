@@ -1,1 +1,1 @@
-/home/jkashe/repo/gcp-database-demos/blocks/0_landing_zone/20-landing-zone-apis.tf
+../../blocks/0_landing_zone/20-landing-zone-apis.tf

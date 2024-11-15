@@ -1,1 +1,1 @@
-/home/jkashe/repo/gcp-database-demos/blocks/demos/cymbal_air/demo-cymbal-air-00.tf
+../../blocks/demos/cymbal_air/demo-cymbal-air-00.tf
