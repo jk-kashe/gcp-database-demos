@@ -13,7 +13,7 @@ resource "null_resource" "cymbal_air_env_client_id" {
 resource "local_file" "cymbal_air_start_script" {
   depends_on = [ null_resource.cymbal_air_env_client_id ]
 
-  filename = "../cymbal-air-start.sh"
+  filename = "./start-cymbal-air.sh"
   content = <<-EOT
 #!/bin/bash 
 gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a --tunnel-through-iap \
