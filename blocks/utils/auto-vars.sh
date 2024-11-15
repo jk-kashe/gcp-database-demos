@@ -49,7 +49,7 @@ demo_project_id)
     gcloud config get-value project
     ;;
 billing_account_id)
-    gcloud beta billing accounts list --filter="OPEN=true" --format="value(ACCOUNT_ID)"
+    gcloud beta billing projects describe $(gcloud config get-value project) --format="value(billingAccountName)" | sed 's/billingAccounts\///'
     ;;
 region)
     get_valid_region
