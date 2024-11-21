@@ -22,7 +22,7 @@ This demonstration builds upon the **[GenAI Databases Retrieval App](https://git
 
 2. **Deployment:**
     * Create a project to host your deployment. We recommend an empty project to avoid any unforseen issues.
-    * Open Cloud Shell and set your target project as the current project
+    * Open Cloud Shell and set your target project as the current project (this guide assumes you are using cloud shell!)
     * Run these commands:
     ```
     git clone https://github.com/jk-kashe/gcp-database-demos
@@ -37,7 +37,40 @@ This demonstration builds upon the **[GenAI Databases Retrieval App](https://git
     terraform init
     terraform apply
     ```
+    
+**Step 2**
 
+* Important - **there is a manual step to be done at this point**
+* In Cloud Console, click on Web Preview and click Change port
+* Change Port to 8081
+* Open Preview and **copy** the URL up to the first / (just the https://fqdn
+* In GCP Console, Open Oauth Credentials
+* Click "Create Credentials" and select "Oauth Client ID"
+    * Application type: Web Application
+    * Name: default is ok
+    * Authirized JS Origins: add the Preview URL you copied (no trailing slash)
+    * Authorized redirect URIs:
+    * Add Preview URL you copied
+    * Add **another** Preview URL you copied and append "/login/google"
+    * Click "Create"
+    * Copy geenrated ClientID
+    * Return to cloud shell
+* run ./step2.sh
+* Paste the ClientID when asked
+* Script will run some additional terraform apply
+    * Enter yes when prompted
+
+**Starting the demo**
+
+* in Cloud Shell, run ./start-cymbal-air.sh 
+    * wait till you see "Uvicorn running on http://0.0.0.0:8081 (Press CTRL+C to quit)"
+    * There are some erros in the console, that's normal
+* Open Web Preview again (port 8081)
+* Cymbal Air app should be up and running
+* Try to log-in to make sure Oauth works
+* Ask assistant some questiosn to make sure backend works
+
+## Demo Script
 
 ## License
 
