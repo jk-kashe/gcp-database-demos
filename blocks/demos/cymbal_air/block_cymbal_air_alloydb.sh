@@ -14,6 +14,7 @@ files=(
     "$script_dir/demo-cymbal-air-92-oauth-vars.tf.step2"
     "$script_dir/demo-cymbal-air-create-db.sql"
     "$script_dir/step2.sh"
+    "$script_dir/README.md"
 )
 
 source $script_dir/../../utils/block.sh
