@@ -35,6 +35,6 @@ resource "null_resource" "make_script_executable" {
   depends_on = [local_file.cymbal_air_start_script]
 
   provisioner "local-exec" {
-    command = "chmod +x ../cymbal-air-start.sh"  
+    command = "chmod +x ./start-cymbal-air.sh"  
   }
 }

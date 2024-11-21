@@ -4,7 +4,8 @@
 locals {
   default_compute_sa_roles = [
     "roles/alloydb.viewer",
-    "roles/alloydb.client"
+    "roles/alloydb.client",
+    "roles/aiplatform.user" # for AlloyDB AI 
   ]
 }
 
