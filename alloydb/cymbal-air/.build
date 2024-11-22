@@ -1,9 +1,6 @@
 #!/bin/bash
 
-rm *.tf
-rm *.sql
-rm *.tftpl
-rm *.sh
+find . -maxdepth 1 -type l -delete
 
 #landing zone
 ../../blocks/0_landing_zone/block_landing_zone.sh "$(pwd)"
