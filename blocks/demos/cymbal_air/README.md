@@ -37,6 +37,8 @@ This demonstration builds upon the **[GenAI Databases Retrieval App](https://git
     terraform init
     terraform apply
     ```
+
+    Note: __if the script fails__, it's most likely a dependency issue. Just run terraform apply again - it should work every time, 80% of the time. Sorry about that :)
     
 **Step 2**
 
