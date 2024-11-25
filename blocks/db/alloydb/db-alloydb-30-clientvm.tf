@@ -29,6 +29,7 @@ resource "null_resource" "install_postgresql_client" {
       --project ${local.project_id} --command='touch ~/.profile &&
       sudo apt-get update && sudo apt-get dist-upgrade -y
       sudo apt install postgresql-client -y &&
+      sudo apt install zip unzip -y &&
       echo "export PROJECT_ID=\${local.project_id}" >> ~/.profile &&
       echo "export REGION=\${var.region}" >> ~/.profile &&
       echo "export ADBCLUSTER=\${var.alloydb_cluster_name}" >> ~/.profile &&

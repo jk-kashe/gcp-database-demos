@@ -39,3 +39,5 @@ alloydb/cymbal-air/.terraform.lock.hcl
 alloydb/alloydb-client.sh
 alloydb/cymbal-air/config.yml
 alloydb/cymbal-air/pgauth.env
+alloydb/cymbal-air/combine.sh
+alloydb/cymbal-air/combined.txt

@@ -1,5 +1,7 @@
 #Provision Client VM
 resource "google_compute_instance" "database-clientvm" {
+  depends_on = [ google_project_service.project_services ]
+  
   name         = var.clientvm-name
   machine_type = "e2-medium"
   zone         = "${var.region}-a" 
@@ -36,6 +38,8 @@ resource "null_resource" "lz-init-gcloud-ssh" {
       gcloud compute config-ssh
     EOT
   }
+
+  depends_on = [ google_project_service.project_services ]
 }
 
 resource "time_sleep" "wait_for_database_clientvm_boot" {

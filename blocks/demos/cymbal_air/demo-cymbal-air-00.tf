@@ -154,6 +154,7 @@ resource "google_service_account" "retrieval_identity" {
   account_id   = "retrieval-identity"
   display_name = "Retrieval Identity"
   project      = local.project_id
+  depends_on   = [ google_project_service.project_services ]
 }
 
 # Roles for retrieval identity
@@ -171,12 +172,14 @@ resource "google_project_iam_member" "retrieval_identity_aiplatform_user" {
   member     = "serviceAccount:${google_service_account.retrieval_identity.email}"
   project    = local.project_id
 
-  depends_on = [ google_service_account.retrieval_identity ]
+  depends_on = [ google_service_account.retrieval_identity,
+                 google_project_service.project_services ]
 }
 
 # Artifact Registry Repository (If not created previously)
 resource "google_artifact_registry_repository" "retrieval_service_repo" {
-  depends_on    = [google_project_iam_member.default_compute_sa_roles_expanded]
+  depends_on    = [google_project_iam_member.default_compute_sa_roles_expanded,
+                   google_project_service.project_services]
   provider      = google-beta
   location      = var.region
   repository_id = "retrieval-service-repo"
@@ -267,10 +270,12 @@ resource "null_resource" "cymbal_air_prep_sample_app" {
 resource "google_project_service" "project_service" {
   project = local.project_id
   service = "iap.googleapis.com"
+  depends_on   = [ google_project_service.project_services ]
 }
 
 resource "google_iap_brand" "cymbal_air_demo_brand" {
   support_email     = var.demo_app_support_email 
   application_title = "Cymbal Air"
   project = google_project_service.project_service.project
+  depends_on   = [ google_project_service.project_services ]
 }
