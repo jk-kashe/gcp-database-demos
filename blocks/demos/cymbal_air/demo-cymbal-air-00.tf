@@ -103,7 +103,7 @@ resource "null_resource" "cymbal_air_demo_fetch_and_config" {
       python3 -m venv .venv
       source .venv/bin/activate
       pip install --upgrade pip
-      git clone --depth 1 --branch v0.1.0  https://github.com/GoogleCloudPlatform/genai-databases-retrieval-app.git'
+      git clone --depth 1 --branch v0.1.0/fix/alloydb  https://github.com/jk-kashe/genai-databases-retrieval-app/'
       
       gcloud compute scp config.yml ${var.clientvm-name}:~/genai-databases-retrieval-app/retrieval_service/ \
       --zone=${var.region}-a \
