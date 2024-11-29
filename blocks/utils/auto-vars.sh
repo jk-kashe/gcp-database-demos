@@ -34,7 +34,7 @@ get_valid_region() {
       echo "australia-southeast2"
       ;;
     *)
-      echo "us-central1"
+      echo "europe-west1"
       # below idea has issues on quicklabs, defaulting to us-central1 now
       # If no region is set or prefix doesn't match, pick a completely random region
       #local all_regions=(us-central1 northamerica-northeast1 asia-east1 asia-northeast2 asia-south2 asia-southeast1 australia-southeast2 europe-north1 europe-west1 europe-west4)
