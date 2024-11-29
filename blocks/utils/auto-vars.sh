@@ -56,6 +56,9 @@ billing_account_id)
 region)
     get_valid_region
     ;;
+zone)
+    echo "b"
+    ;;
 demo_app_support_email)
     # Get the first email address from the gcloud auth list
     gcloud auth list --format="value(account)" | head -n 1 

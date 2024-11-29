@@ -16,7 +16,6 @@ variable "region" {
 variable "zone" {
   type        = string
   description = "Your Google Cloud zone"
-  default     = "b"
 }
 
 variable "test_mode" {
