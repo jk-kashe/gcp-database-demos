@@ -50,11 +50,11 @@ resource "null_resource" "cymbal_air_demo_exec_db_script" {
   provisioner "local-exec" {
     command = <<EOT
       gcloud compute scp demo-cymbal-air-create-db.sql ${var.clientvm-name}:~/ \
-      --zone=${var.region}-a \
+      --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id}
 
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id} \
       --command='source pgauth.env
@@ -94,7 +94,7 @@ resource "null_resource" "cymbal_air_demo_fetch_and_config" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id} \
       --command='source pgauth.env
@@ -106,11 +106,11 @@ resource "null_resource" "cymbal_air_demo_fetch_and_config" {
       git clone --depth 1 --branch v0.1.0/fix/alloydb  https://github.com/jk-kashe/genai-databases-retrieval-app/'
       
       gcloud compute scp config.yml ${var.clientvm-name}:~/genai-databases-retrieval-app/retrieval_service/ \
-      --zone=${var.region}-a \
+      --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id}
       
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id} \
       --command='source pgauth.env
@@ -202,7 +202,7 @@ resource "null_resource" "cymbal_air_build_retrieval_service" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a --tunnel-through-iap \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
       --project ${local.project_id} \
       --command='cd ~/genai-databases-retrieval-app/retrieval_service
       gcloud builds submit --tag ${var.region}-docker.pkg.dev/${local.project_id
@@ -242,7 +242,7 @@ resource "null_resource" "cymbal_air_build_sample_app" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap --project ${local.project_id} \
       --command='python3 -m venv .venv
       source .venv/bin/activate
@@ -258,7 +258,7 @@ resource "null_resource" "cymbal_air_prep_sample_app" {
                 null_resource.cymbal_air_build_sample_app]
   provisioner "local-exec" {
     command = <<-EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a --tunnel-through-iap \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
       --project ${local.project_id} \
       --command='touch ~/.profile
       echo "export BASE_URL=\$(gcloud  run services list --filter=\"(retrieval-service)\" --format=\"value(URL)\")" >> ~/.profile'

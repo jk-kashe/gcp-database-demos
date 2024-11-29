@@ -13,6 +13,12 @@ variable "region" {
   description = "Your Google Cloud Region"
 }
 
+variable "zone" {
+  type        = string
+  description = "Your Google Cloud zone"
+  default     = "b"
+}
+
 variable "test_mode" {
   type        = bool
   description = "Test mode"

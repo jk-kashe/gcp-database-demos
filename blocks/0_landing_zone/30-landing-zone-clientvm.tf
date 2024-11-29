@@ -4,7 +4,7 @@ resource "google_compute_instance" "database-clientvm" {
   
   name         = var.clientvm-name
   machine_type = "e2-medium"
-  zone         = "${var.region}-a" 
+  zone         = "${var.region}-${var.zone}" 
   project      = local.project_id
  
 

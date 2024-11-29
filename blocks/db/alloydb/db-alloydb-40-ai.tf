@@ -25,11 +25,11 @@ resource "null_resource" "db-alloydb-ai-" {
   provisioner "local-exec" {
     command = <<EOT
       gcloud compute scp db-alloydb-ai.sql ${var.clientvm-name}:~/ \
-      --zone=${var.region}-a \
+      --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id}
 
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id} \
       --command='source pgauth.env

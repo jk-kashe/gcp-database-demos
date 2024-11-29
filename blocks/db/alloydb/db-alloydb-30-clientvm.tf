@@ -25,7 +25,7 @@ resource "null_resource" "install_postgresql_client" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a --tunnel-through-iap \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
       --project ${local.project_id} --command='touch ~/.profile &&
       sudo apt-get update && sudo apt-get dist-upgrade -y
       sudo apt install postgresql-client -y &&
@@ -43,7 +43,7 @@ resource "local_file" "alloydb_client_script" {
   filename = "./alloydb-client.sh"
   content = <<-EOT
 #!/bin/bash 
-gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-a --tunnel-through-iap \
+gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
 --project ${local.project_id} 
   EOT
 }
@@ -62,7 +62,7 @@ resource null_resource "alloydb_pgauth" {
   provisioner "local-exec" {
   command = <<-EOT
   gcloud compute scp ${local_sensitive_file.alloydb_pgauth.filename} ${var.clientvm-name}:~/ \
-      --zone=${var.region}-a \
+      --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id}
     EOT
