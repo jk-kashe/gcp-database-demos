@@ -23,6 +23,15 @@ gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunne
         source ~/.profile                         # Source bash profile as we have settings there!
         source .venv/bin/activate                 # Activate venv
         cd genai-databases-retrieval-app/llm_demo # Change directory
+        
+        # Find the process ID (PID) of any running instances of run_app.py
+        PID=$(pgrep -f "python run_app.py")
+
+        # If a PID is found, kill the process
+        if [[ -n "$PID" ]]; then
+          kill "$PID"
+        fi
+        
         python run_app.py &                       # Run in background
     ) || true          
     bash -i  
