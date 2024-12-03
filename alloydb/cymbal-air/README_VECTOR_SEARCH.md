@@ -54,7 +54,7 @@ You can perform these steps in **AlloyDB Studio**!
 CREATE TABLE intent_embedding (
     id SERIAL PRIMARY KEY,
     intent TEXT NOT NULL,
-    embedding VECTOR(768) GENERATED ALWAYS AS (embedding('textembedding-gecko@003', intent)::vector STORED
+    embedding VECTOR(768) GENERATED ALWAYS AS (embedding('textembedding-gecko@003', intent)::vector) STORED 
 );
 ```
 
