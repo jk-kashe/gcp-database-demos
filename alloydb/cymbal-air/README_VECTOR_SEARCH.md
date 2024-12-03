@@ -54,23 +54,8 @@ You can perform these steps in **AlloyDB Studio**!
 CREATE TABLE intent_embedding (
     id SERIAL PRIMARY KEY,
     intent TEXT NOT NULL,
-    embedding VECTOR(768)
+    embedding VECTOR(768) GENERATED ALWAYS AS (embedding('textembedding-gecko@003', intent)::vector STORED
 );
-
--- Create a trigger function to calculate the embedding
-CREATE OR REPLACE FUNCTION calculate_embedding()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.embedding := CAST(embedding('textembedding-gecko@003', NEW.intent) AS vector(768));
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Create a trigger to call the function before insert
-CREATE TRIGGER calculate_embedding_trigger
-BEFORE INSERT ON intent_embedding
-FOR EACH ROW
-EXECUTE FUNCTION calculate_embedding();
 ```
 
 Let's add some questions that airport users might have:
