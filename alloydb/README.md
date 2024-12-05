@@ -14,8 +14,24 @@ or
 
 ## Getting Started
 
-1. **Clone this repository.**
-2. **Navigate to the `alloydb` directory.**
+
+1. Login to the [Google Cloud Console](https://console.cloud.google.com/).
+
+2. [Create a new project](https://developers.google.com/maps/documentation/places/web-service/cloud-setup) to host the demo and isolate it from other resources in your account.
+
+3. [Switch](https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects) to your new project.
+
+4. [Activate Cloud Shell](https://cloud.google.com/shell/docs/using-cloud-shell) and confirm your project by running the follow4ng commands. Click **Authorize** if prompted.
+
+   ```bash
+   gcloud auth list
+   gcloud config list project
+   ```
+5. **Clone this repository.**
+   It's a good idea to clone the repository in a folder of the same name as your project, to keep track what belongs where
+6. **Navigate to the directory of the demo you would like to deploy.**
+7. **Follow the README** in the demo directory
+   
 
 ## Available Demos
 
