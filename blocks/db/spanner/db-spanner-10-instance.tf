@@ -2,7 +2,7 @@
 resource "google_spanner_instance" "spanner_instance" {
   config       = "regional-${var.region}" # Adjust if needed
   display_name = "${var.spanner_instance_name}"
-  project      = google_project.demo-project.project_id
+  project      = local.project_id
   num_nodes    = 1 # Start with one node and scale as needed
   depends_on   = [ google_project_service.spanner_services]
   edition      = "${var.spanner_edition}"
