@@ -56,7 +56,7 @@ resource "local_sensitive_file" "spanner_env" {
   })
 }
 
-resource null_resource "spanner.env" {
+resource null_resource "spanner_env" {
   provisioner "local-exec" {
   command = <<-EOT
   gcloud compute scp ${local_sensitive_file.spanner_env.filename} ${var.clientvm-name}:~/ \
