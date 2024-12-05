@@ -1,0 +1,17 @@
+#!/bin/bash
+
+rm *.tf
+rm *.sql
+rm *.tftpl
+rm *.sh
+#landing zone
+../../blocks/0_landing_zone/block_landing_zone.sh "$(pwd)"
+
+#Spanner
+../../blocks/db/spanner/block_spanner.sh "$(pwd)"
+
+script_dir=$(dirname "$(readlink -f "$0")")
+
+source ../../blocks/utils/lns.sh
+lns ../../blocks/utils/set-vars.sh $script_dir
+lns ../../blocks/utils/auto-vars.sh $script_dir
