@@ -57,6 +57,7 @@ resource "local_sensitive_file" "spanner_env" {
 }
 
 resource null_resource "spanner_env" {
+  depends_on = [time_sleep.wait_for_database_clientvm_boot]
   provisioner "local-exec" {
   command = <<-EOT
   gcloud compute scp ${local_sensitive_file.spanner_env.filename} ${var.clientvm-name}:~/ \
