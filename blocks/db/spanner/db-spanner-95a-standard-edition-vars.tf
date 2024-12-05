@@ -15,5 +15,5 @@ variable "spanner_edition" {
 variable "spanner_database_name" {
   type        = string
   description = "Spanner Database Name"
-  default     = "Demo Database"
+  default     = "demo-database"
 }
