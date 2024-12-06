@@ -12,3 +12,8 @@ resource "google_spanner_database" "spanner_demo_db" {
   name     = "${var.spanner_database_name}"
   instance = google_spanner_instance.spanner_instance.name
 }
+
+locals {
+  spanner_instance_id = split("/", google_spanner_instance.spanner_instance.id)[1] 
+  spanner_database_id = split("/", google_spanner_database.spanner_demo_db.id)[1]
+}

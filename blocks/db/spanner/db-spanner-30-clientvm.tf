@@ -51,8 +51,8 @@ gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunne
 resource "local_sensitive_file" "spanner_env" {
   filename = "spanner.env"
   content = templatefile("db-spanner.env.tftpl", {
-    spanner_instance_id = google_spanner_instance.spanner_instance.id
-    spanner_database_id = google_spanner_database.spanner_demo_db.id  
+    spanner_instance_id = local.spanner_instance_id
+    spanner_database_id = local.spanner_database_id  
   })
 }
 
