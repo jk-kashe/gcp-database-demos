@@ -1,15 +1,7 @@
 #Add required roles to the default compute SA (used by spanner dataflow import)
 locals {
   default_compute_sa_roles_dataflow_import = [
-    "roles/dataflow.jobs.get", 
-    "roles/dataflow.workItems.lease",
-    "roles/dataflow.workItems.update",
-    "roles/dataflow.workItems.sendMessage",
-    "roles/dataflow.streamingWorkItems.getWork",
-    "roles/dataflow.streamingWorkItems.commitWork",
-    "roles/dataflow.streamingWorkItems.getData",
-    "roles/dataflow.shuffle.read",
-    "roles/dataflow.shuffle.write"
+    "roles/dataflow.admin"
   ]
 }
 
