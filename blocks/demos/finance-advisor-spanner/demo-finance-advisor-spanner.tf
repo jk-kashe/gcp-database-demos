@@ -22,8 +22,7 @@ resource "null_resource" "demo_finance_advisor_fetch_and_config" {
       source .demo_spanner_fin_venv/bin/activate
       cp spanner.env generative-ai/gemini/sample-apps/finance-advisor-spanner/.env
       cd generative-ai/gemini/sample-apps/finance-advisor-spanner/
-      pip install -r requirements.txt
-     
+      pip install -r requirements.txt'
     EOT
   }
 }
