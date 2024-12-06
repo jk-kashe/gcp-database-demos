@@ -25,16 +25,16 @@ resource "google_project_iam_member" "default_compute_sa_roles_expanded" {
 
 
 # Service Account Creation for the cloud run middleware retrieval service 
-resource "google_service_account" "retrieval_identity" {
-  account_id   = "retrieval-identity"
-  display_name = "Retrieval Identity"
+resource "google_service_account" "cloudrun_identity" {
+  account_id   = "cloudrun-identity"
+  display_name = "CloudRun Identity"
   project      = local.project_id
   depends_on   = [ google_project_service.project_services ]
 }
 
 # Roles for retrieval identity
 locals {
-  retrieval_identity_roles = [
+  cloudrun_identity_roles = [
     "roles/alloydb.viewer",
     "roles/alloydb.client",
     "roles/aiplatform.user",
@@ -42,13 +42,13 @@ locals {
   ]
 }
 
-resource "google_project_iam_member" "retrieval_identity_aiplatform_user" {
-  for_each   = toset(local.retrieval_identity_roles)
+resource "google_project_iam_member" "cloudrun_identity_aiplatform_user" {
+  for_each   = toset(local.cloudrun_identity_roles)
   role       = each.key
-  member     = "serviceAccount:${google_service_account.retrieval_identity.email}"
+  member     = "serviceAccount:${google_service_account.cloudrun_identity.email}"
   project    = local.project_id
 
-  depends_on = [ google_service_account.retrieval_identity,
+  depends_on = [ google_service_account.cloudrun_identity,
                  google_project_service.project_services ]
 }
 
@@ -62,13 +62,13 @@ resource "time_sleep" "wait_for_sa_roles_expanded" {
 
 
 # Artifact Registry Repository (If not created previously)
-resource "google_artifact_registry_repository" "retrieval_service_repo" {
+resource "google_artifact_registry_repository" "demo_service_repo" {
   depends_on    = [time_sleep.wait_for_sa_roles_expanded,
                    google_project_service.project_services]                                     #20-landing-zone-apis.tf
   provider      = google-beta
   location      = var.region
-  repository_id = "retrieval-service-repo"
-  description   = "Artifact Registry repository for the retrieval service"
+  repository_id = "demo-service-repo"
+  description   = "Artifact Registry repository for the demo service(s)"
   format        = "DOCKER"
   project       = local.project_id
 }

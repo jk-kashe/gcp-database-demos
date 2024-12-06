@@ -38,7 +38,7 @@ resource "null_resource" "demo_finance_advisor_build" {
       --project ${local.project_id} \
       --command='cd ~/generative-ai/gemini/sample-apps/finance-advisor-spanner/
       gcloud builds submit --tag ${var.region}-docker.pkg.dev/${local.project_id
-}/${google_artifact_registry_repository.retrieval_service_repo.repository_id}/finance-advisor-service:latest .'
+}/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest .'
     EOT
   }
 }
@@ -54,9 +54,9 @@ resource "google_cloud_run_v2_service" "demo_finance_advisor_deploy" {
   template {
     containers {
       image = "${var.region}-docker.pkg.dev/${local.project_id
-}/${google_artifact_registry_repository.retrieval_service_repo.repository_id}/finance-advisor-service:latest"
+}/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest"
     }
-    service_account = google_service_account.retrieval_identity.email
+    service_account = google_service_account.cloudrun_identity.email
     
     vpc_access{
       network_interfaces {

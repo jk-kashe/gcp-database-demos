@@ -139,7 +139,7 @@ resource "null_resource" "cymbal_air_build_retrieval_service" {
       --project ${local.project_id} \
       --command='cd ~/genai-databases-retrieval-app/retrieval_service
       gcloud builds submit --tag ${var.region}-docker.pkg.dev/${local.project_id
-}/${google_artifact_registry_repository.retrieval_service_repo.repository_id}/retrieval-service:latest .'
+}/${google_artifact_registry_repository.demo_service_repo.repository_id}/retrieval-service:latest .'
     EOT
   }
 }
@@ -155,9 +155,9 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
   template {
     containers {
       image = "${var.region}-docker.pkg.dev/${local.project_id
-}/${google_artifact_registry_repository.retrieval_service_repo.repository_id}/retrieval-service:latest"
+}/${google_artifact_registry_repository.demo_service_repo.repository_id}/retrieval-service:latest"
     }
-    service_account = google_service_account.retrieval_identity.email
+    service_account = google_service_account.cloudrun_identity.email
     
     vpc_access{
       network_interfaces {
