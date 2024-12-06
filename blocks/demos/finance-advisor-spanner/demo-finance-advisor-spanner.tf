@@ -69,9 +69,9 @@ resource "google_cloud_run_v2_service" "demo_finance_advisor_deploy" {
 
 
 resource "google_cloud_run_service_iam_policy" "noauth" {
-  location    = google_cloud_run_service.demo_finance_advisor_deploy.location
-  project     = google_cloud_run_service.demo_finance_advisor_deploy.project
-  service     = google_cloud_run_service.demo_finance_advisor_deploy.name
+  location    = google_cloud_run_v2_service.demo_finance_advisor_deploy.location
+  project     = google_cloud_run_v2_service.demo_finance_advisor_deploy.project
+  service     = google_cloud_run_v2_service.demo_finance_advisor_deploy.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
