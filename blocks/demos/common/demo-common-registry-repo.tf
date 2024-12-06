@@ -37,7 +37,8 @@ locals {
   retrieval_identity_roles = [
     "roles/alloydb.viewer",
     "roles/alloydb.client",
-    "roles/aiplatform.user"
+    "roles/aiplatform.user",
+    "roles/spanner.databaseUser"
   ]
 }
 
