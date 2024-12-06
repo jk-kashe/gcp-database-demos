@@ -8,6 +8,7 @@ files=(
     "$script_dir/92-landing-zone-clientvm-vars.tf"
     "$script_dir/db-spanner-00-apis.tf"
     "$script_dir/db-spanner-10-instance.tf"
+    "$script_dir/db-spanner-15-dataflow-roles.tf"
     "$script_dir/db-spanner-30-clientvm.tf"
     "$script_dir/db-spanner-95a-standard-edition-vars.tf"
     "$script_dir/db-spanner.env.tftpl"
