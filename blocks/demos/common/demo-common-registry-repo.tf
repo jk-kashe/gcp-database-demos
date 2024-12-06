@@ -24,6 +24,34 @@ resource "google_project_iam_member" "default_compute_sa_roles_expanded" {
 }
 
 
+# Service Account Creation for the cloud run middleware retrieval service 
+resource "google_service_account" "retrieval_identity" {
+  account_id   = "retrieval-identity"
+  display_name = "Retrieval Identity"
+  project      = local.project_id
+  depends_on   = [ google_project_service.project_services ]
+}
+
+# Roles for retrieval identity
+locals {
+  retrieval_identity_roles = [
+    "roles/alloydb.viewer",
+    "roles/alloydb.client",
+    "roles/aiplatform.user"
+  ]
+}
+
+resource "google_project_iam_member" "retrieval_identity_aiplatform_user" {
+  for_each   = toset(local.retrieval_identity_roles)
+  role       = each.key
+  member     = "serviceAccount:${google_service_account.retrieval_identity.email}"
+  project    = local.project_id
+
+  depends_on = [ google_service_account.retrieval_identity,
+                 google_project_service.project_services ]
+}
+
+
 #it takes a while for the SA roles to be applied
 resource "time_sleep" "wait_for_sa_roles_expanded" {
   create_duration = "120s"  
