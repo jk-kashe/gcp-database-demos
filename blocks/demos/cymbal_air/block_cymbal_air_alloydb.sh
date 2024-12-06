@@ -7,6 +7,7 @@ source $script_dir/../../utils/lns.sh
 
 
 files=(
+    "$script_dir/../common/demo-common-registry-repo.tf"
     "$script_dir/demo-cymbal-air-config.yml.tftpl"
     "$script_dir/demo-cymbal-air-00.tf"
     "$script_dir/demo-cymbal-air-20-oauth.tf.step2"
