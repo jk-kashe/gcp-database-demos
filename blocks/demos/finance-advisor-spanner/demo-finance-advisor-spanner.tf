@@ -13,7 +13,7 @@ resource "null_resource" "demo_finance_advisor_fetch_and_config" {
       python3 -m venv .demo_spanner_fin_venv
       source .demo_spanner_fin_venv/bin/activate
       pip install --upgrade pip
-      git clone --depth 1 https://github.com/GoogleCloudPlatform/generative-ai'
+      git clone --depth 1 --branch fix/demo https://github.com/jk-kashe/generative-ai'
       
       gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \

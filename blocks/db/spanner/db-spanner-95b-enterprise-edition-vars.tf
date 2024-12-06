@@ -1,6 +1,5 @@
 variable "spanner_edition" {
   type        = string
   description = "Spanner Edition"
-  default     = "STANDARD"
-
+  default     = "ENTERPRISE"
 }

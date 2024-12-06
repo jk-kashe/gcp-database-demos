@@ -1,0 +1,1 @@
+../../blocks/db/spanner/db-alloydb-95b-enterprise-edition-vars.tf
