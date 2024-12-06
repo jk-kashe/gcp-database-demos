@@ -26,7 +26,7 @@ if [[ "$project_type" == "standard" || -z "$project_type" ]]; then
 elif [[ "$project_type" == "enterprise"  ]]; then 
   echo "Configuring Spanner enterprise..."
   files+=(
-    "$script_dir/db-alloydb-95b-enterprise-edition-vars.tf"
+    "$script_dir/db-spanner-95b-enterprise-edition-vars.tf"
   )
 else
   echo "Invalid input. Please enter 'standard' or 'enterprise'."

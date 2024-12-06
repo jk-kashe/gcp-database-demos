@@ -1,0 +1,1 @@
+../../blocks/db/spanner/db-spanner-95b-enterprise-edition-vars.tf
