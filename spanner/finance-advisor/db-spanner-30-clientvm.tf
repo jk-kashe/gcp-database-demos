@@ -1,0 +1,1 @@
+../../blocks/db/spanner/db-spanner-30-clientvm.tf
