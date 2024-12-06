@@ -13,7 +13,8 @@ locals {
     "vpcaccess.googleapis.com",
     "iam.googleapis.com",
     "iap.googleapis.com",
-    "serviceusage.googleapis.com"
+    "serviceusage.googleapis.com",
+    "dataflow.googleapis.com"
   ]
 }
 
