@@ -71,3 +71,25 @@ resource "google_artifact_registry_repository" "retrieval_service_repo" {
   format        = "DOCKER"
   project       = local.project_id
 }
+
+
+#for public cloud run deployments
+#use the commented block aftert this
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+# this is an example config for noauth policy
+# just copy and change service name
+# resource "google_cloud_run_service_iam_policy" "noauth" {
+#   location    = google_cloud_run_service.demo_finance_advisor_deploy.location
+#   project     = google_cloud_run_service.demo_finance_advisor_deploy.project
+#   service     = google_cloud_run_service.demo_finance_advisor_deploy.name
+
+#   policy_data = data.google_iam_policy.noauth.policy_data
+# }
