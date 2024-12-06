@@ -1,7 +1,7 @@
 #Add required roles to the default compute SA (used by spanner dataflow import)
 locals {
   default_compute_sa_roles_dataflow_import = [
-    "roles/dataflow.admin"
+    "roles/dataflow.worker"
   ]
 }
 
