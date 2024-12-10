@@ -8,8 +8,16 @@ resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
     force_destroy = true
 }
 
-resource "null_resource" "demo_finance_advisor_data_import" {
+
+resource "time_sleep" "demo_finance_advisor_sa_roles" {
+  create_duration = "2m"  # Adjust the wait time based on your VM boot time
+
   depends_on = [google_project_iam_member.spanner_dataflow_import_sa_roles]
+}
+
+#this seems to need a bit of a time to go through successfully
+resource "null_resource" "demo_finance_advisor_data_import" {
+  depends_on = [time_sleep.demo_finance_advisor_sa_roles]
 
   provisioner "local-exec" {
     command = <<EOT
