@@ -16,6 +16,7 @@ resource "null_resource" "demo_finance_advisor_data_import" {
     gcloud dataflow jobs run spanner-finadvisor-import \
     --gcs-location gs://dataflow-templates-${var.region}/latest/GCS_Avro_to_Cloud_Spanner \
     --staging-location=${google_storage_bucket.demo_finance_advisor_import_staging.url} \
+    --service-account-email=${local.project_number}-compute@developer.gserviceaccount.com \
     --region ${var.region} \
     --network ${google_compute_network.demo_network.name} \
     --parameters \
