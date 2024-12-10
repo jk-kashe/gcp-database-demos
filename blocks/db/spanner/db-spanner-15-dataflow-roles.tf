@@ -11,5 +11,6 @@ resource "google_project_iam_member" "spanner_dataflow_import_sa_roles" {
   project  = local.project_id
   role     = each.key
   member   = "serviceAccount:${local.project_number}-compute@developer.gserviceaccount.com"
-  depends_on = [time_sleep.wait_for_database_clientvm_boot]                                     #30-landing-zone-clientvm.tf
+  depends_on = [time_sleep.wait_for_database_clientvm_boot,
+                google_project_iam_member.default_compute_sa_roles_expanded]                                     #30-landing-zone-clientvm.tf
 }
