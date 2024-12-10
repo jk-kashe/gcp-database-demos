@@ -9,31 +9,10 @@ resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
 }
 
 
-
-#this seems to need a bit of a time to go through successfully
-resource "null_resource" "demo_finance_advisor_dummy_data_import" {
-  depends_on = [google_project_iam_member.spanner_dataflow_import_sa_roles]
-
-  provisioner "local-exec" {
-    command = <<EOT
-    gcloud dataflow jobs run spanner-finadvisor-import \
-    --gcs-location gs://dataflow-templates-${var.region}/latest/GCS_Avro_to_Cloud_Spanner \
-    --staging-location=${google_storage_bucket.demo_finance_advisor_import_staging.url} \
-    --service-account-email=${local.project_number}-compute@developer.gserviceaccount.com \
-    --region ${var.region} \
-    --network ${google_compute_network.demo_network.name} \
-    --parameters \
-instanceId=${local.spanner_instance_id},\
-databaseId=${local.spanner_database_id},\
-inputDir=gs://github-repo/generative-ai/sample-apps/finance-advisor-spanner/spanner-fts-mf-data-export
-    EOT
-  }
-}
-
 resource "time_sleep" "demo_finance_advisor_sa_roles" {
   create_duration = "1m"  # Adjust the wait time based on your VM boot time
 
-  depends_on = [null_resource.demo_finance_advisor_dummy_data_import]
+  depends_on = [google_project_iam_member.spanner_dataflow_import_sa_roles]
 }
 
 
@@ -41,17 +20,49 @@ resource "null_resource" "demo_finance_advisor_data_import" {
   depends_on = [time_sleep.demo_finance_advisor_sa_roles]
 
   provisioner "local-exec" {
+    # Make the script executable
+    command = "chmod +x ./spanner-import.sh"
+    # Use interpreter to pass arguments to the script
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    # Execute the script to submit the job and wait for completion
     command = <<EOT
-    gcloud dataflow jobs run spanner-finadvisor-import \
-    --gcs-location gs://dataflow-templates-${var.region}/latest/GCS_Avro_to_Cloud_Spanner \
-    --staging-location=${google_storage_bucket.demo_finance_advisor_import_staging.url} \
-    --service-account-email=${local.project_number}-compute@developer.gserviceaccount.com \
-    --region ${var.region} \
-    --network ${google_compute_network.demo_network.name} \
-    --parameters \
-instanceId=${local.spanner_instance_id},\
-databaseId=${local.spanner_database_id},\
-inputDir=gs://github-repo/generative-ai/sample-apps/finance-advisor-spanner/spanner-fts-mf-data-export
+      ./spanner-import.sh
     EOT
+
+    # Pass variables to the script
+    environment = {
+      STAGING_LOCATION   = google_storage_bucket.demo_finance_advisor_import_staging.url
+      SERVICE_ACCOUNT_EMAIL = "${local.project_number}-compute@developer.gserviceaccount.com"
+      REGION             = var.region
+      NETWORK            = google_compute_network.demo_network.name
+      INSTANCE_ID        = local.spanner_instance_id
+      DATABASE_ID        = local.spanner_database_id
+      INPUT_DIR          = "gs://github-repo/generative-ai/sample-apps/finance-advisor-spanner/spanner-fts-mf-data-export"
+    }
+
+    interpreter = ["/bin/bash", "-c"]
   }
 }
+
+
+# resource "null_resource" "demo_finance_advisor_data_import" {
+#   depends_on = [time_sleep.demo_finance_advisor_sa_roles]
+
+#   provisioner "local-exec" {
+#     command = <<EOT
+#     gcloud dataflow jobs run spanner-finadvisor-import \
+#     --gcs-location gs://dataflow-templates-${var.region}/latest/GCS_Avro_to_Cloud_Spanner \
+#     --staging-location=${google_storage_bucket.demo_finance_advisor_import_staging.url} \
+#     --service-account-email=${local.project_number}-compute@developer.gserviceaccount.com \
+#     --region ${var.region} \
+#     --network ${google_compute_network.demo_network.name} \
+#     --parameters \
+# instanceId=${local.spanner_instance_id},\
+# databaseId=${local.spanner_database_id},\
+# inputDir=gs://github-repo/generative-ai/sample-apps/finance-advisor-spanner/spanner-fts-mf-data-export
+#     EOT
+#   }
+# }

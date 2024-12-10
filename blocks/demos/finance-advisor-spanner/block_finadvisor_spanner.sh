@@ -11,6 +11,7 @@ files=(
     "$script_dir/demo-finance-advisor-spanner.tf"
     "$script_dir/demo-finance-advisor-import.tf"
     "$script_dir/demo-finance-advisor-extra-ddl.tf"
+    "$script_dir/spanner-import.sh"
 )
 
 source $script_dir/../../utils/block.sh
