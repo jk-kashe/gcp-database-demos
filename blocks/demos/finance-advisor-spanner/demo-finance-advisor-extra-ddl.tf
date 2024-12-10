@@ -9,6 +9,8 @@ resource "null_resource" "demo_finadv_schema_ops" {
   provisioner "local-exec" {
     command = <<-EOT
     wget https://raw.githubusercontent.com/jk-kashe/generative-ai/refs/heads/fix/demo/gemini/sample-apps/finance-advisor-spanner/Schema-Operations.sql
+    sed -i "s/<project-name>/${local.project_id}/g" Schema-Operations.sql
+    sed -i "s/<location>/${var.region}/g" Schema-Operations.sql 
     gcloud spanner databases ddl update ${var.spanner_database_name} \
     --project=${local.project_id} \
     --instance=${google_spanner_instance.spanner_instance.name} \
