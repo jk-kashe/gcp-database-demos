@@ -10,7 +10,7 @@ resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
 
 
 resource "time_sleep" "demo_finance_advisor_sa_roles" {
-  create_duration = "2m"  # Adjust the wait time based on your VM boot time
+  create_duration = "5m"  # Adjust the wait time based on your VM boot time
 
   depends_on = [google_project_iam_member.spanner_dataflow_import_sa_roles]
 }
