@@ -19,19 +19,43 @@ resource "null_resource" "demo_finadv_schema_ops" {
     sed -n '/CREATE SEARCH INDEX/,$p' Schema-Operations.sql > search_indexes.sql
     # Extract the initial statements (before UPDATE)
     head -n $(( $(sed -n '/UPDATE/=' Schema-Operations.sql | head -1) - 1 )) Schema-Operations.sql > initial_statements.sql
-    #
+    EOT
+  }    
+}
+
+resource "null_resource" "demo_finadv_schema_ops_step1" {
+    depends_on = [null_resource.demo_finadv_schema_ops]
+
+  provisioner "local-exec" {
+    command = <<-EOT
     gcloud spanner databases ddl update ${var.spanner_database_name} \
     --project=${local.project_id} \
     --instance=${google_spanner_instance.spanner_instance.name} \
     --ddl-file=initial_statements.sql
-    #
+    EOT
+  }    
+}
+
+resource "null_resource" "demo_finadv_schema_ops_step2" {
+    depends_on = [null_resource.demo_finadv_schema_ops_step1]
+
+  provisioner "local-exec" {
+    command = <<-EOT
     while IFS= read -r line; do
       gcloud spanner databases execute-sql ${var.spanner_database_name} \
           --project=${local.project_id} \
           --instance=${google_spanner_instance.spanner_instance.name} \
           --sql="$line"
     done < updates.sql
-    #
+    EOT
+  }    
+}
+
+resource "null_resource" "demo_finadv_schema_ops_step3" {
+    depends_on = [null_resource.demo_finadv_schema_ops_step2]
+
+  provisioner "local-exec" {
+    command = <<-EOT
     gcloud spanner databases ddl update ${var.spanner_database_name} \
     --project=${local.project_id} \
     --instance=${google_spanner_instance.spanner_instance.name} \
