@@ -23,10 +23,12 @@ resource "null_resource" "demo_finadv_schema_ops" {
     --instance=${google_spanner_instance.spanner_instance.name} \
     --ddl-file=initial_statements.sql
     #
-    gcloud spanner databases ddl update ${var.spanner_database_name} \
-    --project=${local.project_id} \
-    --instance=${google_spanner_instance.spanner_instance.name} \
-    --ddl-file=updates.sql
+    while IFS= read -r line; do
+      gcloud spanner databases execute-sql ${var.spanner_database_name} \
+          --project=${local.project_id} \
+          --instance=${google_spanner_instance.spanner_instance.name} \
+          --sql="$line"
+    done < updates.sql
     #
     gcloud spanner databases ddl update ${var.spanner_database_name} \
     --project=${local.project_id} \
