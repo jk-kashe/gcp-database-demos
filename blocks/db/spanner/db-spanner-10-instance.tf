@@ -11,6 +11,7 @@ resource "google_spanner_instance" "spanner_instance" {
 resource "google_spanner_database" "spanner_demo_db" {
   name     = "${var.spanner_database_name}"
   instance = google_spanner_instance.spanner_instance.name
+  deletion_protection = false
 }
 
 locals {
