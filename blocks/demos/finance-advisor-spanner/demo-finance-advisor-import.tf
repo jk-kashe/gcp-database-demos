@@ -1,10 +1,21 @@
+resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
+    project = local.project_id
+
+    name = "${local.project_id}-finadvdemo-import-staging"
+    location = var.region
+    uniform_bucket_level_access = true
+    public_access_prevention = "enforced"
+    force_destroy = true
+}
+
 resource "null_resource" "demo_finance_advisor_data_import" {
   depends_on = [google_project_iam_member.spanner_dataflow_import_sa_roles]
 
   provisioner "local-exec" {
     command = <<EOT
     gcloud dataflow jobs run spanner-finadvisor-import \
-    --gcs-location gs://dataflow-templates-europe-west1/latest/GCS_Avro_to_Cloud_Spanner \
+    --gcs-location gs://dataflow-templates-${var.region}/latest/GCS_Avro_to_Cloud_Spanner \
+    --staging-location=${demo_finance_advisor_import_staging.url} \
     --region ${var.region} \
     --network ${google_compute_network.demo_network.name} \
     --parameters \
