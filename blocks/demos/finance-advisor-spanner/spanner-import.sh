@@ -51,6 +51,7 @@ while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
   if [[ $RETRY_COUNT -eq 0 || "$STATUS" == "JOB_STATE_FAILED" ]]; then
     if [[ $RETRY_COUNT -gt 0 ]]; then
       echo "Retrying Dataflow job submission (attempt $((RETRY_COUNT + 1)))..."
+      sleep 60 # Wait for 60 seconds before retrying
     fi
 
     JOB_ID=$(submit_dataflow_job)

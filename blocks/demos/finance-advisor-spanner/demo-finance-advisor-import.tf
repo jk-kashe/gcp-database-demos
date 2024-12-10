@@ -17,7 +17,8 @@ resource "time_sleep" "demo_finance_advisor_sa_roles" {
 
 
 resource "null_resource" "demo_finance_advisor_data_import" {
-  depends_on = [time_sleep.demo_finance_advisor_sa_roles]
+  depends_on = [time_sleep.demo_finance_advisor_sa_roles,
+  google_project_service.project_services]
 
   provisioner "local-exec" {
     # Make the script executable
