@@ -2,7 +2,7 @@
 
 # --- Configuration ---
 JOB_NAME_PREFIX="spanner-finadvisor-import"  # Prefix of the Dataflow job name
-MAX_RETRIES=3       # Maximum number of retries for job execution
+MAX_RETRIES=5       # Maximum number of retries for job execution
 MAX_WAIT_TIME=900   # Seconds (15 minutes)
 POLL_INTERVAL=30    # Seconds
 

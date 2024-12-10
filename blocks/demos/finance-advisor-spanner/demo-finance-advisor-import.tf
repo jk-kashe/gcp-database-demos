@@ -10,12 +10,15 @@ resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
 
 
 resource "time_sleep" "demo_finance_advisor_sa_roles" {
-  create_duration = "1m"  # Adjust the wait time based on your VM boot time
+  create_duration = "2m"  # Adjust the wait time based on your VM boot time
 
   depends_on = [google_project_iam_member.spanner_dataflow_import_sa_roles]
 }
 
 
+#for some reason, the job fails first / first few times.
+#it seems like a timing issue, but time_sleep alone did not resolve it
+#this script runs the job until success - up to 5 times
 resource "null_resource" "demo_finance_advisor_data_import" {
   depends_on = [time_sleep.demo_finance_advisor_sa_roles,
   google_project_service.project_services]
@@ -47,23 +50,3 @@ resource "null_resource" "demo_finance_advisor_data_import" {
     interpreter = ["/bin/bash", "-c"]
   }
 }
-
-
-# resource "null_resource" "demo_finance_advisor_data_import" {
-#   depends_on = [time_sleep.demo_finance_advisor_sa_roles]
-
-#   provisioner "local-exec" {
-#     command = <<EOT
-#     gcloud dataflow jobs run spanner-finadvisor-import \
-#     --gcs-location gs://dataflow-templates-${var.region}/latest/GCS_Avro_to_Cloud_Spanner \
-#     --staging-location=${google_storage_bucket.demo_finance_advisor_import_staging.url} \
-#     --service-account-email=${local.project_number}-compute@developer.gserviceaccount.com \
-#     --region ${var.region} \
-#     --network ${google_compute_network.demo_network.name} \
-#     --parameters \
-# instanceId=${local.spanner_instance_id},\
-# databaseId=${local.spanner_database_id},\
-# inputDir=gs://github-repo/generative-ai/sample-apps/finance-advisor-spanner/spanner-fts-mf-data-export
-#     EOT
-#   }
-# }

@@ -1,6 +1,8 @@
+#since dataflow script now waits till completion, this is probably not needed
+#but still keeping it here for safety
 resource "time_sleep" "demo_finadv_import_spanner" {
   depends_on = [null_resource.demo_finance_advisor_data_import]
-  create_duration = "15m"
+  create_duration = "1m"
 }
 
 resource "null_resource" "demo_finadv_schema_ops" {
