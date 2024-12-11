@@ -7,6 +7,27 @@ resource "google_compute_network" "demo_network" {
 
 }
 
+# Get the automatically created subnet in config region
+data "google_compute_subnetwork" "auto_subnet" {
+  name    = "default" # The default name used for auto-created subnets
+  region  = var.region
+  network = google_compute_network.demo_network.id
+  project = local.project_id
+}
+
+# Enable Private Google Access on the subnet
+resource "google_compute_subnetwork" "subnet_with_private_access" {
+  name                     = data.google_compute_subnetwork.auto_subnet.name
+  region                   = var.region
+  network                  = google_compute_network.demo_network.id
+  private_ip_google_access = true
+  project = local.project_id
+  # ip_cidr_range            = data.google_compute_subnetwork.auto_subnet.ip_cidr_range # this does not need to be changed
+  depends_on = [
+    data.google_compute_subnetwork.auto_subnet
+  ]
+}
+
 resource "google_compute_global_address" "psa_range" {
   name          = "psa-range"
   purpose       = "VPC_PEERING"
