@@ -11,7 +11,6 @@ resource "google_compute_network" "demo_network" {
 data "google_compute_subnetwork" "auto_subnet" {
   name    = "default" # The default name used for auto-created subnets
   region  = var.region
-  network = google_compute_network.demo_network.id
   project = local.project_id
 }
 
