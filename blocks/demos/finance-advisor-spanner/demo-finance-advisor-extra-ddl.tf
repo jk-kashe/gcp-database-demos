@@ -55,29 +55,6 @@ resource "null_resource" "demo_finadv_schema_ops_step3" {
     depends_on = [null_resource.demo_finadv_schema_ops_step2]
 
   provisioner "local-exec" {
-    command = <<-EOT
-    # Replace newlines with spaces
-    file_content=$(sed ':a;N;$!ba;s/\n/ /g' <<< search_indexes.sql)
-    file_content="${file_content};"
-
-    # Use IFS to split the string by semicolon
-    IFS=';' read -r -a sql_statements <<< "$file_content"
-
-    # Trim leading/trailing whitespace from each statement
-    for ((i=0; i<${#sql_statements[@]}; i++)); do
-      sql_statements[$i]=$(echo "${sql_statements[$i]}" | xargs)
-    done
-
-    # Now you can iterate through the array and process each SQL statement
-    for statement in "${sql_statements[@]}"; do
-      if [[ ! -z "$statement" ]]; then
-        echo "Processing statement: $statement;"
-        gcloud spanner databases ddl update ${var.spanner_database_name} \
-        --project=${local.project_id} \
-        --instance=${google_spanner_instance.spanner_instance.name} \
-        --ddl="$statement"
-      fi
-    done
-    EOT
-  }    
+    command = "./create_fa_search_indexes.sh ${var.spanner_database_name} ${local.project_id} ${google_spanner_instance.spanner_instance.name}"
+   }    
 }

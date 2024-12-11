@@ -1,0 +1,1 @@
+../../blocks/demos/finance-advisor-spanner/create_fa_search_indexes.sh
