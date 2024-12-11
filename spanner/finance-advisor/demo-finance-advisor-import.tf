@@ -21,7 +21,8 @@ resource "time_sleep" "demo_finance_advisor_sa_roles" {
 #this script runs the job until success - up to 5 times
 resource "null_resource" "demo_finance_advisor_data_import" {
   depends_on = [time_sleep.demo_finance_advisor_sa_roles,
-  google_project_service.project_services]
+                google_project_service.project_services,
+                google_compute_subnetwork.subnet_with_private_access ]
 
   provisioner "local-exec" {
     # Make the script executable
