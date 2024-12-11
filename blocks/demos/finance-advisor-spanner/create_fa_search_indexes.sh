@@ -8,13 +8,11 @@ file_content="${file_content};"
 # Use IFS to split the string by semicolon
 IFS=';' read -r -a sql_statements <<< "$file_content"
 
-# Trim leading/trailing whitespace from each statement
-for ((i=0; i<${#sql_statements[@]}; i++)); do
-  sql_statements[$i]=$(echo "${sql_statements[$i]}" | xargs)
-done
-
 # Now you can iterate through the array and process each SQL statement
 for statement in "${sql_statements[@]}"; do
+  # Trim leading/trailing whitespace from each statement without using xargs
+  statement=$(echo "$statement" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
   if [[ ! -z "$statement" ]]; then
     echo "Processing statement: $statement;"
     gcloud spanner databases ddl update "$1" \
