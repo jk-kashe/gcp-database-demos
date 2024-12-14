@@ -1,1 +1,0 @@
-../../../blocks/utils/auto-vars.sh

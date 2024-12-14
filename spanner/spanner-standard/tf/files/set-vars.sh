@@ -1,1 +1,1 @@
-../../../../blocks/utils/set-vars.sh
+../../../../.blocks/utils/set-vars.sh

@@ -2,7 +2,7 @@
 MAKEFILE_PATH := $(lastword $(MAKEFILE_LIST))
 MAKEFILE_DIR := $(dir $(MAKEFILE_PATH))
 TF_DIR = $(MAKEFILE_DIR)/tf
-BLOCKS_DIR := ../../blocks
+BLOCKS_DIR := ../../.blocks
 include $(BLOCKS_DIR)/common.mk
 
 DEMO_OUTPUT_FILE := demo_cymbal_air.tf

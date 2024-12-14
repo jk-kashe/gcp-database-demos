@@ -1,1 +1,1 @@
-../../../../blocks/utils/auto-vars.sh
+../../../../.blocks/utils/auto-vars.sh
