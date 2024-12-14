@@ -17,7 +17,7 @@ This repository is (going to be) a collection of ready-to-deploy demo projects f
 | Database     | Description                                           | Status |
 |---------------|-------------------------------------------------------|--------|
 | [AlloyDB](./alloydb/README.md)	   | PostgreSQL-compatible managed database for enterprise workloads | ✅     |
-| Spanner      | Distributed SQL for mission-critical applications     | ✅     |
+| [Spanner](./spanner/README.md)      | Distributed SQL for mission-critical applications     | ✅     |
 | Firestore    | NoSQL document database for mobile and web apps        | 🚧     |
 | Cloud SQL    | Fully managed relational database for MySQL, PostgreSQL, SQL Server | 🚧     |
 | Bigtable      | Wide-column NoSQL for large-scale, low-latency workloads | 🚧     |
@@ -29,6 +29,13 @@ This repository is (going to be) a collection of ready-to-deploy demo projects f
 2. **Read the README.md:** Find detailed instructions and demo descriptions.
 3. **Deploy and Experiment:** Follow the provided steps to get hands-on experience.
 
+Generally, all demos can be deployed simply by running 
+```
+make apply
+```
+
+from the demo folder. Some demos might require additional steps, so make sure to read demo-specific README files.
+
 ## Notes
 
 * This repository does not host the demos themselves, only packages them for easier deployment.
@@ -39,6 +46,7 @@ See license of referenced repositories for licensing information.
 * These scripts are not meant to be run on a production environment or even be considered as
 a source of best practices - on the contrary, as the objective is only to provide canned demos,
 they are likely to contain bugs and anty-patterns.
+
 
 # Disclaimer
 
