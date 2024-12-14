@@ -1,6 +1,6 @@
 # AlloyDB AI & Vector Search Demo
 
-This repository provides a demonstration of a GenAI Vector Search application powered by AlloyDB. It showcases AlloyDB's capabilities in AI-powered applications, particularly in the domain of retrieval augmented generation (RAG).
+This repository provides deployment scripts for demonstration of a GenAI Vector Search application powered by AlloyDB. It showcases AlloyDB's capabilities in AI-powered applications, particularly in the domain of retrieval augmented generation (RAG).
 
 ## Purpose
 
@@ -12,7 +12,7 @@ This demo aims to provide an easy-to-deploy and impressive GenAI Vector Search a
 
 This demonstration builds upon the **[GenAI Databases Retrieval App](https://github.com/GoogleCloudPlatform/genai-databases-retrieval-app/tree/main)** and highlights the practical application of techniques like RAG and ReACT in real-world scenarios.
 
-**Note:** This project is for demonstration purposes only and is not an officially supported Google product.
+**Note:** This deployment script is for demonstration purposes only and is not an officially supported Google product.
 
 
 ## Getting Started
@@ -27,18 +27,15 @@ This demonstration builds upon the **[GenAI Databases Retrieval App](https://git
     ```
     git clone https://github.com/jk-kashe/gcp-database-demos
     cd gcp-database-demos/alloydb/cymbal-air
-    ./set-vars.sh
+    make apply
     ```
-    * Set vars will ask you to provide variable values. Most variables should be auto-populated, but check they are correct. It's assumed you have the knowledge of GCP to find the correct values!
+    * Deployment script ask you to provide variable values. Most variables should be auto-populated, but check they are correct. It's assumed you have the knowledge of GCP to find the correct values!
       * Set AlloyDB password to a reasonably secure one
       * demo_app_support_email MUST be email of the useraccount you are logged-in with in the GCP console
     * Provision the environment
-    ```
-    terraform init
-    terraform apply
-    ```
 
-    Note: __if the script fails__, it's most likely a dependency issue. Just run terraform apply again - it should work every time, 80% of the time. Sorry about that :)
+
+    Note: __if the script fails__, it's most likely a dependency issue. Just run `make apply` again - it should work every time, 80% of the time. Sorry about that :)
     
 **Step 2**
 
@@ -57,7 +54,7 @@ This demonstration builds upon the **[GenAI Databases Retrieval App](https://git
     * Click "Create"
     * Copy geenrated ClientID
     * Return to cloud shell
-* run ./step2.sh
+* run `make step2`
 * Paste the ClientID when asked
 * Script will run some additional terraform apply
     * Enter yes when prompted

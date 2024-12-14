@@ -74,6 +74,9 @@ apply:
 	@echo "Applying demo: $(notdir $(CURDIR))"
 	@cd $(TF_DIR) && ./files/set-vars.sh && terraform init && terraform apply -auto-approve
 
+# Run Terraform apply (common)
+deploy: apply
+
 # Run Terraform destroy (common)
 destroy:
 	@echo "Destroying demo: $(notdir $(CURDIR))"

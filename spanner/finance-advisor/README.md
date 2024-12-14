@@ -14,7 +14,8 @@ Contributors: [J.K. Kashe](https://github.com/jk-kashe) & [Tom Botril](https://g
 
 ### Prereqs
 
-- Have a fresh, empty project ready
+- **Have a fresh, empty project ready**
+- The cloud shell / gcloud should be configured with target project as active project
 - Sufficient permissions to enable APIs, grant roles, provision resources, ...
 - Policies must permit public cloud run services 
 
@@ -24,15 +25,15 @@ In the GCP Cloud Shell (we have not tested deployment in non-shell environments)
 ```
 git clone https://github.com/jk-kashe/gcp-database-demos
 cd gcp-database-demos/spanner/finance-advisor
-./set-vars.sh
-terraform init
-terraform apply
+make apply
 ```
+
+Deploymemt script will ask for some variables, like project and region, defaults should be ok in most cases.
 
 ### Notes
 
-- The script takes a long time to execute > 1h
-- GCP shell might time out if it receives no input - please periodically hit enter key to prevent it
+- **The script takes a long time to execute > 1h**
+- GCP shell might time out if it receives no input - **please periodically hit enter key** to prevent it
 - Some DDL commands might time out through gcloud - monitor output and re-run them through the spanner studio if needed
 
 ### Starting the Demo
