@@ -7,9 +7,11 @@ DEMO_DIRS := alloydb/alloydb-ai-free-trial alloydb/cymbal-air spanner/spanner-st
 all: $(DEMO_DIRS)
 
 $(DEMO_DIRS):
-	cd $@ && ./.build
+	$(MAKE) -C $@ build
 
 # --- Clean Target (remove symlinks) ---
 
 clean:
-	find . -type l -delete
+	for dir in $(DEMO_DIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done

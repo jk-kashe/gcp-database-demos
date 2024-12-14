@@ -1,1 +1,0 @@
-../../blocks/demos/common/demo-common-registry-repo.tf

@@ -1,1 +1,0 @@
-../../blocks/demos/cymbal_air/demo-cymbal-air-create-db.sql

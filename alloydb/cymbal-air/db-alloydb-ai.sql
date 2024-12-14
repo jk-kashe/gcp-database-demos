@@ -1,1 +1,0 @@
-../../blocks/db/alloydb/db-alloydb-ai.sql

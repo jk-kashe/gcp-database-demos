@@ -49,7 +49,7 @@ This provides a quick way to set up AlloyDB but doesn't include additional featu
 
 ### cymbal-air
 
-This demo builds upon `alloydb-base` and deploys the demo from  [this repository](https://github.com/GoogleCloudPlatform/genai-databases-retrieval-app) . It will:
+This demo builds upon `alloydb-ai-free-trial` and deploys the demo from  [this repository](https://github.com/GoogleCloudPlatform/genai-databases-retrieval-app) . It will:
 
 * Deploy the database schema
 * Configure, build, and deploy the middleware in Cloud Run

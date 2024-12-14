@@ -31,3 +31,5 @@ lns() {
     echo "Symlink '$link_name' created, pointing to '$relative_path' in '$dest_dir'"
   fi
 }
+
+lns $1 $2

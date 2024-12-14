@@ -2,15 +2,27 @@
 #identify all variables without default values in Terraform files
 #and prompt for their values
 
+# Get the path of the script (resolving symlinks)
+script_path=$(readlink -f "$0")
 
-TF_DIR="."  # Adjust if your Terraform files are in a different directory
+# Check if the path is a symlink
+if [[ -L "$0" ]]; then
+  # If it's a symlink, get the directory containing the symlink
+  script_dir=$(dirname "$0")
+else
+  # If it's not a symlink, get the directory of the script itself
+  script_dir=$(dirname "$script_path")
+fi
+
+# Define the directory containing Terraform files (one level up from the script)
+TF_DIR="$script_dir/.."
 TFVARS_FILE="${TF_DIR}/terraform.tfvars"
 touch $TFVARS_FILE
 
 #Function to get variable value with optional override
 get_variable_value() {
   local var_name="$1"
-  local default_value=$(./auto-vars.sh "$var_name")
+  local default_value=$($script_dir/auto-vars.sh "$var_name")
 
   if [[ -z "$default_value" ]]; then
     read -p "Enter value for '$var_name': " user_value 

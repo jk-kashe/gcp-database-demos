@@ -1,1 +1,0 @@
-../../blocks/demos/cymbal_air/step2.sh
