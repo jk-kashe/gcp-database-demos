@@ -47,6 +47,10 @@ See license of referenced repositories for licensing information.
 a source of best practices - on the contrary, as the objective is only to provide canned demos,
 they are likely to contain bugs and anty-patterns.
 
+## Experimental features
+
+* To make it easier to deploy from your local/cloud environment (other than GCP Cloud Shell), you can use
+`make login`, which will go through the steps to get your environment deployment ready (login, setting the active project, ...)
 
 # Disclaimer
 
