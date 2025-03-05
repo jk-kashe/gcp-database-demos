@@ -30,6 +30,7 @@ submit_dataflow_job() {
     --service-account-email="$SERVICE_ACCOUNT_EMAIL" \
     --region "$REGION" \
     --network "$NETWORK" \
+    --disable-public-ips \
     --parameters "instanceId=$INSTANCE_ID,databaseId=$DATABASE_ID,inputDir=$INPUT_DIR" \
     --format="value(id)" 2>&1)
 
