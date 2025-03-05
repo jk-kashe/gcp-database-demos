@@ -99,7 +99,7 @@ resource "null_resource" "demo_finadv_schema_ops_step1" {
         --instance=${local.spanner_instance_id} \
         --ddl-file=generated/spanner_ddl1.sql
     EOT
-  }    
+  }
 }
 
 resource "null_resource" "demo_finadv_schema_ops_step2" {
@@ -107,12 +107,12 @@ resource "null_resource" "demo_finadv_schema_ops_step2" {
 
   provisioner "local-exec" {
     command = templatefile("${path.module}/templates/spanner_query.sh.tftpl", {
-      project_id = local.project_id
+      project_id            = local.project_id
       spanner_instance_name = local.spanner_instance_id
       spanner_database_name = local.spanner_database_id
-      spanner_queries = split("\n", file("${path.module}/files/spanner/query1.sql"))
+      spanner_queries       = split("\n", file("${path.module}/files/spanner/query1.sql"))
     })
-  }   
+  }
 }
 
 # resource "null_resource" "demo_finadv_schema_ops_step3" {
@@ -146,9 +146,9 @@ resource "null_resource" "demo_finadv_schema_ops_step3" {
 
     # Pass variables to the script
     environment = {
-      SPANNER_INSTANCE          = local.spanner_instance_id
-      SPANNER_DATABASE          = local.spanner_database_id
-      DDL_FILE             = "${path.module}/files/spanner/ddl2.sql"
+      SPANNER_INSTANCE = local.spanner_instance_id
+      SPANNER_DATABASE = local.spanner_database_id
+      DDL_FILE         = "${path.module}/files/spanner/ddl2.sql"
     }
 
     interpreter = ["/bin/bash", "-c"]
@@ -215,7 +215,7 @@ resource "null_resource" "demo_finance_advisor_build" {
   depends_on = [
     time_sleep.wait_for_sa_roles_expanded
   ]
-  
+
   provisioner "local-exec" {
     command = <<-EOT
       gcloud builds submit https://github.com/GoogleCloudPlatform/generative-ai \
@@ -229,39 +229,39 @@ resource "null_resource" "demo_finance_advisor_build" {
 
 #Deploy retrieval service to cloud run
 resource "google_cloud_run_v2_service" "demo_finance_advisor_deploy" {
-    project = local.project_id
-    depends_on = [
-        null_resource.demo_finance_advisor_build
-    ]
+  project = local.project_id
+  depends_on = [
+    null_resource.demo_finance_advisor_build
+  ]
 
-    name = "finance-advisor-service"
-    location = var.region
-    deletion_protection = false
-    ingress             = "INGRESS_TRAFFIC_ALL"
-    
-    template {
-        containers {
-            image = "${var.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest"
+  name                = "finance-advisor-service"
+  location            = var.region
+  deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
 
-            env {
-                name = "instance_id"
-                value = local.spanner_instance_id
-            }
+  template {
+    containers {
+      image = "${var.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest"
 
-            env {
-                name = "database_id"
-                value = local.spanner_database_id
-            }
-        }
+      env {
+        name  = "instance_id"
+        value = local.spanner_instance_id
+      }
 
-        vpc_access {
-          network_interfaces {
-            network = google_compute_network.demo_network.id
-          }
-        }
-
-        service_account = google_service_account.cloudrun_identity.email
+      env {
+        name  = "database_id"
+        value = local.spanner_database_id
+      }
     }
+
+    vpc_access {
+      network_interfaces {
+        network = google_compute_network.demo_network.id
+      }
+    }
+
+    service_account = google_service_account.cloudrun_identity.email
+  }
 }
 
 resource "google_cloud_run_service_iam_policy" "noauth" {
