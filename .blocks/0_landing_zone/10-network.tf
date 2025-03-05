@@ -7,6 +7,18 @@ resource "google_compute_network" "demo_network" {
 
 }
 
+# Enable PGA
+resource "null_resource" "demo_network_pga" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      gcloud compute networks subnets update ${google_compute_network.demo_network.name} \
+        --project=${google_project.demo_project.project_id} \
+        --region=${var.region} \
+        --enable-private-ip-google-access
+    EOT
+  }
+}
+
 resource "google_compute_global_address" "psa_range" {
   name          = "psa-range"
   purpose       = "VPC_PEERING"
