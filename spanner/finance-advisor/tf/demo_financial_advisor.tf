@@ -94,9 +94,9 @@ resource "null_resource" "demo_finadv_schema_ops_step1" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      gcloud spanner databases ddl update ${var.spanner_database_name} \
+      gcloud spanner databases ddl update ${local.spanner_database_id} \
         --project=${local.project_id} \
-        --instance=${var.spanner_instance_name} \
+        --instance=${local.spanner_instance_id} \
         --ddl-file=generated/spanner_ddl1.sql
     EOT
   }    
@@ -108,8 +108,8 @@ resource "null_resource" "demo_finadv_schema_ops_step2" {
   provisioner "local-exec" {
     command = templatefile("${path.module}/templates/spanner_query.sh.tftpl", {
       project_id = local.project_id
-      spanner_instance_name = var.spanner_instance_name
-      spanner_database_name = var.spanner_database_name
+      spanner_instance_name = local.spanner_instance_id
+      spanner_database_name = local.spanner_database_id
       spanner_queries = split("\n", file("${path.module}/files/spanner/query1.sql"))
     })
   }   
@@ -120,9 +120,9 @@ resource "null_resource" "demo_finadv_schema_ops_step3" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      gcloud spanner databases ddl update ${var.spanner_database_name} \
+      gcloud spanner databases ddl update ${local.spanner_database_id} \
         --project=${local.project_id} \
-        --instance=${var.spanner_instance_name} \
+        --instance=${local.spanner_instance_id} \
         --ddl-file=${path.module}/files/spanner/ddl2.sql
     EOT
   }    
@@ -218,12 +218,12 @@ resource "google_cloud_run_v2_service" "demo_finance_advisor_deploy" {
 
             env {
                 name = "instance_id"
-                value = var.spanner_instance_name
+                value = local.spanner_instance_id
             }
 
             env {
                 name = "database_id"
-                value = var.spanner_database_name
+                value = local.spanner_database_id
             }
         }
 
