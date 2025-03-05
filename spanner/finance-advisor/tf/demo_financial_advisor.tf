@@ -115,17 +115,44 @@ resource "null_resource" "demo_finadv_schema_ops_step2" {
   }   
 }
 
+# resource "null_resource" "demo_finadv_schema_ops_step3" {
+#   depends_on = [null_resource.demo_finadv_schema_ops_step2]
+
+#   provisioner "local-exec" {
+#     command = <<-EOT
+#       gcloud spanner databases ddl update ${local.spanner_database_id} \
+#         --project=${local.project_id} \
+#         --instance=${local.spanner_instance_id} \
+#         --ddl-file=${path.module}/files/spanner/ddl2.sql
+#     EOT
+#   }    
+# }
+
 resource "null_resource" "demo_finadv_schema_ops_step3" {
   depends_on = [null_resource.demo_finadv_schema_ops_step2]
 
   provisioner "local-exec" {
-    command = <<-EOT
-      gcloud spanner databases ddl update ${local.spanner_database_id} \
-        --project=${local.project_id} \
-        --instance=${local.spanner_instance_id} \
-        --ddl-file=${path.module}/files/spanner/ddl2.sql
+    # Make the script executable
+    command = "chmod +x files/update-spanner-ddl.sh"
+    # Use interpreter to pass arguments to the script
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    # Execute the script to submit the job and wait for completion
+    command = <<EOT
+      files/update-spanner-ddl.sh
     EOT
-  }    
+
+    # Pass variables to the script
+    environment = {
+      SPANNER_INSTANCE          = local.spanner_instance_id
+      SPANNER_DATABASE          = local.spanner_database_id
+      DDL_FILE             = "${path.module}/files/spanner/ddl2.sql"
+    }
+
+    interpreter = ["/bin/bash", "-c"]
+  }
 }
 
 resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
