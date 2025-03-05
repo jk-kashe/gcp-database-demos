@@ -89,7 +89,7 @@ resource "local_file" "demo_finadv_schema_ops_step1" {
   })
 }
 
-resource "null_resource" "null_resource.demo_finadv_schema_ops_step1" {
+resource "null_resource" "demo_finadv_schema_ops_step1" {
   depends_on = [time_sleep.demo_finadv_import_spanner]
 
   provisioner "local-exec" {
