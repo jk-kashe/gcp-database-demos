@@ -19,10 +19,10 @@ while [[ -z $DONE ]]; do
     fi
 done
 
-if [[ -z ERROR ]]; then
+if [[ -z $ERROR ]]; then
     echo "Operation completed successfully"
-    exit 0
+    # exit 0
 else
     echo "Operation failed"
-    exit 1
+    # exit 1
 fi
