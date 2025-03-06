@@ -15,8 +15,6 @@ resource "google_service_account" "cloudrun_identity" {
 # Roles for retrieval identity
 locals {
   cloudrun_identity_roles = [
-    "roles/alloydb.viewer",
-    "roles/alloydb.client",
     "roles/aiplatform.user",
     "roles/spanner.databaseUser"
   ]
