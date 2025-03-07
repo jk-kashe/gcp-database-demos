@@ -1,6 +1,0 @@
-%{ for query in spanner_queries ~}
-gcloud spanner databases execute-sql ${spanner_database_name} \
-  --project=${project_id} \
-  --instance=${spanner_instance_name} \
-  --sql="${query}"
-%{ endfor ~}
