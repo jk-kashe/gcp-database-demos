@@ -29,6 +29,11 @@ variable "create_new_project" {
   description = "Whether to create a new project or use an existing one"
   default     = false # By default, we use an existing project
 }
+variable "clientvm-name" {
+  type        = string
+  description = "Client VM name"
+  default     = "spanner-client"
+}
 variable "spanner_instance_name" {
   type        = string
   description = "Spanner Instance Name"
@@ -39,11 +44,6 @@ variable "spanner_database_name" {
   type        = string
   description = "Spanner Database Name"
   default     = "demo-database"
-}
-variable "clientvm-name" {
-  type        = string
-  description = "Client VM name"
-  default     = "spanner-client"
 }
 variable "spanner_edition" {
   type        = string

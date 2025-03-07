@@ -15,6 +15,8 @@ resource "google_service_account" "cloudrun_identity" {
 # Roles for retrieval identity
 locals {
   cloudrun_identity_roles = [
+    "roles/alloydb.viewer",
+    "roles/alloydb.client",
     "roles/aiplatform.user",
     "roles/spanner.databaseUser"
   ]
@@ -79,24 +81,49 @@ resource "time_sleep" "demo_finadv_import_spanner" {
   create_duration = "1m"
 }
 
-resource "local_file" "demo_finadv_schema_ops_step1" {
-  filename = "generated/spanner_ddl1.sql"
-  content = templatefile("${path.module}/files/spanner/ddl1.sql", {
-    project  = local.project_id
-    location = var.region
-  })
-}
-
-resource "null_resource" "demo_finadv_schema_ops_step1" {
+resource "null_resource" "demo_finadv_schema_ops" {
   depends_on = [time_sleep.demo_finadv_import_spanner]
 
   provisioner "local-exec" {
     command = <<-EOT
-      gcloud spanner databases ddl update ${local.spanner_database_id} \
-        --project=${local.project_id} \
-        --instance=${local.spanner_instance_id} \
-        --ddl-file=generated/spanner_ddl1.sql
+    cd files
+    wget https://raw.githubusercontent.com/GoogleCloudPlatform/generative-ai/refs/heads/main/gemini/sample-apps/finance-advisor-spanner/Schema-Operations.sql
+    sed -i "s/<project-name>/${local.project_id}/g" Schema-Operations.sql
+    sed -i "s/<location>/${var.region}/g" Schema-Operations.sql 
+    # Extract the UPDATE statements
+    sed -n '/UPDATE/,/CREATE SEARCH INDEX/p' Schema-Operations.sql | sed '$d' > updates.sql
+    # Extract the CREATE SEARCH INDEX statements
+    sed -n '/CREATE SEARCH INDEX/,$p' Schema-Operations.sql > search_indexes.sql
+    # Extract the initial statements (before UPDATE)
+    head -n $(( $(sed -n '/UPDATE/=' Schema-Operations.sql | head -1) - 1 )) Schema-Operations.sql > initial_statements.sql
     EOT
+  }
+}
+
+resource "null_resource" "demo_finadv_schema_ops_step1" {
+  depends_on = [null_resource.demo_finadv_schema_ops]
+
+  provisioner "local-exec" {
+    # Make the script executable
+    command = "chmod +x files/update-spanner-ddl.sh"
+    # Use interpreter to pass arguments to the script
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    # Execute the script to submit the job and wait for completion
+    command = <<EOT
+      files/update-spanner-ddl.sh
+    EOT
+
+    # Pass variables to the script
+    environment = {
+      SPANNER_INSTANCE = local.spanner_instance_id
+      SPANNER_DATABASE = local.spanner_database_id
+      DDL_FILE         = "${path.module}/files/initial_statements.sql"
+    }
+
+    interpreter = ["/bin/bash", "-c"]
   }
 }
 
@@ -112,19 +139,6 @@ resource "null_resource" "demo_finadv_schema_ops_step2" {
     })
   }
 }
-
-# resource "null_resource" "demo_finadv_schema_ops_step3" {
-#   depends_on = [null_resource.demo_finadv_schema_ops_step2]
-
-#   provisioner "local-exec" {
-#     command = <<-EOT
-#       gcloud spanner databases ddl update ${local.spanner_database_id} \
-#         --project=${local.project_id} \
-#         --instance=${local.spanner_instance_id} \
-#         --ddl-file=${path.module}/files/spanner/ddl2.sql
-#     EOT
-#   }    
-# }
 
 resource "null_resource" "demo_finadv_schema_ops_step3" {
   depends_on = [null_resource.demo_finadv_schema_ops_step2]
@@ -146,13 +160,12 @@ resource "null_resource" "demo_finadv_schema_ops_step3" {
     environment = {
       SPANNER_INSTANCE = local.spanner_instance_id
       SPANNER_DATABASE = local.spanner_database_id
-      DDL_FILE         = "${path.module}/files/spanner/ddl2.sql"
+      DDL_FILE         = "${path.module}/files/search_indexes.sql"
     }
 
     interpreter = ["/bin/bash", "-c"]
   }
 }
-
 resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
   project = local.project_id
 
@@ -207,7 +220,6 @@ resource "null_resource" "demo_finance_advisor_data_import" {
     interpreter = ["/bin/bash", "-c"]
   }
 }
-
 #Build the retrieval service using Cloud Build
 resource "null_resource" "demo_finance_advisor_build" {
   depends_on = [

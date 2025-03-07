@@ -11,7 +11,7 @@ resource "null_resource" "demo_finadv_schema_ops" {
   provisioner "local-exec" {
     command = <<-EOT
     cd files
-    wget https://raw.githubusercontent.com/jk-kashe/generative-ai/refs/heads/fix/demo/gemini/sample-apps/finance-advisor-spanner/Schema-Operations.sql
+    wget https://raw.githubusercontent.com/GoogleCloudPlatform/generative-ai/refs/heads/main/gemini/sample-apps/finance-advisor-spanner/Schema-Operations.sql
     sed -i "s/<project-name>/${local.project_id}/g" Schema-Operations.sql
     sed -i "s/<location>/${var.region}/g" Schema-Operations.sql 
     # Extract the UPDATE statements
@@ -25,37 +25,68 @@ resource "null_resource" "demo_finadv_schema_ops" {
 }
 
 resource "null_resource" "demo_finadv_schema_ops_step1" {
-    depends_on = [null_resource.demo_finadv_schema_ops]
+  depends_on = [null_resource.demo_finadv_schema_ops]
 
   provisioner "local-exec" {
-    command = <<-EOT
-    gcloud spanner databases ddl update ${var.spanner_database_name} \
-    --project=${local.project_id} \
-    --instance=${google_spanner_instance.spanner_instance.name} \
-    --ddl-file=files/initial_statements.sql
+    # Make the script executable
+    command = "chmod +x files/update-spanner-ddl.sh"
+    # Use interpreter to pass arguments to the script
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    # Execute the script to submit the job and wait for completion
+    command = <<EOT
+      files/update-spanner-ddl.sh
     EOT
-  }    
+
+    # Pass variables to the script
+    environment = {
+      SPANNER_INSTANCE = local.spanner_instance_id
+      SPANNER_DATABASE = local.spanner_database_id
+      DDL_FILE         = "${path.module}/files/initial_statements.sql"
+    }
+
+    interpreter = ["/bin/bash", "-c"]
+  }
 }
 
 resource "null_resource" "demo_finadv_schema_ops_step2" {
-    depends_on = [null_resource.demo_finadv_schema_ops_step1]
+  depends_on = [null_resource.demo_finadv_schema_ops_step1]
 
   provisioner "local-exec" {
-    command = <<-EOT
-    while IFS= read -r line; do
-      gcloud spanner databases execute-sql ${var.spanner_database_name} \
-          --project=${local.project_id} \
-          --instance=${google_spanner_instance.spanner_instance.name} \
-          --sql="$line"
-    done < files/updates.sql
-    EOT
-  }    
+    command = templatefile("${path.module}/templates/spanner_query.sh.tftpl", {
+      project_id            = local.project_id
+      spanner_instance_name = local.spanner_instance_id
+      spanner_database_name = local.spanner_database_id
+      spanner_queries       = split("\n", file("${path.module}/files/spanner/query1.sql"))
+    })
+  }
 }
 
 resource "null_resource" "demo_finadv_schema_ops_step3" {
-    depends_on = [null_resource.demo_finadv_schema_ops_step2]
+  depends_on = [null_resource.demo_finadv_schema_ops_step2]
 
   provisioner "local-exec" {
-    command = "files/create_fa_search_indexes.sh ${var.spanner_database_name} ${local.project_id} ${google_spanner_instance.spanner_instance.name}"
-   }    
+    # Make the script executable
+    command = "chmod +x files/update-spanner-ddl.sh"
+    # Use interpreter to pass arguments to the script
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    # Execute the script to submit the job and wait for completion
+    command = <<EOT
+      files/update-spanner-ddl.sh
+    EOT
+
+    # Pass variables to the script
+    environment = {
+      SPANNER_INSTANCE = local.spanner_instance_id
+      SPANNER_DATABASE = local.spanner_database_id
+      DDL_FILE         = "${path.module}/files/search_indexes.sql"
+    }
+
+    interpreter = ["/bin/bash", "-c"]
+  }
 }

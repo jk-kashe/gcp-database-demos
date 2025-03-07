@@ -1,16 +1,16 @@
 resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
-    project = local.project_id
+  project = local.project_id
 
-    name = "${local.project_id}-finadvdemo-import-staging"
-    location = var.region
-    uniform_bucket_level_access = true
-    public_access_prevention = "enforced"
-    force_destroy = true
+  name                        = "${local.project_id}-finadvdemo-import-staging"
+  location                    = var.region
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+  force_destroy               = true
 }
 
 
 resource "time_sleep" "demo_finance_advisor_sa_roles" {
-  create_duration = "2m"  # Adjust the wait time based on your VM boot time
+  create_duration = "2m" # Adjust the wait time based on your VM boot time
 
   depends_on = [google_project_iam_member.spanner_dataflow_import_sa_roles]
 }
@@ -21,9 +21,9 @@ resource "time_sleep" "demo_finance_advisor_sa_roles" {
 #this script runs the job until success - up to 5 times
 resource "null_resource" "demo_finance_advisor_data_import" {
   depends_on = [time_sleep.demo_finance_advisor_sa_roles,
-                google_project_service.project_services,
-                google_project_service.lz_dataflow_service,
-                google_compute_network.demo_network]
+    google_project_service.project_services,
+    google_project_service.lz_dataflow_service,
+  google_compute_network.demo_network]
 
   provisioner "local-exec" {
     # Make the script executable
@@ -40,13 +40,13 @@ resource "null_resource" "demo_finance_advisor_data_import" {
 
     # Pass variables to the script
     environment = {
-      STAGING_LOCATION   = google_storage_bucket.demo_finance_advisor_import_staging.url
+      STAGING_LOCATION      = google_storage_bucket.demo_finance_advisor_import_staging.url
       SERVICE_ACCOUNT_EMAIL = "${local.project_number}-compute@developer.gserviceaccount.com"
-      REGION             = var.region
-      NETWORK            = google_compute_network.demo_network.name
-      INSTANCE_ID        = local.spanner_instance_id
-      DATABASE_ID        = local.spanner_database_id
-      INPUT_DIR          = "gs://github-repo/generative-ai/sample-apps/finance-advisor-spanner/spanner-fts-mf-data-export"
+      REGION                = var.region
+      NETWORK               = google_compute_network.demo_network.name
+      INSTANCE_ID           = local.spanner_instance_id
+      DATABASE_ID           = local.spanner_database_id
+      INPUT_DIR             = "gs://github-repo/generative-ai/sample-apps/finance-advisor-spanner/spanner-fts-mf-data-export"
     }
 
     interpreter = ["/bin/bash", "-c"]
