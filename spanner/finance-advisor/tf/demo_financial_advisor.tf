@@ -135,7 +135,7 @@ resource "null_resource" "demo_finadv_schema_ops_step2" {
       project_id            = local.project_id
       spanner_instance_name = local.spanner_instance_id
       spanner_database_name = local.spanner_database_id
-      spanner_queries       = split("\n", file("${path.module}/files/spanner/query1.sql"))
+      spanner_queries       = split("\n", file("${path.module}/files/updates.sql"))
     })
   }
 }
