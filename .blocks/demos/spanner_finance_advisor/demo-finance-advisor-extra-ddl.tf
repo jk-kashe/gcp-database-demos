@@ -57,9 +57,9 @@ resource "null_resource" "demo_finadv_schema_ops_step2" {
   provisioner "local-exec" {
     command = <<-EOT
     while IFS= read -r line; do
-      gcloud spanner databases execute-sql ${var.spanner_database_name} \
+      gcloud spanner databases execute-sql ${local.spanner_database_id} \
           --project=${local.project_id} \
-          --instance=${google_spanner_instance.spanner_instance.name} \
+          --instance=${local.spanner_instance_id} \
           --sql="$line"
     done < files/updates.sql
     EOT
