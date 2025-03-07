@@ -131,12 +131,14 @@ resource "null_resource" "demo_finadv_schema_ops_step2" {
   depends_on = [null_resource.demo_finadv_schema_ops_step1]
 
   provisioner "local-exec" {
-    command = templatefile("${path.module}/templates/spanner_query.sh.tftpl", {
-      project_id            = local.project_id
-      spanner_instance_name = local.spanner_instance_id
-      spanner_database_name = local.spanner_database_id
-      spanner_queries       = split("\n", file("${path.module}/files/updates.sql"))
-    })
+    command = <<-EOT
+    while IFS= read -r line; do
+      gcloud spanner databases execute-sql ${var.spanner_database_name} \
+          --project=${local.project_id} \
+          --instance=${google_spanner_instance.spanner_instance.name} \
+          --sql="$line"
+    done < files/updates.sql
+    EOT
   }
 }
 
