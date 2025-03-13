@@ -65,6 +65,7 @@ demo_app_support_email)
     ;;
 finance_advisor_commit_id)
     echo "96e567face9c0c0599d8ee98821c8d8df236ba26"
+    ;;
 *)
     echo ""
     ;;
