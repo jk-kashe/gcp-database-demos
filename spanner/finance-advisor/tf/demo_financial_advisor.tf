@@ -74,6 +74,10 @@ data "google_iam_policy" "noauth" {
 
 #   policy_data = data.google_iam_policy.noauth.policy_data
 # }
+locals {
+  demo_finadv_repo_raw_path = var.finance_advisor_commit_id == "main" ? "refs/heads/main" : var.finance_advisor_commit_id
+}
+
 #since dataflow script now waits till completion, this is probably not needed
 #but still keeping it here for safety
 resource "time_sleep" "demo_finadv_import_spanner" {
@@ -87,7 +91,7 @@ resource "null_resource" "demo_finadv_schema_ops" {
   provisioner "local-exec" {
     command = <<-EOT
     cd files
-    wget https://raw.githubusercontent.com/GoogleCloudPlatform/generative-ai/refs/heads/main/gemini/sample-apps/finance-advisor-spanner/Schema-Operations.sql
+    wget https://raw.githubusercontent.com/GoogleCloudPlatform/generative-ai/${local.demo_finadv_repo_raw_path}/gemini/sample-apps/finance-advisor-spanner/Schema-Operations.sql
     sed -i "s/<project-name>/${local.project_id}/g" Schema-Operations.sql
     sed -i "s/<location>/${var.region}/g" Schema-Operations.sql 
     # Extract the UPDATE statements
@@ -233,7 +237,7 @@ resource "null_resource" "demo_finance_advisor_build" {
       gcloud builds submit https://github.com/GoogleCloudPlatform/generative-ai \
         --project=${local.project_id} \
         --git-source-dir=gemini/sample-apps/finance-advisor-spanner \
-        --git-source-revision=main \
+        --git-source-revision=${var.finance_advisor_commit_id} \
         --tag ${var.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest
     EOT
   }

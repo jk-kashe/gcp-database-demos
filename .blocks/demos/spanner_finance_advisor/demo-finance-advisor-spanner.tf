@@ -9,7 +9,7 @@ resource "null_resource" "demo_finance_advisor_build" {
       gcloud builds submit https://github.com/GoogleCloudPlatform/generative-ai \
         --project=${local.project_id} \
         --git-source-dir=gemini/sample-apps/finance-advisor-spanner \
-        --git-source-revision=main \
+        --git-source-revision=${var.finance_advisor_commit_id} \
         --tag ${var.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest
     EOT
   }
