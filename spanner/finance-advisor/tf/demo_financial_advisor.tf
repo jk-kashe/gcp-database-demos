@@ -74,6 +74,10 @@ data "google_iam_policy" "noauth" {
 
 #   policy_data = data.google_iam_policy.noauth.policy_data
 # }
+locals {
+  demo_finadv_repo_raw_path = var.finance_advisor_commit_id == "main" ? "refs/heads/main" : var.finance_advisor_commit_id
+}
+
 #since dataflow script now waits till completion, this is probably not needed
 #but still keeping it here for safety
 resource "time_sleep" "demo_finadv_import_spanner" {
@@ -87,7 +91,7 @@ resource "null_resource" "demo_finadv_schema_ops" {
   provisioner "local-exec" {
     command = <<-EOT
     cd files
-    wget https://raw.githubusercontent.com/jk-kashe/generative-ai/refs/heads/fix/demo/gemini/sample-apps/finance-advisor-spanner/Schema-Operations.sql
+    wget https://raw.githubusercontent.com/GoogleCloudPlatform/generative-ai/${local.demo_finadv_repo_raw_path}/gemini/sample-apps/finance-advisor-spanner/Schema-Operations.sql
     sed -i "s/<project-name>/${local.project_id}/g" Schema-Operations.sql
     sed -i "s/<location>/${var.region}/g" Schema-Operations.sql 
     # Extract the UPDATE statements
@@ -104,12 +108,26 @@ resource "null_resource" "demo_finadv_schema_ops_step1" {
   depends_on = [null_resource.demo_finadv_schema_ops]
 
   provisioner "local-exec" {
-    command = <<-EOT
-    gcloud spanner databases ddl update ${var.spanner_database_name} \
-    --project=${local.project_id} \
-    --instance=${google_spanner_instance.spanner_instance.name} \
-    --ddl-file=files/initial_statements.sql
+    # Make the script executable
+    command = "chmod +x files/update-spanner-ddl.sh"
+    # Use interpreter to pass arguments to the script
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    # Execute the script to submit the job and wait for completion
+    command = <<EOT
+      files/update-spanner-ddl.sh
     EOT
+
+    # Pass variables to the script
+    environment = {
+      SPANNER_INSTANCE = local.spanner_instance_id
+      SPANNER_DATABASE = local.spanner_database_id
+      DDL_FILE         = "${path.module}/files/initial_statements.sql"
+    }
+
+    interpreter = ["/bin/bash", "-c"]
   }
 }
 
@@ -119,9 +137,9 @@ resource "null_resource" "demo_finadv_schema_ops_step2" {
   provisioner "local-exec" {
     command = <<-EOT
     while IFS= read -r line; do
-      gcloud spanner databases execute-sql ${var.spanner_database_name} \
+      gcloud spanner databases execute-sql ${local.spanner_database_id} \
           --project=${local.project_id} \
-          --instance=${google_spanner_instance.spanner_instance.name} \
+          --instance=${local.spanner_instance_id} \
           --sql="$line"
     done < files/updates.sql
     EOT
@@ -132,7 +150,26 @@ resource "null_resource" "demo_finadv_schema_ops_step3" {
   depends_on = [null_resource.demo_finadv_schema_ops_step2]
 
   provisioner "local-exec" {
-    command = "files/create_fa_search_indexes.sh ${var.spanner_database_name} ${local.project_id} ${google_spanner_instance.spanner_instance.name}"
+    # Make the script executable
+    command = "chmod +x files/update-spanner-ddl.sh"
+    # Use interpreter to pass arguments to the script
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    # Execute the script to submit the job and wait for completion
+    command = <<EOT
+      files/update-spanner-ddl.sh
+    EOT
+
+    # Pass variables to the script
+    environment = {
+      SPANNER_INSTANCE = local.spanner_instance_id
+      SPANNER_DATABASE = local.spanner_database_id
+      DDL_FILE         = "${path.module}/files/search_indexes.sql"
+    }
+
+    interpreter = ["/bin/bash", "-c"]
   }
 }
 resource "google_storage_bucket" "demo_finance_advisor_import_staging" {
@@ -189,65 +226,49 @@ resource "null_resource" "demo_finance_advisor_data_import" {
     interpreter = ["/bin/bash", "-c"]
   }
 }
-#Fetch and Configure the demo 
-resource "null_resource" "demo_finance_advisor_fetch_and_config" {
-  depends_on = [google_project_iam_member.default_compute_sa_roles_expanded]
+#Build the retrieval service using Cloud Build
+resource "null_resource" "demo_finance_advisor_build" {
+  depends_on = [
+    time_sleep.wait_for_sa_roles_expanded
+  ]
 
   provisioner "local-exec" {
-    command = <<EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
-      --tunnel-through-iap \
-      --project ${local.project_id} \
-      --command='source spanner.env
-      sudo apt-get update
-      sudo apt install -y python3.11-venv git
-      python3 -m venv .demo_spanner_fin_venv
-      source .demo_spanner_fin_venv/bin/activate
-      pip install --upgrade pip
-      git clone --depth 1 --branch fix/demo https://github.com/jk-kashe/generative-ai'
-      
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
-      --tunnel-through-iap \
-      --project ${local.project_id} \
-      --command='source spanner.env
-      source .demo_spanner_fin_venv/bin/activate
-      cp spanner.env generative-ai/gemini/sample-apps/finance-advisor-spanner/.env
-      cd generative-ai/gemini/sample-apps/finance-advisor-spanner/
-      pip install -r requirements.txt'
+    command = <<-EOT
+      gcloud builds submit https://github.com/GoogleCloudPlatform/generative-ai \
+        --project=${local.project_id} \
+        --git-source-dir=gemini/sample-apps/finance-advisor-spanner \
+        --git-source-revision=${var.finance_advisor_commit_id} \
+        --tag ${var.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest
     EOT
   }
 }
 
-#Build the retrieval service using Cloud Build
-resource "null_resource" "demo_finance_advisor_build" {
-  depends_on = [time_sleep.wait_for_sa_roles_expanded,
-  null_resource.demo_finance_advisor_fetch_and_config]
-
-  provisioner "local-exec" {
-    command = <<EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
-      --project ${local.project_id} \
-      --command='cd ~/generative-ai/gemini/sample-apps/finance-advisor-spanner/
-      gcloud builds submit --tag ${var.region}-docker.pkg.dev/${local.project_id
-  }/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest .'
-    EOT
-}
-}
-
 #Deploy retrieval service to cloud run
 resource "google_cloud_run_v2_service" "demo_finance_advisor_deploy" {
+  project = local.project_id
+  depends_on = [
+    null_resource.demo_finance_advisor_build
+  ]
+
   name                = "finance-advisor-service"
   location            = var.region
-  ingress             = "INGRESS_TRAFFIC_ALL"
-  project             = local.project_id
-  depends_on          = [null_resource.demo_finance_advisor_build]
   deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+
   template {
     containers {
-      image = "${var.region}-docker.pkg.dev/${local.project_id
-      }/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest"
+      image = "${var.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.demo_service_repo.repository_id}/finance-advisor-service:latest"
+
+      env {
+        name  = "instance_id"
+        value = local.spanner_instance_id
+      }
+
+      env {
+        name  = "database_id"
+        value = local.spanner_database_id
+      }
     }
-    service_account = google_service_account.cloudrun_identity.email
 
     vpc_access {
       network_interfaces {
@@ -255,6 +276,7 @@ resource "google_cloud_run_v2_service" "demo_finance_advisor_deploy" {
       }
     }
 
+    service_account = google_service_account.cloudrun_identity.email
   }
 }
 

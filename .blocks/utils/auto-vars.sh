@@ -63,6 +63,9 @@ demo_app_support_email)
     # Get the first email address from the gcloud auth list
     gcloud auth list --format="value(account)" | head -n 1 
     ;;
+finance_advisor_commit_id)
+    echo "96e567face9c0c0599d8ee98821c8d8df236ba26"
+    ;;
 *)
     echo ""
     ;;
