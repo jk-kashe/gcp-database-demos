@@ -220,7 +220,7 @@ resource "null_resource" "demo_finance_advisor_data_import" {
       NETWORK               = google_compute_network.demo_network.name
       INSTANCE_ID           = local.spanner_instance_id
       DATABASE_ID           = local.spanner_database_id
-      INPUT_DIR             = "gs://github-repo/generative-ai/sample-apps/finance-advisor-spanner/spanner-fts-mf-data-export"
+      INPUT_DIR             = "gs://alloydb-vector-demo/spanner/finance-advisor/avro"
     }
 
     interpreter = ["/bin/bash", "-c"]
