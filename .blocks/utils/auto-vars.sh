@@ -64,7 +64,7 @@ demo_app_support_email)
     gcloud auth list --format="value(account)" | head -n 1 
     ;;
 finance_advisor_commit_id)
-    echo "96e567face9c0c0599d8ee98821c8d8df236ba26"
+    echo "04518003381346a1d08e4c3f1257dbe6049651a0"
     ;;
 *)
     echo ""
