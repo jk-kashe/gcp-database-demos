@@ -17,6 +17,7 @@ resource "null_resource" "cymbal_air_demo_exec_db_script" {
     region        = var.region
     zone          = var.zone
     sql_script    = file("files/demo-cymbal-air-create-db.sql")
+    db_host       = google_sql_database_instance.primary.private_ip_address
   }
 
   provisioner "local-exec" {
