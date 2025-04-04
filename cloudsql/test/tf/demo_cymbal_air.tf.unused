@@ -1,0 +1,317 @@
+# Depends on:
+# landing_zone.tf (for project, network, clientvm base)
+# cloudsql.tf (for db instance)
+
+
+# Service Account Creation for the cloud run middleware retrieval service
+resource "google_service_account" "cloudrun_identity" {
+  account_id   = "cloudrun-identity"
+  display_name = "CloudRun Identity"
+  project      = local.project_id
+  depends_on   = [google_project_service.project_services] # from landing_zone.tf
+}
+
+# Roles for retrieval identity
+locals {
+  cloudrun_identity_roles = [
+    "roles/cloudsql.client",   # Connect to Cloud SQL
+    "roles/aiplatform.user",   # Access Vertex AI (if app uses it)
+    # "roles/spanner.databaseUser" # Keep if Spanner is also used, otherwise remove
+  ]
+}
+
+resource "google_project_iam_member" "cloudrun_identity_roles" { # Renamed for clarity
+  for_each = toset(local.cloudrun_identity_roles)
+  role     = each.key
+  member   = "serviceAccount:${google_service_account.cloudrun_identity.email}"
+  project  = local.project_id
+
+  depends_on = [
+    google_service_account.cloudrun_identity,
+    google_project_service.project_services # from landing_zone.tf
+  ]
+}
+
+
+#it takes a while for the SA roles to be applied
+resource "time_sleep" "wait_for_sa_roles_expanded" {
+  create_duration = "120s"
+  depends_on      = [google_project_iam_member.default_compute_sa_roles_expanded] # from landing_zone.tf
+}
+
+
+# Artifact Registry Repository (If not created previously)
+resource "google_artifact_registry_repository" "demo_service_repo" {
+  depends_on = [
+    time_sleep.wait_for_sa_roles_expanded,
+    google_project_service.project_services # from landing_zone.tf
+  ]
+  provider      = google-beta # Keep if needed for specific AR features
+  location      = var.region
+  repository_id = "demo-service-repo"
+  description   = "Artifact Registry repository for the demo service(s)"
+  format        = "DOCKER"
+  project       = local.project_id
+}
+
+
+#for public cloud run deployments (keep as is)
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+# Execute Cymbal Air DB creation/setup script (vector extension)
+resource "null_resource" "cymbal_air_demo_exec_db_script" {
+  depends_on = [
+    null_resource.db_cloudsql_setup # Depends on the general DB setup now
+  ]
+
+  triggers = {
+    # Re-run if connection details or script changes
+    db_ip         = google_sql_database_instance.primary.private_ip_address
+    db_password   = var.db_password
+    clientvm_name = var.clientvm-name
+    project_id    = local.project_id
+    region        = var.region
+    zone          = var.zone
+    sql_script    = file("files/demo-cymbal-air-create-db.sql")
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Copying Cymbal Air DB create script..."
+      gcloud compute scp files/demo-cymbal-air-create-db.sql ${self.triggers.clientvm_name}:~/ \
+      --zone=${self.triggers.region}-${self.triggers.zone} \
+      --tunnel-through-iap \
+      --project ${self.triggers.project_id}
+
+      echo "Running Cymbal Air DB create script..."
+      gcloud compute ssh ${self.triggers.clientvm_name} --zone=${self.triggers.region}-${self.triggers.zone} \
+      --tunnel-through-iap \
+      --project ${self.triggers.project_id} \
+      --command='source pgauth.env && psql -f ~/demo-cymbal-air-create-db.sql'
+    EOT
+    environment = {
+      PGPASSWORD = self.triggers.db_password
+    }
+  }
+}
+
+# Create Cymbal Air config.yml locally
+resource "local_file" "cymbal_air_config" {
+  filename = "files/config.yml"
+  content = templatefile("templates/demo-cymbal-air-config.yml.tftpl", {
+    project   = local.project_id
+    region    = var.region
+    # Cloud SQL Specifics: Use instance connection name for Auth Proxy or IP for direct
+    # Using Instance Connection Name is generally recommended for Cloud Run
+    instance_connection_name = google_sql_database_instance.primary.connection_name
+    # Alternatively, for direct private IP:
+    # db_host = google_sql_database_instance.primary.private_ip_address
+    database = var.db_name
+    username = "postgres"
+    password = var.db_password # Pass the sensitive variable to the template
+  })
+  depends_on = [google_sql_database_instance.primary]
+}
+
+#Fetch and Configure the demo
+resource "null_resource" "cymbal_air_demo_fetch_and_config" {
+  depends_on = [
+    null_resource.cymbal_air_demo_exec_db_script,
+    google_project_iam_member.default_compute_sa_roles_expanded, # from landing_zone.tf
+    local_file.cymbal_air_config # Ensure config.yml is created first
+  ]
+
+  triggers = {
+    # Re-run if relevant details change
+    clientvm_name = var.clientvm-name
+    project_id    = local.project_id
+    region        = var.region
+    zone          = var.zone
+    config_yml    = local_file.cymbal_air_config.content
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Copying config.yml to client VM..."
+      gcloud compute scp files/config.yml ${self.triggers.clientvm_name}:~/ \
+      --zone=${self.triggers.region}-${self.triggers.zone} \
+      --tunnel-through-iap \
+      --project ${self.triggers.project_id}
+
+      echo "Running demo fetch and config steps on client VM..."
+      gcloud compute ssh ${self.triggers.clientvm_name} --zone=${self.triggers.region}-${self.triggers.zone} \
+      --tunnel-through-iap \
+      --project ${self.triggers.project_id} \
+      --command='
+        echo "Updating apt and installing Python/Git..."
+        sudo apt-get update -y && sudo apt-get install -y python3.11-venv git
+
+        echo "Setting up Python virtual environment..."
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install --upgrade pip
+
+        echo "Cloning application repository..."
+        # Consider parameterizing the repo/branch if needed
+        rm -rf genai-databases-retrieval-app # Remove old clone if exists
+        git clone --depth 1 --branch v0.1.0/fix/alloydb https://github.com/jk-kashe/genai-databases-retrieval-app/
+        # IMPORTANT: The above branch still mentions alloydb. The *code* within this repo
+        # in datastore/providers/ MUST be updated to support Cloud SQL (e.g., using
+        # cloud-sql-python-connector or pg8000 with direct IP/Auth Proxy).
+        # The sed command below is removed as it targeted alloydb.py.
+
+        echo "Moving config.yml into place..."
+        mv ~/config.yml ~/genai-databases-retrieval-app/retrieval_service/
+
+        cd genai-databases-retrieval-app/retrieval_service
+
+        echo "Installing Python requirements..."
+        pip install -r requirements.txt
+
+        echo "Running database initialization script (app level)..."
+        # This script needs to correctly use the config.yml to connect to Cloud SQL
+        python run_database_init.py
+
+        echo "Demo fetch and config complete."
+      '
+    EOT
+  }
+}
+
+
+#Build the retrieval service using Cloud Build
+resource "null_resource" "cymbal_air_build_retrieval_service" {
+  depends_on = [
+    time_sleep.wait_for_sa_roles_expanded,
+    null_resource.cymbal_air_demo_fetch_and_config
+  ]
+
+  triggers = {
+    # Re-run if relevant details change
+    clientvm_name = var.clientvm-name
+    project_id    = local.project_id
+    region        = var.region
+    zone          = var.zone
+    repo_id       = google_artifact_registry_repository.demo_service_repo.repository_id
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Submitting Cloud Build job for retrieval service..."
+      gcloud compute ssh ${self.triggers.clientvm_name} --zone=${self.triggers.region}-${self.triggers.zone} --tunnel-through-iap \
+      --project ${self.triggers.project_id} \
+      --command='cd ~/genai-databases-retrieval-app/retrieval_service && \
+        gcloud builds submit --tag ${self.triggers.region}-docker.pkg.dev/${self.triggers.project_id}/${self.triggers.repo_id}/retrieval-service:latest .'
+    EOT
+  }
+}
+
+#Deploy retrieval service to cloud run
+resource "google_cloud_run_v2_service" "retrieval_service" {
+  name     = "retrieval-service"
+  location = var.region
+  ingress  = "INGRESS_TRAFFIC_ALL" # Or INGRESS_TRAFFIC_INTERNAL_ONLY
+  project  = local.project_id
+  depends_on = [
+    null_resource.cymbal_air_build_retrieval_service,
+    google_project_iam_member.cloudrun_identity_roles # Ensure SA has roles before deployment
+  ]
+  deletion_protection = false
+  template {
+    containers {
+      image = "${var.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.demo_service_repo.repository_id}/retrieval-service:latest"
+      # Add ports, env vars, resources as needed
+    }
+    service_account = google_service_account.cloudrun_identity.email
+
+    vpc_access {
+      connector = google_vpc_access_connector.serverless.id # Assumes a connector named 'serverless' exists (add if needed)
+      egress    = "ALL_TRAFFIC" # Or PRIVATE_RANGES_ONLY
+    }
+
+    # IMPORTANT: Cloud Run needs a Serverless VPC Access Connector
+    # to reach the private IP of the Cloud SQL instance. Add resource below.
+  }
+}
+
+# Add Serverless VPC Access Connector (Needed for Cloud Run -> Private IP)
+resource "google_vpc_access_connector" "serverless" {
+  name          = "vpc-connector" # Or another suitable name
+  region        = var.region
+  network       = google_compute_network.demo_network.id
+  ip_cidr_range = "10.8.0.0/28" # Choose an unused range within your VPC
+  project       = local.project_id
+  depends_on    = [google_project_service.project_services] # Depends on vpcaccess.googleapis.com
+}
+
+
+#Configure Python for Cymbal Air Front-end app (on client VM) - Seems okay
+resource "null_resource" "cymbal_air_build_sample_app" {
+  depends_on = [
+    null_resource.cymbal_air_demo_fetch_and_config,
+    google_cloud_run_v2_service.retrieval_service
+  ]
+  triggers = {
+    clientvm_name = var.clientvm-name
+    project_id    = local.project_id
+    region        = var.region
+    zone          = var.zone
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Configuring Python env for frontend app on client VM..."
+      gcloud compute ssh ${self.triggers.clientvm_name} --zone=${self.triggers.region}-${self.triggers.zone} \
+      --tunnel-through-iap --project ${self.triggers.project_id} \
+      --command='source .venv/bin/activate && \
+        cd ~/genai-databases-retrieval-app/llm_demo && \
+        pip install -r requirements.txt'
+    EOT
+  }
+}
+
+#Configure Cymbal Air Front-end app (set BASE_URL) - Seems okay
+resource "null_resource" "cymbal_air_prep_sample_app" {
+  depends_on = [
+    google_cloud_run_v2_service.retrieval_service,
+    null_resource.cymbal_air_build_sample_app
+  ]
+  triggers = {
+    clientvm_name = var.clientvm-name
+    project_id    = local.project_id
+    region        = var.region
+    zone          = var.zone
+    # Add service URL to trigger re-run if it changes
+    base_url = google_cloud_run_v2_service.retrieval_service.uri
+  }
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "Setting BASE_URL in client VM profile..."
+      gcloud compute ssh ${self.triggers.clientvm_name} --zone=${self.triggers.region}-${self.triggers.zone} --tunnel-through-iap \
+      --project ${self.triggers.project_id} \
+      --command='touch ~/.profile && \
+       echo "export BASE_URL=${self.triggers.base_url}" >> ~/.profile'
+    EOT
+  }
+}
+
+#IAP brand & Client - Seems okay
+resource "google_project_service" "project_service_iap" { # Renamed to avoid conflict
+  project    = local.project_id
+  service    = "iap.googleapis.com"
+  depends_on = [google_project_service.project_services] # from landing_zone.tf
+}
+
+resource "google_iap_brand" "cymbal_air_demo_brand" {
+  support_email     = var.demo_app_support_email
+  application_title = "Cymbal Air"
+  project           = google_project_service.project_service_iap.project
+  depends_on        = [google_project_service.project_services] # from landing_zone.tf
+}

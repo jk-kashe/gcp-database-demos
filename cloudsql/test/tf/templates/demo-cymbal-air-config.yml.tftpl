@@ -1,0 +1,24 @@
+# Configuration for the retrieval service
+
+# Option 1: Using Instance Connection Name (Recommended for Cloud Run/Auth Proxy)
+datastore:
+  kind: "cloudsql-postgres"  # Indicate Cloud SQL
+  project: ${project}
+  region: ${region}
+  # Use instance connection name for Cloud SQL Python Connector (Auth Proxy)
+  instance_connection_name: ${instance_connection_name}
+  database: ${database}
+  user: ${username}
+  password: ${password} # The application must read this securely
+
+# Option 2: Using Private IP (If connecting directly without Auth Proxy)
+# datastore:
+#   kind: "cloudsql-postgres"
+#   host: ${db_host} # Pass google_sql_database_instance.primary.private_ip_address here
+#   port: 5432      # Default PostgreSQL port
+#   database: ${database}
+#   user: ${username}
+#   password: ${password}
+
+# --- Other Application Settings ---
+# host: 0.0.0.0 # (If this is for the Flask/FastAPI server itself)
