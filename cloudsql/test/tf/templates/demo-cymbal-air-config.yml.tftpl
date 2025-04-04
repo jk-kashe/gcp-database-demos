@@ -2,7 +2,7 @@
 
 # Option 1: Using Instance Connection Name (Recommended for Cloud Run/Auth Proxy)
 datastore:
-  kind: "cloudsql-postgres"  # Indicate Cloud SQL
+  kind: "postgres"  # Indicate Cloud SQL
   project: ${project}
   region: ${region}
   # Use instance connection name for Cloud SQL Python Connector (Auth Proxy)
@@ -13,7 +13,7 @@ datastore:
 
 # Option 2: Using Private IP (If connecting directly without Auth Proxy)
 # datastore:
-#   kind: "cloudsql-postgres"
+#   kind: "postgres"
 #   host: ${db_host} # Pass google_sql_database_instance.primary.private_ip_address here
 #   port: 5432      # Default PostgreSQL port
 #   database: ${database}
