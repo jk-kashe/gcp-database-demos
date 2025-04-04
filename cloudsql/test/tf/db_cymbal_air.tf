@@ -50,7 +50,7 @@ resource "local_file" "cymbal_air_config" {
     # Using Instance Connection Name is generally recommended for Cloud Run
     instance_connection_name = google_sql_database_instance.primary.connection_name
     # Alternatively, for direct private IP:
-    # db_host = google_sql_database_instance.primary.private_ip_address
+    db_host = google_sql_database_instance.primary.private_ip_address
     database = var.db_name
     username = "postgres"
     password = var.db_password # Pass the sensitive variable to the template
