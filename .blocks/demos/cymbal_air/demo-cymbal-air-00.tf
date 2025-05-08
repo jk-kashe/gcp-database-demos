@@ -32,6 +32,11 @@ resource "null_resource" "cymbal_air_demo_exec_db_script" {
       --tunnel-through-iap \
       --project ${local.project_id}
 
+      gcloud compute scp files/update-flights.sql ${var.clientvm-name}:~/ \
+      --zone=${var.region}-${var.zone} \
+      --tunnel-through-iap \
+      --project ${local.project_id}
+
       gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${local.project_id} \
@@ -97,7 +102,8 @@ resource "null_resource" "cymbal_air_demo_fetch_and_config" {
       sed -i s/PUBLIC/PRIVATE/g datastore/providers/alloydb.py
       cat config.yml
       pip install -r requirements.txt
-      python run_database_init.py'
+      python run_database_init.py
+      psql -f ~/update-flights.sql'
     EOT
   }
 
