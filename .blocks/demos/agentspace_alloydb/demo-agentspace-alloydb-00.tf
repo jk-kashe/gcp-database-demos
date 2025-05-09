@@ -174,6 +174,11 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
       }
 
       env {
+        name = "DATASTORE_DATABASE"
+        value = "assistantdemo"
+      }
+
+      env {
         name = "DATASTORE_IP_TYPE"
         value = "PRIVATE"
       }
