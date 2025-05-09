@@ -101,10 +101,10 @@ resource "null_resource" "agentspace_alloydb_demo_create_db_script" {
       --project ${local.project_id} \
       --command='source pgauth.env
       psql <<EOF 
-      CREATE DATABASE assistantdemo;
-      \c assistantdemo
-      CREATE EXTENSION vector;
-      EOF'
+        CREATE DATABASE assistantdemo;
+        \c assistantdemo;
+        CREATE EXTENSION vector;
+EOF'
     EOT
   }
 }
