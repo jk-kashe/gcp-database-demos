@@ -52,7 +52,7 @@ resource "null_resource" "agentspace_alloydb_demo_fetch_and_config" {
       cd ${reverse(split("/", var.agentspace_retrieval_service_repo))[0]}/${var.agentspace_retrieval_service_repo_path}
       git checkout ${var.agentspace_retrieval_service_repo_revision} 
       pip install -r requirements.txt
-      DATASTORE_KIND=alloydb-postgres DATASTORE_PROJECT=${local.project_id} DATASTORE_REGION=${var.region} DATASTORE_CLUSTER=${google_alloydb_cluster.alloydb_cluster.cluster_id} DATASTORE_INSTANCE=${google_alloydb_instance.primary_instance.instance_id} DATASTORE_DATABASE=assistantdemo DATASTORE_USER=postgres DATASTORE_PASSWORD=${var.alloydb_password} python run_database_init.py'
+      DATASTORE_KIND=alloydb-postgres DATASTORE_PROJECT=${local.project_id} DATASTORE_REGION=${var.region} DATASTORE_CLUSTER=${google_alloydb_cluster.alloydb_cluster.cluster_id} DATASTORE_INSTANCE=${google_alloydb_instance.primary_instance.instance_id} DATASTORE_DATABASE=assistantdemo DATASTORE_IP_TYPE=PRIVATE DATASTORE_USER=postgres DATASTORE_PASSWORD=${var.alloydb_password} python run_database_init.py'
     EOT
   }
 }
@@ -108,12 +108,12 @@ resource "google_secret_manager_regional_secret_iam_member" "alloydb_credentials
 }
 
 resource "google_secret_manager_regional_secret_version" "alloydb_credentials_username" {
-  secret      = google_secret_manager_regional_secret.alloydb_credentials_username.secret_id
+  secret      = google_secret_manager_regional_secret.alloydb_credentials_username.id
   secret_data = "postgres"
 }
 
 resource "google_secret_manager_regional_secret_version" "alloydb_credentials_password" {
-  secret      = google_secret_manager_regional_secret.alloydb_credentials_password.secret_id
+  secret      = google_secret_manager_regional_secret.alloydb_credentials_password.id
   secret_data = var.alloydb_password
 }
 
@@ -159,6 +159,11 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
       env {
         name  = "DATASTORE_INSTANCE"
         value = google_alloydb_instance.primary_instance.instance_id
+      }
+
+      env {
+        name = "DATASTORE_IP_TYPE"
+        value = "PRIVATE"
       }
 
       env {
