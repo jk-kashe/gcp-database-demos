@@ -291,12 +291,12 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
   }
 }
 
-resource "google_cloud_run_v2_service_iam_member" "retrieval_service_dialogflow" {
-  depends_on = [google_project_service.agentspace_services]
+# resource "google_cloud_run_v2_service_iam_member" "retrieval_service_dialogflow" {
+#   depends_on = [google_project_service.agentspace_services]
 
-  project  = local.project_id
-  location = var.region
-  name     = google_cloud_run_v2_service.retrieval_service.name
-  role     = "roles/run.invoker"
-  member   = "serviceAccount:service-${local.project_number}@gcp-sa-dialogflow.iam.gserviceaccount.com"
-}
+#   project  = local.project_id
+#   location = var.region
+#   name     = google_cloud_run_v2_service.retrieval_service.name
+#   role     = "roles/run.invoker"
+#   member   = "serviceAccount:service-${local.project_number}@gcp-sa-dialogflow.iam.gserviceaccount.com"
+# }
