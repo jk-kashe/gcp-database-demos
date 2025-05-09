@@ -271,7 +271,7 @@ resource "local_file" "demo_agentspace_alloydb_import" {
 # Create OpenAPI spec
 resource "local_file" "demo_agentspace_alloydb_openapi" {
   filename = "files/agentspace-openapi.yaml"
-  content = templatefile("templates/agentsppace-openapi.yaml.tftpl", {
+  content = templatefile("templates/agentspace-openapi.yaml.tftpl", {
     url = google_cloud_run_v2_service.retrieval_service.uri
   })
 }
