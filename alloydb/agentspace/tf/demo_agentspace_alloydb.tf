@@ -151,45 +151,57 @@ resource "null_resource" "agentspace_alloydb_demo_build_retrieval_service" {
 }
 
 # Deploy retrieval service to cloud run
-resource "google_secret_manager_regional_secret" "alloydb_credentials_username" {
+resource "google_secret_manager_secret" "alloydb_credentials_username" {
   depends_on = [google_project_service.agentspace_services]
 
   project   = local.project_id
   secret_id = "alloydb-credentials-username"
-  location  = var.region
+
+  replication {
+    user_managed {
+      replicas {
+        location = var.region
+      }
+    }
+  }
 }
 
-resource "google_secret_manager_regional_secret" "alloydb_credentials_password" {
+resource "google_secret_manager_secret" "alloydb_credentials_password" {
   depends_on = [google_project_service.agentspace_services]
 
   project   = local.project_id
   secret_id = "alloydb-credentials-password"
-  location  = var.region
+
+  replication {
+    user_managed {
+      replicas {
+        location = var.region
+      }
+    }
+  }
 }
 
-resource "google_secret_manager_regional_secret_iam_member" "alloydb_credentials_username_retrieval_service" {
+resource "google_secret_manager_secret_iam_member" "alloydb_credentials_username_retrieval_service" {
   project   = local.project_id
-  location  = var.region
-  secret_id = google_secret_manager_regional_secret.alloydb_credentials_username.secret_id
+  secret_id = google_secret_manager_secret.alloydb_credentials_username.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = google_service_account.cloudrun_identity.member
 }
 
-resource "google_secret_manager_regional_secret_iam_member" "alloydb_credentials_password_retrieval_service" {
+resource "google_secret_manager_secret_iam_member" "alloydb_credentials_password_retrieval_service" {
   project   = local.project_id
-  location  = var.region
-  secret_id = google_secret_manager_regional_secret.alloydb_credentials_password.secret_id
+  secret_id = google_secret_manager_secret.alloydb_credentials_password.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = google_service_account.cloudrun_identity.member
 }
 
-resource "google_secret_manager_regional_secret_version" "alloydb_credentials_username" {
-  secret      = google_secret_manager_regional_secret.alloydb_credentials_username.id
+resource "google_secret_manager_secret_version" "alloydb_credentials_username" {
+  secret      = google_secret_manager_secret.alloydb_credentials_username.id
   secret_data = "postgres"
 }
 
-resource "google_secret_manager_regional_secret_version" "alloydb_credentials_password" {
-  secret      = google_secret_manager_regional_secret.alloydb_credentials_password.id
+resource "google_secret_manager_secret_version" "alloydb_credentials_password" {
+  secret      = google_secret_manager_secret.alloydb_credentials_password.id
   secret_data = var.alloydb_password
 }
 
@@ -247,8 +259,8 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
 
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_regional_secret.alloydb_credentials_username.secret_id
-            version = google_secret_manager_regional_secret_version.alloydb_credentials_username.version
+            secret  = google_secret_manager_secret.alloydb_credentials_username.secret_id
+            version = google_secret_manager_secret_version.alloydb_credentials_username.version
           }
         }
       }
@@ -258,8 +270,8 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
 
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_regional_secret.alloydb_credentials_password.secret_id
-            version = google_secret_manager_regional_secret_version.alloydb_credentials_password.version
+            secret  = google_secret_manager_secret.alloydb_credentials_password.secret_id
+            version = google_secret_manager_secret_version.alloydb_credentials_password.version
           }
         }
       }
