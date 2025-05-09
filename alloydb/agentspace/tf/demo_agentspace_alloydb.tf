@@ -335,8 +335,8 @@ resource "google_discovery_engine_schema" "demo_agentspace_alloydb" {
 
 # Create import script
 resource "local_file" "demo_agentspace_alloydb_import" {
-  filename = "files/import.sh"
-  content = templatefile("templates/import.sh.tftpl", {
+  filename = "files/agentspace-import.sh"
+  content = templatefile("templates/agentspace-import.sh.tftpl", {
     project  = local.project_id
     location = var.region
     cluster  = google_alloydb_cluster.alloydb_cluster.cluster_id
