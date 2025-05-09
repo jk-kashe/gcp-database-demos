@@ -256,3 +256,14 @@ resource "google_discovery_engine_schema" "demo_agentspace_alloydb" {
   schema_id     = "default_schema"
   json_schema   = file("files/agentspace-${each.value}-schema.json")
 }
+
+# Create import script
+resource "local_file" "demo_agentspace_alloydb_import" {
+  filename = "files/import.sh"
+  content = templatefile("templates/import.sh.tmpl", {
+    project  = local.project_id
+    location = var.region
+    cluster  = google_alloydb_cluster.alloydb_cluster.cluster_id
+    database = "assistantdemo"
+  })
+}

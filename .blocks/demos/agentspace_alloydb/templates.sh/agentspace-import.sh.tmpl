@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ -z $DATASTORES ]; then
+    DATASTORES="airports amenities flights policies tickets"
+fi
+
+for ds in $DATASTORES; do
+    curl -X POST \
+    -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+    -H "Content-Type: application/json" \
+    "https://discoveryengine.googleapis.com/v1/projects/${project}/locations/global/collections/default_collection/dataStores/cymbal-air-$ds/branches/0/documents:import" \
+    -d "{
+    \"alloyDbSource\": {
+        \"projectId\": \"${project}\",
+        \"locationId\": \"${location}\",
+        \"clusterId\": \"${cluster}\",
+        \"databaseId\": \"${database}\",
+        \"tableId\": \"$ds\",
+    },
+    \"reconciliationMode\": \"FULL\",
+    \"autoGenerateIds\": true
+    }"
+done
