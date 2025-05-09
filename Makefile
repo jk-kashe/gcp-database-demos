@@ -1,6 +1,6 @@
 # Makefile
 
-DEMO_DIRS := alloydb/alloydb-ai-free-trial alloydb/cymbal-air spanner/spanner-standard spanner/finance-advisor
+DEMO_DIRS := alloydb/alloydb-ai-free-trial alloydb/agentspace alloydb/cymbal-air spanner/spanner-standard spanner/finance-advisor
 
 .PHONY: all clean $(DEMO_DIRS)
 
