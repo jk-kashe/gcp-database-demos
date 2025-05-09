@@ -77,7 +77,8 @@ data "google_iam_policy" "noauth" {
 # Enable APIs
 locals {
   agentspace_apis_to_enable = [
-    "dialogflow.googleapis.com"
+    "dialogflow.googleapis.com",
+    "secretmanager.googleapis.com"
   ]
 }
 
@@ -150,12 +151,16 @@ resource "null_resource" "agentspace_alloydb_demo_build_retrieval_service" {
 
 # Deploy retrieval service to cloud run
 resource "google_secret_manager_regional_secret" "alloydb_credentials_username" {
+  depends_on = [google_project_service.agentspace_services]
+
   project   = local.project_id
   secret_id = "alloydb-credentials-username"
   location  = var.region
 }
 
 resource "google_secret_manager_regional_secret" "alloydb_credentials_password" {
+  depends_on = [google_project_service.agentspace_services]
+
   project   = local.project_id
   secret_id = "alloydb-credentials-password"
   location  = var.region
