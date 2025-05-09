@@ -275,5 +275,5 @@ resource "google_cloud_run_v2_service_iam_member" "retrieval_service_dialogflow"
   location = var.region
   name     = google_cloud_run_v2_service.retrieval_service.name
   role     = "roles/run.invoker"
-  member   = "service-${local.project_number}@gcp-sa-dialogflow.iam.gserviceaccount.com"
+  member   = "serviceAccount:service-${local.project_number}@gcp-sa-dialogflow.iam.gserviceaccount.com"
 }

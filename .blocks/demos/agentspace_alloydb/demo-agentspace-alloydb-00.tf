@@ -84,7 +84,7 @@ resource "google_secret_manager_regional_secret" "alloydb_credentials_username" 
 
 resource "google_secret_manager_regional_secret" "alloydb_credentials_password" {
   depends_on = [google_project_service.agentspace_services]
-  
+
   project   = local.project_id
   secret_id = "alloydb-credentials-password"
   location  = var.region
@@ -199,5 +199,5 @@ resource "google_cloud_run_v2_service_iam_member" "retrieval_service_dialogflow"
   location = var.region
   name     = google_cloud_run_v2_service.retrieval_service.name
   role     = "roles/run.invoker"
-  member   = "service-${local.project_number}@gcp-sa-dialogflow.iam.gserviceaccount.com"
+  member   = "serviceAccount:service-${local.project_number}@gcp-sa-dialogflow.iam.gserviceaccount.com"
 }
