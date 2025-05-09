@@ -343,3 +343,11 @@ resource "local_file" "demo_agentspace_alloydb_import" {
     database = "assistantdemo"
   })
 }
+
+# Create OpenAPI spec
+resource "local_file" "demo_agentspace_alloydb_openapi" {
+  filename = "files/agentspace-openapi.yaml"
+  content = templatefile("templates/agentsppace-openapi.yaml.tftpl", {
+    url = google_cloud_run_v2_service.retrieval_service.uri
+  })
+}
