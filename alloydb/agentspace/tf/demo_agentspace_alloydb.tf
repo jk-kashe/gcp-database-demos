@@ -91,7 +91,7 @@ resource "google_project_service" "agentspace_services" {
 
 
 # Create database
-resource "null_resource" "alloydb_agentspace_demo_create_db_script" {
+resource "null_resource" "agentspace_alloydb_demo_create_db_script" {
   depends_on = [null_resource.install_postgresql_client]
 
   provisioner "local-exec" {
@@ -109,8 +109,8 @@ resource "null_resource" "alloydb_agentspace_demo_create_db_script" {
 }
 
 # Populate database
-resource "null_resource" "cymbal_air_demo_fetch_and_config" {
-  depends_on = [null_resource.cymbal_air_demo_exec_db_script,
+resource "null_resource" "agentspace_alloydb_demo_fetch_and_config" {
+  depends_on = [null_resource.agentspace_alloydb_demo_create_db_script,
   google_project_iam_member.default_compute_sa_roles_expanded]
 
   provisioner "local-exec" {
@@ -133,9 +133,9 @@ resource "null_resource" "cymbal_air_demo_fetch_and_config" {
 
 
 # Build the retrieval service using Cloud Build
-resource "null_resource" "cymbal_air_build_retrieval_service" {
+resource "null_resource" "agentspace_alloydb_demo_build_retrieval_service" {
   depends_on = [time_sleep.wait_for_sa_roles_expanded,
-  null_resource.cymbal_air_demo_fetch_and_config]
+  null_resource.agentspace_alloydb_demo_fetch_and_config]
 
   provisioner "local-exec" {
     command = <<EOT
@@ -192,7 +192,7 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
   location            = var.region
   ingress             = "INGRESS_TRAFFIC_ALL"
   project             = local.project_id
-  depends_on          = [null_resource.cymbal_air_build_retrieval_service]
+  depends_on          = [null_resource.agentspace_alloydb_demo_build_retrieval_service]
   deletion_protection = false
 
   template {
