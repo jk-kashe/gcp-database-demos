@@ -47,8 +47,8 @@ resource "null_resource" "cymbal_air_demo_fetch_and_config" {
       sudo apt install -y python3.11-venv git
       python3 -m venv .venv
       source .venv/bin/activate
-      git clone --depth 1 --revision ${var.app_repo_revision} ${var.app_repo}
-      cd ${element(split("/", var.app_repo), -1)}/${var.app_repo_path}
+      git clone --depth 1 --revision ${var.agentspace_retrieval_service_repo_revision} ${var.agentspace_retrieval_service_repo}
+      cd ${element(split("/", var.agentspace_retrieval_service_repo), -1)}/${var.agentspace_retrieval_service_repo_path}
       pip install -r requirements.txt
       DATASTORE_KIND=alloydb-postgres DATASTORE_PROJECT=${local.project_id} DATASTORE_REGION=${var.region} DATASTORE_CLUSTER=${google_alloydb_cluster.alloydb_cluster.cluster_id} DATASTORE_INSTANCE=${google_alloydb_instance.primary_instance.instance_id} DATASTORE_DATABASE=assistantdemo DATASTORE_USER=postgres DATASTORE_PASSWORD=${var.alloydb_password} python run_database_init.py'
     EOT
@@ -63,10 +63,10 @@ resource "null_resource" "cymbal_air_build_retrieval_service" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud builds submit ${var.app_repo} \
+      gcloud builds submit ${var.agentspace_retrieval_service_repo} \
         --project=${local.project_id} \
-        --git-source-dir=${var.app_repo_path} \
-        --git-source-revision=${var.app_repo_revision} \
+        --git-source-dir=${var.agentspace_retrieval_service_repo_path} \
+        --git-source-revision=${var.agentspace_retrieval_service_repo_revision} \
         --tag ${var.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.demo_service_repo.repository_id}/retrieval-service:latest
     EOT
   }
