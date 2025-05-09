@@ -124,8 +124,9 @@ resource "null_resource" "agentspace_alloydb_demo_fetch_and_config" {
       sudo apt install -y python3.11-venv git
       python3 -m venv .venv
       source .venv/bin/activate
-      git clone --depth 1 --revision ${var.agentspace_retrieval_service_repo_revision} ${var.agentspace_retrieval_service_repo}
+      git clone ${var.agentspace_retrieval_service_repo}
       cd ${reverse(split("/", var.agentspace_retrieval_service_repo))[0]}/${var.agentspace_retrieval_service_repo_path}
+      git checkout ${var.agentspace_retrieval_service_repo_revision} 
       pip install -r requirements.txt
       DATASTORE_KIND=alloydb-postgres DATASTORE_PROJECT=${local.project_id} DATASTORE_REGION=${var.region} DATASTORE_CLUSTER=${google_alloydb_cluster.alloydb_cluster.cluster_id} DATASTORE_INSTANCE=${google_alloydb_instance.primary_instance.instance_id} DATASTORE_DATABASE=assistantdemo DATASTORE_USER=postgres DATASTORE_PASSWORD=${var.alloydb_password} python run_database_init.py'
     EOT
