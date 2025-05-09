@@ -78,8 +78,17 @@ data "google_iam_policy" "noauth" {
 locals {
   agentspace_apis_to_enable = [
     "dialogflow.googleapis.com",
+    "discoveryengine.googleapis.com",
     "secretmanager.googleapis.com"
   ]
+
+  agentspace_datastores = toset([
+    "airports",
+    "amenities",
+    "flights",
+    "policies",
+    "tickets"
+  ])
 }
 
 resource "google_project_service" "agentspace_services" {
@@ -300,3 +309,26 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
 #   role     = "roles/run.invoker"
 #   member   = "serviceAccount:service-${local.project_number}@gcp-sa-dialogflow.iam.gserviceaccount.com"
 # }
+
+# Create data stores
+resource "google_discovery_engine_data_store" "demo_agentspace_alloydb" {
+  for_each   = local.agentspace_datastores
+  depends_on = [google_project_service.agentspace_services]
+
+  location                     = "global"
+  data_store_id                = "cymbal-air-${each.value}"
+  display_name                 = "Cymbal Air ${each.value}"
+  industry_vertical            = "GENERIC"
+  content_config               = "NO_CONTENT"
+  skip_default_schema_creation = true
+}
+
+resource "google_discovery_engine_schema" "demo_agentspace_alloydb" {
+  for_each   = local.agentspace_datastores
+  depends_on = [google_project_service.agentspace_services]
+
+  data_store_id = google_discovery_engine_data_store.demo_agentspace_alloydb[each.value].data_store_id
+  location      = google_discovery_engine_data_store.demo_agentspace_alloydb[each.value].location
+  schema_id     = "default_schema"
+  json_schema   = file("files/agentspace-${each.value}-schema.json")
+}
