@@ -56,6 +56,12 @@ This demo builds upon `alloydb-ai-free-trial` and deploys the demo from  [this r
 * Configure the frontend app
 * see [README.md](https://github.com/jk-kashe/gcp-database-demos/blob/main/blocks/demos/cymbal_air/README.md) and [README_VECTOR_SEARCH.md](./cymbal-air/README_VECTOR_SEARCH.md) for details.
 
+### agentspace
+
+This demo builds upon `alloydb-ai-free-trial` and deploys the demo from  [this repository](https://github.com/GoogleCloudPlatform/genai-databases-retrieval-app) . It will:
+
+* Deploy the database schema
+* Configure, build, and deploy the middleware in Cloud Run
 
 # Disclaimer
 

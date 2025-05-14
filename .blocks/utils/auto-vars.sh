@@ -66,6 +66,9 @@ demo_app_support_email)
 finance_advisor_commit_id)
     echo "04518003381346a1d08e4c3f1257dbe6049651a0"
     ;;
+agentspace_retrieval_service_repo_revision)
+    echo "main"
+    ;;
 *)
     echo ""
     ;;
