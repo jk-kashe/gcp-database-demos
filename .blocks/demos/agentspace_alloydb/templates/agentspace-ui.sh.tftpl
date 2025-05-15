@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Prompt the user for the Agentspace ID
+read -p "Enter the Agentspace application ID: " AGENTSPACE_ID
+
+# Check if the input is empty
+if [ -z "$AGENTSPACE_ID" ]; then
+    echo "Error: Agentspace ID cannot be empty."
+    exit 1
+fi
+
+if [ -z $DATASTORES ]; then
+    DATASTORES="flights"
+fi
+
+for ds in $DATASTORES; do
+    DATA_STORE_ID="${PROJECT_ID}-$ds"
+    SCHEMA_FILE="agentspace-$ds-fields.json"
+
+    # Check if the schema file exists
+    if [ ! -f "$SCHEMA_FILE" ]; then
+        echo "Error: Schema file '$SCHEMA_FILE' not found."
+        exit 1
+    fi
+
+    # Read the schema content from the file
+    SCHEMA_CONTENT=$(cat "$SCHEMA_FILE")
+
+curl -X PATCH \
+-H "X-Goog-User-Project: ${PROJECT_ID}" \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+-H "Content-Type: application/json" \
+https://discoveryengine.googleapis.com/v1alpha/projects/${PROJECT_ID}/locations/${LOCATION}/collections/default_collection/engines/$AGENTSPACE_ID/widgetConfigs/default_search_widget_config?updateMask=uiSettings -d "{
+  'uiSettings': {
+    'dataStoreUiConfigs': [
+      {
+        'name': \"projects/${PROJECT_ID$}/locations/${LOCATION}/collections/default_collection/dataStores/$DATA_STORE_ID\",
+        'id': \"$DATA_STORE_ID\",
+        'fieldsUiComponentsMap': $SCHEMA_CONTENT
+      }
+    ],
+    'interactionType': 'SEARCH_ONLY'
+  }
+}'
+done
