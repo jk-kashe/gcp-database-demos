@@ -355,8 +355,6 @@ resource "local_file" "demo_agentspace_alloydb_connect" {
     DATABASE_USER_NAME     = var.agentspace_alloydb_database_user_name
     DATABASE_USER_PASSWORD = var.agentspace_alloydb_database_user_password
     NL_CONFIG_ID           = var.agentspace_alloydb_database_nl_config_id
-    cluster                = google_alloydb_cluster.alloydb_cluster.cluster_id
-    database               = "assistantdemo"
   })
 }
 
