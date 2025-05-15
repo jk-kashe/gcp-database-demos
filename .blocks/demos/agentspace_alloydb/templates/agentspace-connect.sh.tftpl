@@ -1,0 +1,49 @@
+#!/bin/bash
+
+if [ -z $DATASTORES ]; then
+    DATASTORES="flights"
+fi
+
+for ds in $DATASTORES; do
+    DATA_STORE_ID="${PROJECT_ID}-$ds"
+    SCHEMA_FILE="agentspace-$ds-schema.json"
+
+    curl -X POST \
+    -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+    -H "Content-Type: application/json" \
+    -H "X-Goog-User-Project: ${PROJECT_ID}" \
+    "https://discoveryengine.googleapis.com/v1alpha/projects/${PROJECT_ID}/locations/${LOCATION}/collections/default_collection/dataStores?dataStoreId=${DATA_STORE_ID}" -d '{
+    "displayName": "AlloyDB $ds",
+    "federatedSearchConfig": {
+        "alloyDbConfig": {
+        "alloydbConnectionConfig": {
+            "instance": "${INSTANCE_PATH}",
+            "database": "${DATABASE_NAME}",
+            "user": "${DATABASE_USER_NAME}",
+            "password": "${DATABASE_USER_PASSWORD}",
+            "authMode": "AUTH_MODE_SERVICE_ACCOUNT"
+        },
+        "alloydb_ai_nl_config": { "nlConfigId": "${NL_CONFIG_ID}" }
+        }
+    },
+    "industryVertical": "GENERIC",
+    "solutionTypes": ["SOLUTION_TYPE_SEARCH"]
+    }'
+
+    # Check if the schema file exists
+    if [ ! -f "$SCHEMA_FILE" ]; then
+        echo "Error: Schema file '$SCHEMA_FILE' not found."
+        exit 1
+    fi
+
+    # Read the schema content from the file
+    SCHEMA_CONTENT=$(cat "$SCHEMA_FILE")
+
+    curl -X PATCH \
+    -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+    -H "Content-Type: application/json" \
+    "https://discoveryengine.googleapis.com/v1beta/projects/${PROJECT_ID}/locations/${LOCATION}/collections/default_collection/dataStores/${DATA_STORE_ID}/schemas/default_schema" \
+    -d '{
+    "structSchema": ${SCHEMA_CONTENT}
+    }'
+done

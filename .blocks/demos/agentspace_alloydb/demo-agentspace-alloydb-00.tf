@@ -264,6 +264,22 @@ resource "local_file" "demo_agentspace_alloydb_import" {
     project  = local.project_id
     location = var.region
     cluster  = google_alloydb_cluster.alloydb_cluster.cluster_id
+    database = var.agentspace_alloydb_database_name
+  })
+}
+
+# Create connect script
+resource "local_file" "demo_agentspace_alloydb_connect" {
+  filename = "files/agentspace-connect.sh"
+  content = templatefile("templates/agentspace-connect.sh.tftpl", {
+    PROJECT_ID    = local.project_id
+    LOCATION      = var.agentspace_location
+    INSTANCE_PATH = var.agentspace_alloydb_path
+    DATABASE_NAME = var.agentspace_alloydb_database_name
+    DATABASE_USER_NAME = var.agentspace_alloydb_database_user_name
+    DATABASE_USER_PASSWORD = var.agentspace_alloydb_database_user_password
+    NL_CONFIG_ID = var.agentspace_alloydb_database_nl_config_id
+    cluster  = google_alloydb_cluster.alloydb_cluster.cluster_id
     database = "assistantdemo"
   })
 }
