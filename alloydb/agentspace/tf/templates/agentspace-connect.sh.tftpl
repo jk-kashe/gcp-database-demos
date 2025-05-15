@@ -44,6 +44,6 @@ for ds in $DATASTORES; do
     -H "Content-Type: application/json" \
     "https://discoveryengine.googleapis.com/v1beta/projects/${PROJECT_ID}/locations/${LOCATION}/collections/default_collection/dataStores/$DATA_STORE_ID/schemas/default_schema" \
     -d "{
-    'structSchema': ${SCHEMA_CONTENT}
+    'structSchema': $SCHEMA_CONTENT
     }"
 done
