@@ -2,6 +2,7 @@
 
 This repository provides deployment scripts for Agentspace integration with AlloyDB.
 
+Note: This demo is currently designed for instructor-led labs.
 
 ## Getting Started
 
@@ -19,7 +20,12 @@ This repository provides deployment scripts for Agentspace integration with Allo
     ```
     * Deployment script ask you to provide variable values. Most variables should be auto-populated, but check they are correct. It's assumed you have the knowledge of GCP to find the correct values!
       * Set AlloyDB password to a reasonably secure one
+      * **Agentpsace AlloyDB Instance Path** will be provided by your instructor
     * Provision the environment
+    * While your environment is being provisioned - in a separate cloud shell, run below comand, and paste the result in [this form](https://forms.gle/YzDkDJeownjEnxyL8)
+```
+gcloud projects describe $(gcloud config get-value project) --format="value(projectNumber)"
+```
    
 
 ## Demo Scenarios
@@ -41,10 +47,7 @@ This repository provides deployment scripts for Agentspace integration with Allo
 
 In this step, we are going to connect Agentspace to AlloyDB live data. Detailed steps are described in the [documentation](https://cloud.google.com/agentspace/agentspace-enterprise/docs/create-data-store#alloydb-connect), we are providing some scripts for simplified deployment.
 
-- in cloud shell, run below comand, and paste the result in [this form](https://forms.gle/YzDkDJeownjEnxyL8)
-```
-gcloud projects describe $(gcloud config get-value project) --format="value(projectNumber)"
-```
+
 - run the following command to link Agentspace Enterprise with AlloyDB for PostgreSQL and define schema
 ```
 gcp-database-demos/alloydb/agentspace/tf/files/agentspace-connect.sh
