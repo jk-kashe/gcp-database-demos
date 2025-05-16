@@ -1,0 +1,24 @@
+#!/bin/bash
+DATA_STORE_ID="${PROJECT_ID}-alloydb"
+
+curl -X POST \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+-H "Content-Type: application/json" \
+-H "X-Goog-User-Project: ${PROJECT_ID}" \
+"https://discoveryengine.googleapis.com/v1alpha/projects/${PROJECT_ID}/locations/${LOCATION}/collections/default_collection/dataStores?dataStoreId=$DATA_STORE_ID" -d "{
+'displayName': \"AlloyDB Live Data\",
+'federatedSearchConfig': {
+    'alloyDbConfig': {
+    'alloydbConnectionConfig': {
+        'instance': '${INSTANCE_PATH}',
+        'database': '${DATABASE_NAME}',
+        'user': '${DATABASE_USER_NAME}',
+        'password': '${DATABASE_USER_PASSWORD}',
+        'authMode': 'AUTH_MODE_SERVICE_ACCOUNT'
+    },
+    'alloydb_ai_nl_config': { 'nlConfigId': '${NL_CONFIG_ID}' }
+    }
+},
+'industryVertical': 'GENERIC',
+'solutionTypes': ['SOLUTION_TYPE_SEARCH']
+}"

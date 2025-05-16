@@ -1,0 +1,34 @@
+{
+  "airline": {
+    "field": "airline",
+    "displayTemplate": "{value}"
+  },
+  "arrival_airport": {
+    "field": "arrival_airport",
+    "displayTemplate": "{value}"
+  },
+  "arrival_gate": {
+    "field": "arrival_gate",
+    "displayTemplate": "{value}"
+  },
+  "arrival_time": {
+    "field": "arrival_time",
+    "displayTemplate": "{value}"
+  },
+  "departure_airport": {
+    "field": "departure_airport",
+    "displayTemplate": "{value}"
+  },
+  "departure_gate": {
+    "field": "departure_gate",
+    "displayTemplate": "{value}"
+  },
+  "departure_time": {
+    "field": "departure_time",
+    "displayTemplate": "{value}"
+  },
+  "flight_number": {
+    "field": "flight_number",
+    "displayTemplate": "{value}"
+  }
+}
