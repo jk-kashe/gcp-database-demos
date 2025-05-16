@@ -67,6 +67,8 @@ gcp-database-demos/alloydb/agentspace/tf/files/agentspace-connect.sh
   What flights are available from JFK to SFO on May 22 2025?
   What airlines fly from JFK to SFO?
   At what time does CY fly from JFK to SFO on May 22 2025?
+  Where can I find coffee?
+  May I change my ticket?
   ```
 
 
@@ -111,6 +113,21 @@ Use to find flight information and book a flight.
 - When making a booking use the following prompt, replacing the placeholders as needed: "Book a flight from ${departure airport} to ${arrival airport} on ${departure date and time} for ${name},  ${e-mail address}. Book the first flight you find."
 ```
 * Click on Save and Publish.
+
+## Deploying this demo in your own environment
+
+At the time of creation of this demo, many required GCP components require allowlisting.
+You need to request to the following:
+
+- Agentspace: Agentspace Enterprise is allowlist-only. Contact your Google Cloud representative to request access.
+- [AlloyDB Natural Language to SQL](https://docs.google.com/forms/d/e/1FAIpQLSfJ9vHIJ79nI7JWBDELPFL75pDQa4XVZQ2fxShfYddW0RwmLw/viewform?pli=1)
+- [Agentspace Connector for AlloyDB](https://docs.google.com/forms/d/e/1FAIpQLSdV_GGjyAa_RpmO2ZyB-5iUQvVIkYcp8WUwmDCFnEq8KaMO2A/viewform)
+
+**Additional manual deployment steps are required**:
+
+- run ```gcp-database-demos/alloydb/agentspace/tf/files/nl2sql-setup.sql``` on your AlloyDB instance.
+- modify ```gcp-database-demos/alloydb/agentspace/tf/files/agentspace-connect.sql``` to point to your instance path
+- follow the [documentation](https://cloud.google.com/agentspace/agentspace-enterprise/docs/create-data-store#alloydb-connect) for additional steps
 
  # License
 
