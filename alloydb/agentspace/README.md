@@ -55,13 +55,10 @@ gcp-database-demos/alloydb/agentspace/tf/files/agentspace-connect.sh
   - Provide a company name and click Continue
   - Select AlloyDB flights Data Store (which we created in the previous step)
   - Click Create
-- Run below script to update UI configuration
-```
-gcp-database-demos/alloydb/agentspace/tf/files/agentspace-ui.sh
-```
+
 - Note: It might take a few minutes to all changes to propagate before the connector works!
 - In your Application, navigate to Preview
-  - Click "Sources" - if "AlloyDB - flights" is not visible yet, wait until it is
+  - Click "Sources" - if "AlloyDB Live Data" is not visible yet, wait until it is
   - Try some queries such as:
   ```
   What flights are available from JFK to SFO on May 22 2025?

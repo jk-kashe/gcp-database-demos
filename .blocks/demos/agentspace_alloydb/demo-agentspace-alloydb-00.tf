@@ -282,15 +282,6 @@ resource "local_file" "demo_agentspace_alloydb_connect" {
   })
 }
 
-# Create ui fields script
-resource "local_file" "demo_agentspace_alloydb_ui" {
-  filename = "files/agentspace-ui.sh"
-  content = templatefile("templates/agentspace-ui.sh.tftpl", {
-    PROJECT_ID    = local.project_id
-    LOCATION      = var.agentspace_location
-  })
-}
-
 # Create OpenAPI spec
 resource "local_file" "demo_agentspace_alloydb_openapi" {
   filename = "files/agentspace-openapi.yaml"
