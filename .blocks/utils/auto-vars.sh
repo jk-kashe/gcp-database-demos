@@ -2,8 +2,10 @@
 
 # Function to get a valid alloydb trial region
 get_valid_region() {
-  local current_region=$(gcloud config get-value compute/region)
-
+  local current_region=$(gcloud compute project-info describe --format="value(commonInstanceMetadata.items[google-compute-default-region])")
+  echo "$current_region"
+  return
+  ##old code is now unreachable
   # If region is already valid, return it
   case "$current_region" in
     us-central1 | northamerica-northeast1 | asia-east1 | asia-northeast2 | asia-south2 | asia-southeast1 | australia-southeast2 | europe-north1 | europe-west1 | europe-west4)
@@ -57,7 +59,8 @@ region)
     get_valid_region
     ;;
 zone)
-    echo "b"
+    full_zone=$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-zone])')
+    echo "${full_zone##*-}"
     ;;
 demo_app_support_email)
     # Get the first email address from the gcloud auth list
