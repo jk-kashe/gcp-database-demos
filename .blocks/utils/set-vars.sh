@@ -19,6 +19,16 @@ TF_DIR="$script_dir/.."
 TFVARS_FILE="${TF_DIR}/terraform.tfvars"
 touch $TFVARS_FILE
 
+# Display Google Cloud project information
+echo "--------------------------------------------------"
+echo "Google Cloud Project Information (for reference):"
+PROJECT_ID=$(gcloud config get-value project)
+PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+echo "Current Project ID: $PROJECT_ID"
+echo "Current Project Number: $PROJECT_NUMBER"
+echo "--------------------------------------------------"
+echo "" # Add an empty line for better readability
+
 #Function to get variable value with optional override
 get_variable_value() {
   local var_name="$1"
