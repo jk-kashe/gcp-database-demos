@@ -25,6 +25,7 @@ resource "random_string" "coffee_apikey_suffix" {
 }
 
 resource "google_apikeys_key" "coffee" {
+  depends_on   = [time_sleep.wait_for_api]
   name         = "coffee-${random_string.coffee_apikey_suffix.result}"
   display_name = "coffee"
 
