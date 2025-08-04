@@ -70,7 +70,7 @@ fmt:
 	@cd $(TF_DIR) && terraform fmt
 
 # Run Terraform apply (common)
-apply:
+apply: auto-vars.sh set-vars.sh
 	@echo "Applying demo: $(notdir $(CURDIR))"
 	@cd $(TF_DIR) && ./files/set-vars.sh && terraform init && terraform apply -auto-approve
 
