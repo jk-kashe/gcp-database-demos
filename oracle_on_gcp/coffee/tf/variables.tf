@@ -6,7 +6,7 @@ variable "project_id" {
 variable "region" {
   type        = string
   description = "Region to deploy to"
-  default     = "europe-west2"
+  #default     = "europe-west2"
 }
 
 variable "apis" {
