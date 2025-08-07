@@ -22,3 +22,5 @@ make apply
 ```
 make destory 
 ```
+
+Due to network reservations, the initial network decommissioning attempt is likely to fail. Please wait a few hours and run the destroy command again.
