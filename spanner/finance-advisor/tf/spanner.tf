@@ -1,30 +1,12 @@
-#Enable APIs
-locals {
-  spanner_apis_to_enable = [
-    "spanner.googleapis.com",
-    "aiplatform.googleapis.com",
-    "cloudbuild.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "run.googleapis.com",
-  ]
-}
-
-resource "google_project_service" "spanner_services" {
-  for_each           = toset(local.spanner_apis_to_enable)
-  service            = each.key
-  disable_on_destroy = false
-  depends_on         = [null_resource.enable_service_usage_api]
-  project            = local.project_id
-}
-
 # Spanner Instance
 resource "google_spanner_instance" "spanner_instance" {
-  config       = "regional-${var.region}" # Adjust if needed
-  display_name = var.spanner_instance_name
-  project      = local.project_id
-  num_nodes    = 1 # Start with one node and scale as needed
-  depends_on   = [google_project_service.spanner_services]
-  edition      = var.spanner_edition
+  config           = var.spanner_config == null ? "regional-${var.region}" : var.spanner_config
+  display_name     = var.spanner_instance_name
+  project          = local.project_id
+  processing_units = var.spanner_nodes < 1 ? var.spanner_nodes * 1000 : null
+  num_nodes        = var.spanner_nodes >= 1 ? var.spanner_nodes : null
+  depends_on       = [google_project_service.spanner_services]
+  edition          = var.spanner_edition
 }
 
 resource "google_spanner_database" "spanner_demo_db" {
@@ -124,3 +106,22 @@ resource "null_resource" "spanner_env" {
     EOT
   }
 }
+#Enable APIs
+locals {
+  spanner_apis_to_enable = [
+    "spanner.googleapis.com",
+    "aiplatform.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "run.googleapis.com",
+  ]
+}
+
+resource "google_project_service" "spanner_services" {
+  for_each           = toset(local.spanner_apis_to_enable)
+  service            = each.key
+  disable_on_destroy = false
+  depends_on         = [null_resource.enable_service_usage_api]
+  project            = local.project_id
+}
+
