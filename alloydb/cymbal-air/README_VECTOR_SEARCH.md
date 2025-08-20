@@ -158,7 +158,7 @@ Run this block in AlloyDB Studio or psql
 CREATE EXTENSION IF NOT EXISTS alloydb_scann;
  CREATE INDEX scann_amenities ON amenities
   USING scann (embedding cosine)
-  WITH (num_leaves=100); /*use sqrt(ROWS) as a starting point*/
+  WITH (num_leaves=100,auto_maintenance=ON); --use sqrt(ROWS) as a starting point
 ```
 
 
