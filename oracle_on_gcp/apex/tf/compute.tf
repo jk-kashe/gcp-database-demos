@@ -35,11 +35,17 @@ resource "google_compute_instance" "oracle_client" {
     }
   }
 
+  # Enable Shielded VM features to comply with org policy
+  shielded_instance_config {
+    enable_secure_boot          = true
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
+  }
+
   network_interface {
     network    = google_compute_network.oracle.id
     subnetwork = google_compute_subnetwork.oracle.id
-
-    access_config {}
+    # No access_config block, so no external IP will be assigned
   }
 
   service_account {
@@ -77,7 +83,7 @@ resource "null_resource" "load_coffee_data" {
       gcloud compute ssh ${google_compute_instance.oracle_client.name} --zone=${google_compute_instance.oracle_client.zone} \
       --tunnel-through-iap \
       --project=${var.project_id} \
-      --command='
+      --command=' 
       sudo apt install -y git unzip make
       sudo su - oracle <<EOF
       export DATABASE_URL="oracle+oracledb://admin:${var.vm_oracle_password}@${google_compute_instance.oracle_vm.network_interface[0].network_ip}"
