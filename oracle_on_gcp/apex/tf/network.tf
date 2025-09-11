@@ -25,3 +25,7 @@ resource "google_compute_firewall" "oracle_allow_iap" {
     protocol = "TCP"
   }
 }
+
+output "network_name" {
+  value = google_compute_network.oracle.name
+}
