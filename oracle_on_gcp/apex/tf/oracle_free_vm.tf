@@ -1,3 +1,9 @@
+# Get available zones in the selected region
+data "google_compute_zones" "available" {
+  project = var.project_id
+  region  = var.region
+}
+
 # Create a firewall rule to allow access to the Oracle database
 resource "google_compute_firewall" "allow_oracle_vm" {
   name    = "allow-oracle-vm"
@@ -13,7 +19,7 @@ resource "google_compute_firewall" "allow_oracle_vm" {
 resource "google_compute_instance" "oracle_vm" {
   name         = "oracle-vm"
   machine_type = var.vm_machine_type
-  zone         = var.vm_zone
+  zone         = data.google_compute_zones.available.names[0] # Select the first available zone
 
   boot_disk {
     initialize_params {
