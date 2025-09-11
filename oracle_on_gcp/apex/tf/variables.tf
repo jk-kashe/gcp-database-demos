@@ -35,18 +35,6 @@ variable "subnet_cidr_range" {
   default     = "172.16.1.0/24"
 }
 
-variable "git_repo" {
-  type        = string
-  description = "The Git repo URL"
-  default     = "https://github.com/jk-kashe/oracledb-vertexai-demo.git"
-}
-
-variable "git_branch" {
-  type        = string
-  description = "The Git branch to checkout"
-  default     = "autonomous-run"
-}
-
 variable "vm_machine_type" {
   type        = string
   description = "Machine type for the Oracle VM"
