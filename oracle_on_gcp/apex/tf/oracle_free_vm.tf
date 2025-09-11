@@ -38,11 +38,21 @@ resource "google_compute_instance" "oracle_vm" {
     subnetwork = google_compute_subnetwork.oracle.id
     # No access_config block, so no external IP will be assigned
   }
+}
 
-  # This provisioner uses gcloud to connect via IAP, as no external IP exists.
+# Wait for the instance to be fully ready for SSH
+resource "time_sleep" "wait_for_vm_ssh" {
+  create_duration = "90s"
+  depends_on      = [google_compute_instance.oracle_vm]
+}
+
+# Provision the VM after the delay
+resource "null_resource" "provision_oracle_vm" {
+  depends_on = [time_sleep.wait_for_vm_ssh]
+
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute ssh oracle-vm --zone=${self.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker run -d -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest'
+      gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${google_compute_instance.oracle_vm.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker run -d -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest'
     EOT
   }
 }
