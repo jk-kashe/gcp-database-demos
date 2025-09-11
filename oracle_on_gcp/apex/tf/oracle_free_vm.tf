@@ -1,9 +1,3 @@
-# Get available zones in the selected region
-data "google_compute_zones" "available" {
-  project = var.project_id
-  region  = var.region
-}
-
 # Create a firewall rule to allow access to the Oracle database
 resource "google_compute_firewall" "allow_oracle_vm" {
   name    = "allow-oracle-vm"
