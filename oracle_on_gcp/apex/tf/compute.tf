@@ -21,9 +21,9 @@ resource "google_project_iam_member" "oracle_client" {
 }
 
 resource "google_compute_instance" "oracle_client" {
-  depends_on = [google_oracle_database_autonomous_database.oracle]
+  depends_on = [google_compute_instance.oracle_vm]
 
-  name         = "app1-${var.oracle_adb_instance_name}"
+  name         = "oracle-client-vm"
   zone         = random_shuffle.zone.result[0]
   machine_type = "n2-standard-2"
 
@@ -80,7 +80,7 @@ resource "null_resource" "load_coffee_data" {
       --command='
       sudo apt install -y git unzip make
       sudo su - oracle <<EOF
-      export DATABASE_URL="${local.oracle_database_url}"
+      export DATABASE_URL="oracle+oracledb://admin:${var.vm_oracle_password}@${google_compute_instance.oracle_vm.network_interface[0].network_ip}"
       rm -rf oracledb-vertexai-demo
       git clone ${var.git_repo}
       cd oracledb-vertexai-demo
