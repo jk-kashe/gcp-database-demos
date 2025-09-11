@@ -1,15 +1,3 @@
-
-# Create a firewall rule to allow SSH access
-resource "google_compute_firewall" "allow_ssh_vm" {
-  name    = "allow-ssh-vm"
-  network = google_compute_network.oracle.name
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-  source_ranges = ["0.0.0.0/0"]
-}
-
 # Create a firewall rule to allow access to the Oracle database
 resource "google_compute_firewall" "allow_oracle_vm" {
   name    = "allow-oracle-vm"
@@ -21,16 +9,21 @@ resource "google_compute_firewall" "allow_oracle_vm" {
   source_ranges = ["0.0.0.0/0"]
 }
 
-# Create a Compute Engine instance
+# Create a Compute Engine instance with OS Login enabled
 resource "google_compute_instance" "oracle_vm" {
   name         = "oracle-vm"
-  machine_type = "e2-medium"
-  zone         = "us-central1-a"
+  machine_type = var.vm_machine_type
+  zone         = var.vm_zone
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
+      image = var.vm_image
     }
+  }
+
+  # Enable OS Login for IAM-based SSH access
+  metadata = {
+    enable-oslogin = "TRUE"
   }
 
   network_interface {
@@ -41,20 +34,14 @@ resource "google_compute_instance" "oracle_vm" {
     }
   }
 
-  # Use a provisioner to install Docker and run the Oracle container
+  # This provisioner will now use the default gcloud credentials of the user
+  # running terraform, authenticating via OS Login and IAP.
   provisioner "remote-exec" {
     inline = [
       "sudo apt-get update",
       "sudo apt-get install -y docker.io",
-      "sudo docker run -d -p 1521:1521 -e ORACLE_PASSWORD=your_password gvenzl/oracle-free:latest"
+      "sudo docker run -d -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest"
     ]
-
-    connection {
-      type        = "ssh"
-      user        = "your_user" # Replace with your SSH user
-      private_key = file("~/.ssh/google_compute_engine") # Replace with your private key path
-      host        = self.network_interface[0].access_config[0].nat_ip
-    }
   }
 }
 
