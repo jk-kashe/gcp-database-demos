@@ -1,0 +1,2 @@
+- option to create a new project and deploy to that newly created project; this should be a module
+- define oracle_free_vm as a module

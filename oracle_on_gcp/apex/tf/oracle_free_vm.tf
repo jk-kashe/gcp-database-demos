@@ -26,26 +26,23 @@ resource "google_compute_instance" "oracle_vm" {
     enable-oslogin = "TRUE"
   }
 
+  # Enable Shielded VM features to comply with org policy
+  shielded_instance_config {
+    enable_secure_boot          = true
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
+  }
+
   network_interface {
     network    = google_compute_network.oracle.id
     subnetwork = google_compute_subnetwork.oracle.id
-    access_config {
-      // Ephemeral public IP
-    }
+    # No access_config block, so no external IP will be assigned
   }
 
-  # This provisioner will now use the default gcloud credentials of the user
-  # running terraform, authenticating via OS Login and IAP.
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update",
-      "sudo apt-get install -y docker.io",
-      "sudo docker run -d -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest"
-    ]
+  # This provisioner uses gcloud to connect via IAP, as no external IP exists.
+  provisioner "local-exec" {
+    command = <<EOT
+      gcloud compute ssh oracle-vm --zone=${self.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker run -d -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest'
+    EOT
   }
-}
-
-# Output the public IP of the VM
-output "oracle_vm_ip" {
-  value = google_compute_instance.oracle_vm.network_interface[0].access_config[0].nat_ip
 }
