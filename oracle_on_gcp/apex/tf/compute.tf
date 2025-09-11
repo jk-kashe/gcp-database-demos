@@ -73,28 +73,3 @@ resource "null_resource" "init_gcloud_ssh" {
   }
   depends_on = [ time_sleep.wait_for_api ]
 }
-
-# Load data
-resource "null_resource" "load_coffee_data" {
-  depends_on = [time_sleep.wait_for_oracle_client_startup_script]
-
-  provisioner "local-exec" {
-    command = <<EOT
-      gcloud compute ssh ${google_compute_instance.oracle_client.name} --zone=${google_compute_instance.oracle_client.zone} \
-      --tunnel-through-iap \
-      --project=${var.project_id} \
-      --command=' 
-      sudo apt install -y git unzip make
-      sudo su - oracle <<EOF
-      export DATABASE_URL="oracle+oracledb://admin:${var.vm_oracle_password}@${google_compute_instance.oracle_vm.network_interface[0].network_ip}"
-      rm -rf oracledb-vertexai-demo
-      git clone ${var.git_repo}
-      cd oracledb-vertexai-demo
-      git checkout ${var.git_branch}
-      cd app
-      make install
-EOF
-      '
-    EOT
-  }
-}
