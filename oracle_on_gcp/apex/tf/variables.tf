@@ -82,3 +82,21 @@ variable "git_branch" {
   description = "The Git branch to checkout"
   default     = "autonomous-run"
 }
+
+variable "vm_machine_type" {
+  type        = string
+  description = "Machine type for the Oracle VM"
+  default     = "e2-medium"
+}
+
+variable "vm_image" {
+  type        = string
+  description = "OS Image for the Oracle VM"
+  default     = "debian-cloud/debian-11"
+}
+
+variable "vm_oracle_password" {
+  type        = string
+  description = "Password for the Oracle database on the VM"
+  sensitive   = true
+}
