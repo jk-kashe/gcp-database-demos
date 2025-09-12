@@ -118,6 +118,7 @@ resource "local_sensitive_file" "alloydb_pgauth" {
 }
 
 resource "null_resource" "alloydb_pgauth" {
+  depends_on = [time_sleep.wait_for_database_clientvm_boot]
   provisioner "local-exec" {
     command = <<-EOT
   gcloud compute scp ${local_sensitive_file.alloydb_pgauth.filename} ${var.clientvm-name}:~/ \
