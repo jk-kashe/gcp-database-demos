@@ -21,10 +21,7 @@ variable "agentspace_location" {
   default     = "global"
 }
 
-variable "agentspace_alloydb_path" {
-  type        = string
-  description = "Agentpsace AlloyDB Instance Path"
-}
+
 
 variable "agentspace_alloydb_database_name" {
   type        = string

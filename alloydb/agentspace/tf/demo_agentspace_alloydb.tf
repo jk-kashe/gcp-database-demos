@@ -350,7 +350,7 @@ resource "local_file" "demo_agentspace_alloydb_connect" {
   content = templatefile("templates/agentspace-connect.sh.tftpl", {
     PROJECT_ID             = local.project_id
     LOCATION               = var.agentspace_location
-    INSTANCE_PATH          = var.agentspace_alloydb_path
+    INSTANCE_PATH          = google_alloydb_instance.primary_instance.name
     DATABASE_NAME          = var.agentspace_alloydb_database_name
     DATABASE_USER_NAME     = var.agentspace_alloydb_database_user_name
     DATABASE_USER_PASSWORD = var.agentspace_alloydb_database_user_password

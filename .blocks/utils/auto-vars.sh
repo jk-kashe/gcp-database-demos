@@ -45,41 +45,7 @@ get_valid_region() {
   esac
 }
 
-get_agentspace_alloydb_path() {
-  # Create a temporary file to store the downloaded content
-  tempfile=$(mktemp)
 
-  # Download the file from the specified URL
-  curl -sLo "$tempfile" "https://storage.googleapis.com/alloydb-vector-demo/agentspace/alloydb-instances.txt"
-
-  # Check if the download was successful
-  if [ $? -ne 0 ]; then
-    echo "Error: Failed to download alloydb-instances.txt" >&2
-    rm "$tempfile"
-    echo ""
-    return 1
-  fi
-
-  # Check if the downloaded file is empty
-  if [ ! -s "$tempfile" ]; then
-    echo "Error: Downloaded alloydb-instances.txt is empty" >&2
-    rm "$tempfile"
-    echo ""
-    return 1
-  fi
-
-  # Randomly pick one line from the file and print it
-  # Use shuf (if available) for random line selection
-  # If shuf is not available (like on older macOS), use awk with random() piped to head -n 1
-  if command -v shuf &> /dev/null; then
-    shuf -n 1 "$tempfile"
-  else
-    awk 'BEGIN { srand() } { if (rand() < 1/NR) line = $0 } END { print line }' "$tempfile" | head -n 1
-  fi
-
-  # Clean up the temporary file
-  rm "$tempfile"
-}
 
 # Function to handle different input strings
 input="$1"
@@ -108,9 +74,7 @@ finance_advisor_commit_id)
 agentspace_retrieval_service_repo_revision)
     echo "main"
     ;;
-agentspace_alloydb_path)
-    get_agentspace_alloydb_path
-    ;;
+
 *)
     echo ""
     ;;
