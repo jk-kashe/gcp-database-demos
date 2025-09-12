@@ -157,6 +157,19 @@ resource "null_resource" "agentspace_alloydb_demo_nl_setup" {
 }
 
 
+# Create AlloyDB flights connector
+resource "null_resource" "agentspace_alloydb_demo_create_connector" {
+  depends_on = [
+    null_resource.agentspace_alloydb_demo_nl_setup,
+    local_file.demo_agentspace_alloydb_connect
+  ]
+
+  provisioner "local-exec" {
+    command = "bash files/agentspace-connect.sh"
+  }
+}
+
+
 # Build the retrieval service using Cloud Build
 resource "null_resource" "agentspace_alloydb_demo_build_retrieval_service" {
   depends_on = [time_sleep.wait_for_sa_roles_expanded,
