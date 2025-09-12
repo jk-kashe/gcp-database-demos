@@ -12,7 +12,7 @@ get_valid_region() {
 
   # If region is still not set, default to a valid one
   if [ -z "$current_region" ]; then
-    current_region="europe-west1"
+    current_region="europe-west2"
   fi
 
   echo "$current_region"
