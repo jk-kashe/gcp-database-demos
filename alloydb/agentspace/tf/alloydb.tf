@@ -34,6 +34,10 @@ resource "google_alloydb_cluster" "alloydb_cluster" {
     password = var.alloydb_password
   }
 
+  database_flags = {
+    "alloydb_ai_nl.enabled" = "on"
+  }
+
   depends_on = [google_project_service.alloydb_services]
 }
 #there were issues with provisioning primary too soon
