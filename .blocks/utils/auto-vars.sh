@@ -61,8 +61,9 @@ region)
     get_valid_region
     ;;
 zone)
-    full_zone=$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-zone])')
-    echo "${full_zone##*-}"
+    region=$(get_valid_region)
+    zone_name=$(gcloud compute zones list --filter="region=$region" --format='value(name)' | head -n 1)
+    echo "${zone_name##*-}"
     ;;
 demo_app_support_email)
     # Get the first email address from the gcloud auth list
