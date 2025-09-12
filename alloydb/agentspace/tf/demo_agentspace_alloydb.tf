@@ -148,12 +148,11 @@ resource "null_resource" "agentspace_alloydb_demo_nl_setup" {
   depends_on = [null_resource.agentspace_alloydb_demo_fetch_and_config]
 
   provisioner "local-exec" {
-    command = <<EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap       --project ${local.project_id}       --command='source pgauth.env
-      psql -d assistantdemo <<EOF
-${file("files/nl2sql-setup.sql")}
-EOF'
-    EOT
+    command = "gcloud compute scp files/nl2sql-setup.sql ${var.clientvm-name}:/tmp/nl2sql-setup.sql --zone=${var.region}-${var.zone} --tunnel-through-iap --project=${local.project_id}"
+  }
+
+  provisioner "local-exec" {
+    command = "gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap --project=${local.project_id} --command='source pgauth.env && psql -d assistantdemo -f /tmp/nl2sql-setup.sql'"
   }
 }
 
