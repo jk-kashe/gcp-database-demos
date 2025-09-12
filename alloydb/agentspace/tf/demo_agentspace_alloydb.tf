@@ -143,10 +143,25 @@ resource "null_resource" "agentspace_alloydb_demo_fetch_and_config" {
 }
 
 
+# Setup AlloyDB AI NL
+resource "null_resource" "agentspace_alloydb_demo_nl_setup" {
+  depends_on = [null_resource.agentspace_alloydb_demo_fetch_and_config]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap       --project ${local.project_id}       --command='source pgauth.env
+      psql -d assistantdemo <<EOF
+${file("files/nl2sql-setup.sql")}
+EOF'
+    EOT
+  }
+}
+
+
 # Build the retrieval service using Cloud Build
 resource "null_resource" "agentspace_alloydb_demo_build_retrieval_service" {
   depends_on = [time_sleep.wait_for_sa_roles_expanded,
-  null_resource.agentspace_alloydb_demo_fetch_and_config]
+  null_resource.agentspace_alloydb_demo_nl_setup]
 
   provisioner "local-exec" {
     command = <<EOT
