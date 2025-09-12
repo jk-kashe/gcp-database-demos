@@ -1,12 +1,12 @@
 #!/bin/bash
-DATA_STORE_ID="${PROJECT_ID}-alloydb"
+DATA_STORE_ID="${PROJECT_ID}-flights-airports"
 
 curl -X POST \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -H "Content-Type: application/json" \
 -H "X-Goog-User-Project: ${PROJECT_ID}" \
 "https://discoveryengine.googleapis.com/v1alpha/projects/${PROJECT_ID}/locations/${LOCATION}/collections/default_collection/dataStores?dataStoreId=$DATA_STORE_ID" -d "{
-'displayName': \"AlloyDB Live Data\",
+'displayName': \"Flights and Airports Data\",
 'federatedSearchConfig': {
     'alloyDbConfig': {
     'alloydbConnectionConfig': {
