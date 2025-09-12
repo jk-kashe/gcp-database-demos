@@ -34,10 +34,6 @@ resource "google_alloydb_cluster" "alloydb_cluster" {
     password = var.alloydb_password
   }
 
-  database_flags = {
-    "alloydb_ai_nl.enabled" = "on"
-  }
-
   depends_on = [google_project_service.alloydb_services]
 }
 #there were issues with provisioning primary too soon
@@ -55,6 +51,9 @@ resource "google_alloydb_instance" "primary_instance" {
   availability_type = "ZONAL"
   machine_config {
     cpu_count = var.alloydb_primary_cpu_count
+  }
+  database_flags = {
+    "alloydb_ai_nl.enabled" = "on"
   }
   depends_on = [time_sleep.wait_for_network]
 }
