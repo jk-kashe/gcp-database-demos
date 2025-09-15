@@ -43,21 +43,19 @@ gcloud projects describe $(gcloud config get-value project) --format="value(proj
 
 ### 2. Querying Live Data using Natural Language from AlloyDB
 
-**Note: At the moment, these steps will only work during the instructor-led Demo Fest and are not reproducible**
 
-In this step, we are going to connect Agentspace to AlloyDB live data. Detailed steps are described in the [documentation](https://cloud.google.com/agentspace/agentspace-enterprise/docs/create-data-store#alloydb-connect), we are providing some scripts for simplified deployment.
+In this step, we are going to connect Agentspace to AlloyDB live data. Detailed steps are described in the [documentation](https://cloud.google.com/agentspace/agentspace-enterprise/docs/create-data-store#alloydb-connect). Terraform script creates the configuration and connector.
 
 
-- run the following command to link Agentspace Enterprise with AlloyDB for PostgreSQL and define schema
-```
-gcp-database-demos/alloydb/agentspace/tf/files/agentspace-connect.sh
-```
+
 - In the Cloud Console, navigate to "AI Applications"
   - Create App
   - Select Agentspace and click Create
   - Provide a company name and click Continue
-  - Select AlloyDB flights Data Store (which we created in the previous step)
+  - Select 'Flights and Airports Data' (created by terraform)
   - Click Create
+ 
+- Due to the nature of the usecase, the agent is likely to use google_search tool and public datasets. You will get better results by writing custom instructions to use "Flights and Airports Data" and disabling grounding in Google search.
 
 - Note: It might take a few minutes to all changes to propagate before the connector works!
 - In your Application, navigate to Preview
