@@ -42,6 +42,11 @@ order by embedding <=> embedding(''text-embedding-005'',''May I change my ticket
 limit 5;',
 'agentspace_demo_cfg');
 
+SELECT alloydb_ai_nl.add_example(
+ 'flight B6 415 on September 15 2025',
+ 'select * from flights where airline=''B6'' and flight_number=''415'' and DATE("departure_time") = ''2025-09-15'';',
+ 'agentspace_demo_cfg');
+
 --Create agentspace user
 CREATE ROLE Agent WITH LOGIN PASSWORD 'agent-777';
 GRANT SELECT ON TABLE public.airports to Agent;
