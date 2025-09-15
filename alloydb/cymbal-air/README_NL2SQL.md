@@ -81,6 +81,11 @@ SELECT alloydb_ai_nl.add_example(
 order by embedding <=> embedding(''text-embedding-005'',''May I change my ticket?'')::vector asc
 limit 5;',
 'cymbal_air_demo_cfg');
+
+SELECT alloydb_ai_nl.add_example(
+ 'flight B6 415 on September 15 2025',
+ 'select * from flights where airline=''B6'' and flight_number=''415'' and DATE("departure_time") = ''2025-09-15'';',
+ 'cymbal_air_demo_cfg');
 ```
 
 ### 3. Generate SQL results from natural language questions
