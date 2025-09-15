@@ -112,20 +112,21 @@ Use to find flight information and book a flight.
 ```
 * Click on Save and Publish.
 
-## Deploying this demo in your own environment
+## Demo Flow
 
-At the time of creation of this demo, many required GCP components require allowlisting.
-You need to request to the following:
-
-- Agentspace: Agentspace Enterprise is allowlist-only. Contact your Google Cloud representative to request access.
-- [AlloyDB Natural Language to SQL](https://docs.google.com/forms/d/e/1FAIpQLSfJ9vHIJ79nI7JWBDELPFL75pDQa4XVZQ2fxShfYddW0RwmLw/viewform?pli=1)
-- [Agentspace Connector for AlloyDB](https://docs.google.com/forms/d/e/1FAIpQLSdV_GGjyAa_RpmO2ZyB-5iUQvVIkYcp8WUwmDCFnEq8KaMO2A/viewform)
-
-**Additional manual deployment steps are required**:
-
-- run ```gcp-database-demos/alloydb/agentspace/tf/files/nl2sql-setup.sql``` on your AlloyDB instance.
-- modify ```gcp-database-demos/alloydb/agentspace/tf/files/agentspace-connect.sql``` to point to your instance path
-- follow the [documentation](https://cloud.google.com/agentspace/agentspace-enterprise/docs/create-data-store#alloydb-connect) for additional steps
+1. Start by asking a question like "What flights are available from JFK to SFO on Sept 15 2025"
+2. You can update one of the flights in the backend 
+```sql
+UPDATE flights 
+SET
+  arrival_time = arrival_time + INTERVAL '4 hours',
+  departure_time = departure_time + INTERVAL '4 hours',
+  departure_gate = (ARRAY['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'])[floor(random() * 12) + 1] || floor(random() * 113 + 1)::text
+WHERE
+  id = 50695; --use a relevant flight id
+3. You can showcase that the agent is using live data by asking for an update, e.g. "what's the new flight information for B6 415 on September 15 2025"
+4. You can even run queries over embeddings, e.g. "where can I find coffee at terminal 1"
+```
 
  # License
 
