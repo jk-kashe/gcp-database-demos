@@ -124,6 +124,8 @@ SET
   departure_gate = (ARRAY['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'])[floor(random() * 12) + 1] || floor(random() * 113 + 1)::text
 WHERE
   id = 50695; --use a relevant flight id
+```
+
 3. You can showcase that the agent is using live data by asking for an update, e.g. "what's the new flight information for B6 415 on September 15 2025"
 4. You can even run queries over embeddings, e.g. "where can I find coffee at terminal 1"
 ```
