@@ -56,7 +56,7 @@ resource "google_compute_instance" "oracle_vm" {
 
 # Wait for the instance to be fully ready for SSH
 resource "time_sleep" "wait_for_vm_ssh" {
-  create_duration = "90s"
+  create_duration = "180s"
   depends_on      = [google_compute_instance.oracle_vm]
 }
 
