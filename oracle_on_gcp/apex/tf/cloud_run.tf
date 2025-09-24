@@ -1,19 +1,25 @@
-resource "google_artifact_registry_repository" "ords_remote" {
+# Repository for the custom ORDS container image
+resource "google_artifact_registry_repository" "ords_custom" {
   location      = var.region
-  repository_id = "ords-remote"
-  description   = "Remote repository for ORDS container images"
+  repository_id = "ords-custom"
+  description   = "Repository for custom ORDS container images"
   format        = "DOCKER"
-  mode          = "REMOTE_REPOSITORY"
-
-  remote_repository_config {
-    docker_repository {
-      custom_repository {
-        uri = "https://container-registry.oracle.com"
-      }
-    }
-  }
 
   depends_on = [google_project_service.api["artifactregistry.googleapis.com"]]
+}
+
+# Build the custom ORDS container image using Cloud Build
+resource "null_resource" "ords_container_build" {
+  triggers = {
+    dockerfile_hash = filemd5("ords-container/Dockerfile")
+    script_hash     = filemd5("ords-container/start.sh")
+  }
+
+  provisioner "local-exec" {
+    command = "gcloud builds submit --tag ${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:latest ords-container"
+  }
+
+  depends_on = [google_artifact_registry_repository.ords_custom]
 }
 
 resource "google_cloud_run_v2_service" "ords" {
@@ -22,7 +28,7 @@ resource "google_cloud_run_v2_service" "ords" {
 
   template {
     containers {
-      image = "${google_artifact_registry_repository.ords_remote.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_remote.repository_id}/database/ords-developer:24.4.0"
+      image = "${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:latest"
 
       env {
         name  = "CONN_STRING"
@@ -38,7 +44,7 @@ resource "google_cloud_run_v2_service" "ords" {
 
   depends_on = [
     null_resource.provision_db_vm,
-    google_artifact_registry_repository.ords_remote
+    null_resource.ords_container_build
   ]
 }
 
