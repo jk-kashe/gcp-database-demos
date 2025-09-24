@@ -41,6 +41,14 @@ resource "google_compute_router_nat" "nat_gateway" {
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
 
+resource "google_vpc_access_connector" "serverless" {
+  name          = "serverless-connector"
+  region        = var.region
+  ip_cidr_range = var.vpc_connector_cidr_range
+  network       = google_compute_network.oracle.name
+  depends_on = [google_project_service.api["vpcaccess.googleapis.com"]]
+}
+
 output "network_name" {
   value = google_compute_network.oracle.name
 }

@@ -9,24 +9,11 @@ resource "google_compute_firewall" "allow_oracle_vm" {
   source_ranges = ["0.0.0.0/0"]
 }
 
-# Create a firewall rule to allow access to APEX
-resource "google_compute_firewall" "allow_apex_vm" {
-  name    = "allow-apex-vm"
-  network = google_compute_network.oracle.name
-  allow {
-    protocol = "tcp"
-    ports    = ["8181"]
-  }
-  source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["apex-vm"]
-}
-
 # Create a Compute Engine instance with OS Login enabled
 resource "google_compute_instance" "oracle_vm" {
   name         = "oracle-vm"
   machine_type = var.vm_machine_type
   zone         = data.google_compute_zones.available.names[0] # Select the first available zone
-  tags         = ["apex-vm"]
 
   boot_disk {
     initialize_params {
@@ -61,12 +48,12 @@ resource "time_sleep" "wait_for_vm_ssh" {
 }
 
 # Provision the VM after the delay
-resource "null_resource" "provision_vm" {
+resource "null_resource" "provision_db_vm" {
   depends_on = [time_sleep.wait_for_vm_ssh]
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${google_compute_instance.oracle_vm.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker network create apex-net && sudo docker run -d --name oracle-free --network apex-net -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest && mkdir -p /tmp/apex_config && echo "CONN_STRING=SYS/${var.vm_oracle_password}@oracle-free:1521/FREEPDB1" > /tmp/apex_config/conn_string.txt && sudo docker run -d --name ords --network apex-net -p 8181:8181 --restart always -v /tmp/apex_config:/opt/oracle/variables container-registry.oracle.com/database/ords-developer:24.4.0'
+      gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${google_compute_instance.oracle_vm.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker run -d --name oracle-free -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest'
     EOT
   }
 }
