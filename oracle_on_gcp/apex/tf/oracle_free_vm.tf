@@ -66,7 +66,7 @@ resource "null_resource" "provision_vm" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${google_compute_instance.oracle_vm.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker network create apex-net && sudo docker run -d --name oracle-free --network apex-net -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest && sudo docker run -d --name ords --network apex-net -p 8181:8181 --restart always -e DB_HOSTNAME=oracle-free -e DB_PORT=1521 -e DB_SERVICENAME=FREEPDB1 -e ORACLE_PASSWORD=${var.vm_oracle_password} container-registry.oracle.com/database/ords-developer:24.4.0'
+      gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${google_compute_instance.oracle_vm.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker network create apex-net && sudo docker run -d --name oracle-free --network apex-net -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest && mkdir -p /tmp/apex_config && echo "CONN_STRING=SYS/${var.vm_oracle_password}@oracle-free:1521/FREEPDB1" > /tmp/apex_config/conn_string.txt && sudo docker run -d --name ords --network apex-net -p 8181:8181 --restart always -v /tmp/apex_config:/opt/oracle/variables container-registry.oracle.com/database/ords-developer:24.4.0'
     EOT
   }
 }
