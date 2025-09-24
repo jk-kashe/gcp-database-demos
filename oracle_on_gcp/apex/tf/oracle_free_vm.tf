@@ -31,6 +31,7 @@ resource "google_compute_instance" "oracle_vm" {
   boot_disk {
     initialize_params {
       image = var.vm_image
+      size  = 50
     }
   }
 
