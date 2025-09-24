@@ -25,6 +25,7 @@ resource "null_resource" "ords_container_build" {
 resource "google_cloud_run_v2_service" "ords" {
   name     = "ords"
   location = var.region
+  deletion_protection = false
 
   template {
     containers {
