@@ -20,3 +20,10 @@ resource "google_project_iam_member" "cloudbuild_ar_writer" {
   role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
 }
+
+# Grant the Compute Engine service account access to write logs
+resource "google_project_iam_member" "compute_log_writer" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
