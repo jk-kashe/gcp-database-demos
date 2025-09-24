@@ -19,7 +19,11 @@ resource "null_resource" "ords_container_build" {
     command = "gcloud builds submit --tag ${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:latest ords-container"
   }
 
-  depends_on = [google_artifact_registry_repository.ords_custom]
+  depends_on = [
+    google_artifact_registry_repository.ords_custom,
+    google_storage_bucket_iam_member.compute_gcs_access,
+    google_storage_bucket_iam_member.cloudbuild_gcs_access,
+  ]
 }
 
 resource "google_cloud_run_v2_service" "ords" {
