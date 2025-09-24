@@ -14,11 +14,11 @@ resource "google_storage_bucket_iam_member" "cloudbuild_gcs_access" {
   member = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
 }
 
-# Grant the Cloud Build service account access to Artifact Registry
-resource "google_project_iam_member" "cloudbuild_ar_writer" {
+# Grant the Compute Engine service account access to Artifact Registry
+resource "google_project_iam_member" "compute_ar_writer" {
   project = var.project_id
   role    = "roles/artifactregistry.writer"
-  member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 # Grant the Compute Engine service account access to write logs
