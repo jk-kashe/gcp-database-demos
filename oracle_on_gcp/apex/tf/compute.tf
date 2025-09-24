@@ -21,7 +21,7 @@ resource "google_project_iam_member" "oracle_client" {
 }
 
 resource "google_compute_instance" "oracle_client" {
-  depends_on = [google_compute_instance.oracle_vm]
+  depends_on = [google_compute_instance.oracle_vm, null_resource.provision_vm]
 
   name         = "oracle-client-vm"
   zone         = random_shuffle.zone.result[0]
