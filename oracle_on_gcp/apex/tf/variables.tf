@@ -19,7 +19,8 @@ variable "apis" {
     "cloudresourcemanager.googleapis.com",
     "compute.googleapis.com",
     "run.googleapis.com",
-    "secretmanager.googleapis.com"
+    "secretmanager.googleapis.com",
+    "vpcaccess.googleapis.com"
   ]
 }
 
@@ -33,6 +34,12 @@ variable "subnet_cidr_range" {
   type        = string
   description = "CIDR range for subnet"
   default     = "172.16.1.0/24"
+}
+
+variable "vpc_connector_cidr_range" {
+  type        = string
+  description = "CIDR range for the VPC Access Connector"
+  default     = "10.8.0.0/28"
 }
 
 variable "vm_machine_type" {
