@@ -46,6 +46,8 @@ resource "google_vpc_access_connector" "serverless" {
   region        = var.region
   ip_cidr_range = var.vpc_connector_cidr_range
   network       = google_compute_network.oracle.name
+  min_instances = 2
+  max_instances = 3
   depends_on = [google_project_service.api["vpcaccess.googleapis.com"]]
 }
 
