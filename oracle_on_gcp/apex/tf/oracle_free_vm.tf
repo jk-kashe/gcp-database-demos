@@ -61,23 +61,12 @@ resource "time_sleep" "wait_for_vm_ssh" {
 }
 
 # Provision the VM after the delay
-resource "null_resource" "provision_oracle_vm" {
+resource "null_resource" "provision_vm" {
   depends_on = [time_sleep.wait_for_vm_ssh]
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${google_compute_instance.oracle_vm.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker network create apex-net && sudo docker run -d --name oracle-free --network apex-net -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest'
-    EOT
-  }
-}
-
-# Provision the APEX container
-resource "null_resource" "provision_apex_vm" {
-  depends_on = [null_resource.provision_oracle_vm]
-
-  provisioner "local-exec" {
-    command = <<EOT
-      gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${google_compute_instance.oracle_vm.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo docker run -d --name ords --network apex-net -p 8181:8181 --restart always -e DB_HOSTNAME=oracle-free -e DB_PORT=1521 -e DB_SERVICENAME=FREEPDB1 -e ORACLE_PASSWORD=${var.vm_oracle_password} container-registry.oracle.com/database/ords-developer:24.4.0'
+      gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${google_compute_instance.oracle_vm.zone} --project=${var.project_id} --tunnel-through-iap --command='sudo apt-get update && sudo apt-get install -y docker.io && sudo docker network create apex-net && sudo docker run -d --name oracle-free --network apex-net -p 1521:1521 -e ORACLE_PASSWORD=${var.vm_oracle_password} gvenzl/oracle-free:latest && sudo docker run -d --name ords --network apex-net -p 8181:8181 --restart always -e DB_HOSTNAME=oracle-free -e DB_PORT=1521 -e DB_SERVICENAME=FREEPDB1 -e ORACLE_PASSWORD=${var.vm_oracle_password} container-registry.oracle.com/database/ords-developer:24.4.0'
     EOT
   }
 }
