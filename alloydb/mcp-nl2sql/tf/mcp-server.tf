@@ -64,6 +64,7 @@ resource "google_vpc_access_connector" "mcp_server_vpc_connector" {
   region        = var.region
   network       = module.landing_zone.demo_network.name
   ip_cidr_range = "10.8.0.0/28"
+  min_throughput = 200
   max_throughput = 300
 }
 
