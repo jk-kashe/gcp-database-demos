@@ -13,11 +13,6 @@ variable "region" {
   description = "The GCP region."
 }
 
-variable "zone" {
-  type        = string
-  description = "The GCP zone."
-}
-
 variable "alloydb_cluster_name" {
   type        = string
   description = "AlloyDB Cluster Name"
