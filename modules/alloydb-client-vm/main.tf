@@ -79,7 +79,7 @@ resource "null_resource" "install_postgresql_client" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      gcloud compute ssh ${var.clientvm_name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
       --project ${var.project_id} --command='export DEBIAN_FRONTEND=noninteractive &&
       touch ~/.profile &&
       sudo apt-get update && sudo apt-get -y dist-upgrade &&
@@ -120,9 +120,9 @@ resource "null_resource" "create_remote_pgauth" {
   provisioner "local-exec" {
     command = <<-EOT
       echo "${data.template_file.pgauth_env.rendered}" > pgauth.env
-      gcloud compute scp pgauth.env ${var.clientvm_name}:~/ --zone=${var.region}-${var.zone} --tunnel-through-iap --project ${var.project_id}
+      gcloud compute scp pgauth.env ${var.clientvm-name}:~/ --zone=${var.region}-${var.zone} --tunnel-through-iap --project ${var.project_id}
       rm pgauth.env
-      gcloud compute ssh ${var.clientvm_name} --zone=${var.region}-${var.zone} --tunnel-through-iap --project ${var.project_id} --command='chmod 600 ~/pgauth.env'
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap --project ${var.project_id} --command='chmod 600 ~/pgauth.env'
     EOT
   }
 }
@@ -143,9 +143,9 @@ resource "null_resource" "db-alloydb-ai-" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute scp ${path.module}/files/db-alloydb-ai.sql ${var.clientvm_name}:~/ --zone=${var.region}-${var.zone} --tunnel-through-iap --project ${var.project_id}
+      gcloud compute scp ${path.module}/files/db-alloydb-ai.sql ${var.clientvm-name}:~/ --zone=${var.region}-${var.zone} --tunnel-through-iap --project ${var.project_id}
 
-      gcloud compute ssh ${var.clientvm_name} --zone=${var.region}-${var.zone} \
+      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
       --project ${var.project_id} \
       --command='source pgauth.env && \
@@ -158,7 +158,7 @@ resource "local_file" "alloydb_client_script" {
   filename = var.client_script_path
   content  = <<-EOT
 #!/bin/bash
-gcloud compute ssh ${var.clientvm_name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
+gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
 --project ${var.project_id}
   EOT
 }
