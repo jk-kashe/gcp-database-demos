@@ -8,6 +8,17 @@ resource "local_file" "tools_yaml" {
         database: pagila
         user: postgres
         password: ${var.alloydb_password}
+
+    tools:
+      pagila_sql:
+        kind: postgres-sql
+        source: pagila
+        description: "Use this tool to execute SQL against the pagila database."
+
+      pagila_list_tables:
+        kind: postgres-list-tables
+        source: pagila
+        description: "Lists all tables in the pagila database."
   EOT
   filename = "${path.module}/tools.yaml"
 }
