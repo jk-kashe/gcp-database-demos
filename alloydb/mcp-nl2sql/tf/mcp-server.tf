@@ -36,6 +36,12 @@ resource "google_project_iam_member" "mcp_server_alloydb_viewer" {
   member  = "serviceAccount:${google_service_account.mcp_server_identity.email}"
 }
 
+resource "google_project_service" "secretmanager_api" {
+  project = module.landing_zone.project_id
+  service = "secretmanager.googleapis.com"
+  disable_on_destroy = false
+}
+
 resource "google_secret_manager_secret" "mcp_tools_yaml_secret" {
   secret_id = "mcp-tools-yaml"
   project   = module.landing_zone.project_id
@@ -43,6 +49,8 @@ resource "google_secret_manager_secret" "mcp_tools_yaml_secret" {
   replication {
     auto {}
   }
+
+  depends_on = [google_project_service.secretmanager_api]
 }
 
 resource "google_secret_manager_secret_version" "mcp_tools_yaml_secret_version" {
@@ -56,6 +64,7 @@ resource "google_vpc_access_connector" "mcp_server_vpc_connector" {
   region        = var.region
   network       = module.landing_zone.demo_network.name
   ip_cidr_range = "10.8.0.0/28"
+  max_throughput = 300
 }
 
 resource "google_cloud_run_v2_service" "mcp_server" {
