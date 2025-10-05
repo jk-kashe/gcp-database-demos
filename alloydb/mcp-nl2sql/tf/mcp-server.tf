@@ -41,7 +41,7 @@ resource "google_secret_manager_secret" "mcp_tools_yaml_secret" {
   project   = module.landing_zone.project_id
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 
