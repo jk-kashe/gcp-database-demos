@@ -44,4 +44,5 @@ module "alloydb-client-vm" {
   alloydb_password            = var.alloydb_password
   alloydb_instance_ip         = module.alloydb.primary_instance_ip
   enable_ai                   = true
+  client_script_path          = "../alloydb-client.sh"
 }
