@@ -99,6 +99,7 @@ resource "null_resource" "install_postgresql_client" {
       sudo apt-get update && sudo apt-get dist-upgrade -y
       sudo apt install postgresql-client -y &&
       sudo apt install zip unzip -y &&
+      sudo apt-get install git -y &&
       echo "export PROJECT_ID=${var.project_id}" >> ~/.profile &&
       echo "export REGION=${var.region}" >> ~/.profile &&
       echo "export ADBCLUSTER=${var.alloydb_cluster_name}" >> ~/.profile &&
@@ -177,10 +178,7 @@ resource "null_resource" "db-alloydb-ai-" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute scp ${path.module}/files/db-alloydb-ai.sql ${var.clientvm_name}:~/
-      --zone=${var.region}-${var.zone} \
-      --tunnel-through-iap \
-      --project ${var.project_id}
+      gcloud compute scp ${path.module}/files/db-alloydb-ai.sql ${var.clientvm_name}:~/ --zone=${var.region}-${var.zone} --tunnel-through-iap --project ${var.project_id}
 
       gcloud compute ssh ${var.clientvm_name} --zone=${var.region}-${var.zone} \
       --tunnel-through-iap \
