@@ -11,7 +11,7 @@ resource "local_file" "tools_yaml" {
 
     tools:
       pagila_sql:
-        kind: postgres-sql
+        kind: postgres-execute-sql
         source: pagila
         description: "Use this tool to execute SQL against the pagila database."
 
