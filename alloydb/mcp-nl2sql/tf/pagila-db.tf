@@ -1,5 +1,8 @@
 resource "null_resource" "pagila_db_setup" {
-  depends_on = [module.alloydb.install_postgresql_client, module.alloydb.create_remote_pgauth]
+  triggers = {
+    install_dependency = module.alloydb.install_postgresql_client.id
+    pgauth_dependency = module.alloydb.create_remote_pgauth.id
+  }
 
   provisioner "local-exec" {
     command = <<EOT
