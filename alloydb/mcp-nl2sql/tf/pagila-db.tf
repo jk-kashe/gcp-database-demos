@@ -6,7 +6,7 @@ resource "null_resource" "pagila_db_setup" {
 
   provisioner "local-exec" {
     command = <<EOT
-      gcloud compute ssh ${var.clientvm-name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
+      gcloud compute ssh ${module.client_vm.clientvm_name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
       --project ${module.landing_zone.project_id} \
       --command=' 
         git clone https://github.com/devrimgunduz/pagila.git && \
