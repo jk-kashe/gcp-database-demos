@@ -102,7 +102,7 @@ resource "null_resource" "install_postgresql_client" {
       echo "export PROJECT_ID=${var.project_id}" >> ~/.profile &&
       echo "export REGION=${var.region}" >> ~/.profile &&
       echo "export ADBCLUSTER=${var.alloydb_cluster_name}" >> ~/.profile &&
-      echo "export PGHOST=$(gcloud alloydb instances describe ${var.alloydb_primary_name} --cluster=$ADBCLUSTER --region=$REGION --format=\"value(ipAddress)\")" >> ~/.profile &&
+      echo "export PGHOST=\$(gcloud alloydb instances describe ${var.alloydb_primary_name} --cluster=\$ADBCLUSTER --region=\$REGION --format=\"value(ipAddress)\")" >> ~/.profile &&
       echo "export PGUSER=postgres" >> ~/.profile'
     EOT
   }
