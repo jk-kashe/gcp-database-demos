@@ -1,13 +1,10 @@
 resource "null_resource" "pagila_db_setup" {
-  triggers = {
-    install_dependency = module.alloydb.install_postgresql_client.id
-    pgauth_dependency = module.alloydb.create_remote_pgauth.id
-  }
+  depends_on = [module.alloydb-client-vm]
 
   provisioner "local-exec" {
     command = <<EOT
-      echo "Forcing dependency on installer script ID: ${module.alloydb.install_postgresql_client.id}" && \
-      gcloud compute ssh ${module.client_vm.clientvm_name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
+      echo "Forcing dependency on provisioning ID: ${module.alloydb-client-vm.provisioned.id}" && \
+      gcloud compute ssh ${module.alloydb-client-vm.vm_instance.name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
       --project ${module.landing_zone.project_id} \
       --command=' 
         git clone https://github.com/devrimgunduz/pagila.git && \

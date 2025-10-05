@@ -51,20 +51,9 @@ variable "network_id" {
   description = "The ID of the VPC network to deploy AlloyDB into."
 }
 
-variable "clientvm_name" {
-  type        = string
-  description = "The name of the client VM."
-}
-
 variable "private_service_access_dependency" {
   type        = any
   description = "Dependency for the private service access connection."
-  default     = null
-}
-
-variable "clientvm_boot_dependency" {
-  type        = any
-  description = "Dependency for the client VM boot."
   default     = null
 }
 
@@ -72,11 +61,6 @@ variable "enable_service_usage_api_dependency" {
   type = any
   description = "Dependency for enabling service usage API."
   default = null
-}
-
-variable "client_script_path" {
-  type        = string
-  description = "The local path to write the alloydb-client.sh script to."
 }
 
 variable "enable_ai" {
