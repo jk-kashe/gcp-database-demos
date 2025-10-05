@@ -95,11 +95,12 @@ resource "null_resource" "install_postgresql_client" {
   provisioner "local-exec" {
     command = <<-EOT
       gcloud compute ssh ${var.clientvm_name} --zone=${var.region}-${var.zone} --tunnel-through-iap \
-      --project ${var.project_id} --command='touch ~/.profile &&
-      sudo apt-get update && sudo apt-get dist-upgrade -y
-      sudo apt install postgresql-client -y &&
-      sudo apt install zip unzip -y &&
-      sudo apt-get install git -y &&
+      --project ${var.project_id} --command='export DEBIAN_FRONTEND=noninteractive &&
+      touch ~/.profile &&
+      sudo apt-get update && sudo apt-get -y dist-upgrade &&
+      sudo apt-get -y install postgresql-client &&
+      sudo apt-get -y install zip unzip &&
+      sudo apt-get -y install git &&
       echo "export PROJECT_ID=${var.project_id}" >> ~/.profile &&
       echo "export REGION=${var.region}" >> ~/.profile &&
       echo "export ADBCLUSTER=${var.alloydb_cluster_name}" >> ~/.profile &&
