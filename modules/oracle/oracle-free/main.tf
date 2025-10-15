@@ -1,7 +1,7 @@
 # Create a firewall rule to allow access to the Oracle database
 resource "google_compute_firewall" "allow_oracle_vm" {
   name    = "allow-oracle-vm"
-  network = google_compute_network.oracle.name
+  network = var.network_name
   allow {
     protocol = "tcp"
     ports    = ["1521"]
@@ -13,7 +13,7 @@ resource "google_compute_firewall" "allow_oracle_vm" {
 resource "google_compute_instance" "oracle_vm" {
   name         = "oracle-vm"
   machine_type = var.vm_machine_type
-  zone         = data.google_compute_zones.available.names[0] # Select the first available zone
+  zone         = var.zone
 
   boot_disk {
     initialize_params {
@@ -35,8 +35,8 @@ resource "google_compute_instance" "oracle_vm" {
   }
 
   network_interface {
-    network    = google_compute_network.oracle.id
-    subnetwork = google_compute_subnetwork.oracle.id
+    network    = var.network_id
+    subnetwork = var.subnetwork_id
     # No access_config block, so no external IP will be assigned
   }
 }
