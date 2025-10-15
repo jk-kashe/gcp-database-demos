@@ -4,7 +4,6 @@ resource "google_compute_network" "demo_network" {
   auto_create_subnetworks = true
   depends_on              = [google_project_service.project_services]
   project                 = local.project_id
-
 }
 
 # Enable PGA
@@ -54,6 +53,7 @@ resource "google_compute_router" "nat-router" {
   region  = var.region
   network = google_compute_network.demo_network.name
   project = local.project_id
+  depends_on = [google_compute_firewall.allow_iap_ssh]
 }
 
 resource "google_compute_router_nat" "nat-config" {

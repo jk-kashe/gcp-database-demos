@@ -313,7 +313,10 @@ resource "google_cloud_run_v2_service" "retrieval_service" {
 # Create data stores
 resource "google_discovery_engine_data_store" "demo_agentspace_alloydb" {
   for_each   = local.agentspace_datastores
-  depends_on = [google_project_service.agentspace_services]
+  depends_on = [
+    google_project_service.agentspace_services,
+    var.nl2sql_setup_dependency
+  ]
 
   location                     = "global"
   data_store_id                = "cymbal-air-${each.value}"

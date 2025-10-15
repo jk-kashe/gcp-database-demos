@@ -110,3 +110,9 @@ variable "agentspace_alloydb_database_nl_config_id" {
   description = "Agentpsace AlloyDB Database Natural Language Config Id"
   default     = "agentspace_demo_cfg"
 }
+
+variable "nl2sql_setup_dependency" {
+  description = "A value to depend on from the nl2sql setup module."
+  type        = any
+  default     = null
+}
