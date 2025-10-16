@@ -39,10 +39,16 @@ resource "null_resource" "ords_container_build" {
   ]
 }
 
+data "google_project" "project" {}
+
 resource "google_cloud_run_v2_service" "ords" {
+  provider = google-beta
   name     = "ords"
   location = var.region
   deletion_protection = false
+  ingress      = "INGRESS_TRAFFIC_ALL"
+  launch_stage = "BETA"
+  iap_enabled  = true
 
   template {
     containers {
@@ -71,4 +77,13 @@ resource "google_cloud_run_v2_service" "ords" {
     var.db_instance_dependency,
     null_resource.ords_container_build
   ]
+}
+
+resource "google_cloud_run_v2_service_iam_member" "iap_invoker" {
+  project = google_cloud_run_v2_service.ords.project
+  location = google_cloud_run_v2_service.ords.location
+  name = google_cloud_run_v2_service.ords.name
+  role   = "roles/run.invoker"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-iap.iam.gserviceaccount.com"
+  depends_on = [google_cloud_run_v2_service.ords]
 }
