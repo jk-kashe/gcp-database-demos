@@ -10,26 +10,27 @@ resource "random_shuffle" "zone" {
 }
 
 module "landing_zone" {
-  source = "../../../../modules/landing-zone"
+  source = "../../../modules/landing-zone"
 
-  project_id = var.project_id
-  region     = var.region
-  zone       = random_shuffle.zone.result[0]
+  demo_project_id         = var.project_id
+  billing_account_id      = var.billing_account_id
+  region                  = var.region
+  zone                    = random_shuffle.zone.result[0]
+  provision_vpc_connector = true
 }
 
 module "oracle_free" {
-  source = "../../../../modules/oracle/oracle-free"
+  source = "../../../modules/oracle/oracle-free"
 
   project_id         = module.landing_zone.project_id
-  network_name       = module.landing_zone.network_name
-  network_id         = module.landing_zone.network_id
-  subnetwork_id      = module.landing_zone.subnetwork_id
+  network_name       = module.landing_zone.demo_network.name
+  network_id         = module.landing_zone.demo_network.id
   zone               = module.landing_zone.zone
   vm_oracle_password = var.vm_oracle_password
 }
 
 module "cloud_run_ords" {
-  source = "../../../../modules/oracle/cloud-run-ords"
+  source = "../../../modules/oracle/cloud-run-ords"
 
   project_id           = module.landing_zone.project_id
   region               = module.landing_zone.region
