@@ -13,3 +13,8 @@ variable "vm_oracle_password" {
   description = "Password for the Oracle database on the VM"
   sensitive   = true
 }
+
+variable "billing_account_id" {
+  type        = string
+  description = "Billing account id associated with this project"
+}

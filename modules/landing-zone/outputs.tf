@@ -32,3 +32,8 @@ output "private_service_access" {
     description = "The private service access connection."
     value = google_service_networking_connection.private_service_access
 }
+
+output "vpc_connector_id" {
+  description = "The ID of the VPC connector."
+  value       = var.provision_vpc_connector ? google_vpc_access_connector.connector[0].id : null
+}

@@ -16,6 +16,7 @@ variable "network_id" {
 variable "subnetwork_id" {
   type        = string
   description = "The ID of the subnetwork to deploy to."
+  default     = null
 }
 
 variable "zone" {
