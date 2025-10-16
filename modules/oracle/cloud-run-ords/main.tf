@@ -52,6 +52,13 @@ resource "google_cloud_run_v2_service" "ords" {
         name  = "CONN_STRING"
         value = "SYS/${var.vm_oracle_password}@${var.oracle_db_ip}:1521/FREEPDB1"
       }
+
+      resources {
+        limits = {
+          memory = "2Gi"
+          cpu    = "1"
+        }
+      }
     }
 
     vpc_access {
