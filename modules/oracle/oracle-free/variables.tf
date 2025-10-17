@@ -41,3 +41,9 @@ variable "vm_oracle_password" {
   description = "The password for the Oracle database."
   sensitive   = true
 }
+
+variable "client_script_path" {
+  type        = string
+  description = "The local path to write the sqlplus.sh script to."
+  default     = null
+}

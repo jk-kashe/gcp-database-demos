@@ -27,6 +27,7 @@ module "oracle_free" {
   network_id         = module.landing_zone.demo_network.id
   zone               = module.landing_zone.zone
   vm_oracle_password = var.vm_oracle_password
+  client_script_path = "../sqlplus.sh"
 }
 
 module "cloud_run_ords" {
