@@ -53,6 +53,10 @@ resource "google_compute_instance" "oracle_vm" {
     EOF
   }
 
+  service_account {
+    scopes = ["cloud-platform"]
+  }
+
   # Enable Shielded VM features to comply with org policy
   shielded_instance_config {
     enable_secure_boot          = true
