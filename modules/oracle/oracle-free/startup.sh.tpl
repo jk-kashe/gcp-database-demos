@@ -26,7 +26,7 @@ sudo sed -i "s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
 
 # Create and start the container
 sudo docker rm -f oracle-free || true
-sudo docker create --name oracle-free -p 1521:1521 --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
+sudo docker create --name oracle-free -p 1521:1521 -p 8080:8080 --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
 sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh
 sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh
 sudo docker start oracle-free
