@@ -19,7 +19,10 @@ EOF
 # Modify the main installation script to set passwords
 sudo sed -i "s/OrclAPEX1999!/${apex_admin_password}/g" /tmp/unattended_apex_install_23c.sh
 sudo sed -i "s/ALTER USER APEX_PUBLIC_USER IDENTIFIED BY E;/ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${db_user_password};/g" /tmp/unattended_apex_install_23c.sh
-sudo sed -i "/<<EOT/,/EOT/ s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
+# In the ORDS install heredoc, replace the first password placeholder with the SYS password
+sudo sed -i "0,/^E$/s//${vm_oracle_password}/" /tmp/unattended_apex_install_23c.sh
+# Then, replace the second (now only) password placeholder with the APEX_PUBLIC_USER password
+sudo sed -i "s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
 
 # Create and start the container
 sudo docker rm -f oracle-free || true
