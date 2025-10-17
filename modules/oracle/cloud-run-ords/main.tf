@@ -56,7 +56,7 @@ resource "google_cloud_run_v2_service" "ords" {
 
       env {
         name  = "CONN_STRING"
-        value = "SYS/${var.vm_oracle_password}@${var.oracle_db_ip}:1521/FREEPDB1"
+        value = "ORDS_PUBLIC_USER/${var.db_user_password}@${var.oracle_db_ip}:1521/FREEPDB1"
       }
 
       resources {

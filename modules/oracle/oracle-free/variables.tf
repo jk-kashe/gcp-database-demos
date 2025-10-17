@@ -47,3 +47,15 @@ variable "client_script_path" {
   description = "The local path to write the sqlplus.sh script to."
   default     = null
 }
+
+variable "apex_admin_password" {
+  type        = string
+  description = "The password for the APEX admin user."
+  sensitive   = true
+}
+
+variable "db_user_password" {
+  type        = string
+  description = "The password for the internal database users (like APEX_PUBLIC_USER)."
+  sensitive   = true
+}
