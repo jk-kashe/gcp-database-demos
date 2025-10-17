@@ -27,7 +27,7 @@ variable "zone" {
 variable "vm_machine_type" {
   type        = string
   description = "The machine type for the VM."
-  default     = "e2-medium"
+  default     = "e2-standard-4"
 }
 
 variable "vm_image" {
