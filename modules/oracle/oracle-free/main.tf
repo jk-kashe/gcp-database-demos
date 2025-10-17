@@ -48,7 +48,7 @@ resource "google_compute_instance" "oracle_vm" {
       sudo sed -i "/<<EOT/,/EOT/ s/^E$/${random_password.db_user_password.result}/" /tmp/unattended_apex_install_23c.sh
       
       sudo docker rm -f oracle-free || true
-      sudo docker create --name oracle-free -p 1521:1521 --log-driver=gcplogs -e ORACLE_PWD=${var.vm_oracle_password} container-registry.oracle.com/database/free:latest
+      sudo docker create --name oracle-free -p 1521:1521 --log-driver=gcplogs --restart=always -e ORACLE_PWD=${var.vm_oracle_password} container-registry.oracle.com/database/free:latest
       sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh
       sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh
       sudo docker start oracle-free
