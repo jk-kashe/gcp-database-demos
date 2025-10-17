@@ -39,7 +39,6 @@ variable "vm_image" {
 variable "vm_oracle_password" {
   type        = string
   description = "The password for the Oracle database."
-  sensitive   = true
 }
 
 variable "client_script_path" {
