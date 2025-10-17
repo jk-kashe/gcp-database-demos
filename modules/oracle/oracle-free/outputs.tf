@@ -11,3 +11,7 @@ output "db_user_password" {
 output "instance" {
   value = google_compute_instance.oracle_vm
 }
+
+output "install_finished" {
+  value = time_sleep.wait_for_apex_install.id
+}
