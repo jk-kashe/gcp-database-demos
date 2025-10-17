@@ -66,6 +66,6 @@ resource "local_file" "sqlplus_client_script" {
 # This script connects directly to the SQL*Plus client inside the Oracle VM's Docker container.
 # You will be prompted for the password defined in the 'vm_oracle_password' Terraform variable.
 
-gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${var.zone} --tunnel-through-iap --project ${var.project_id} --command "sudo docker exec -it oracle-free sqlplus system@//localhost:1521/FREEPDB1"
+gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${var.zone} --tunnel-through-iap --project ${var.project_id} -- -t "sudo docker exec -it oracle-free sqlplus system@//localhost:1521/FREEPDB1"
   EOT
 }
