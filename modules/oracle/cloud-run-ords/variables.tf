@@ -24,6 +24,12 @@ variable "vm_oracle_password" {
   sensitive   = true
 }
 
+variable "db_user_password" {
+  type        = string
+  description = "The password for the internal database users (like ORDS_PUBLIC_USER)."
+  sensitive   = true
+}
+
 variable "oracle_db_ip" {
   type        = string
   description = "The IP address of the Oracle database."

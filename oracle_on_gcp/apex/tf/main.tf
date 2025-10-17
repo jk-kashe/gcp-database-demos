@@ -36,6 +36,7 @@ module "cloud_run_ords" {
   project_id           = module.landing_zone.project_id
   region               = module.landing_zone.region
   vm_oracle_password   = var.vm_oracle_password
+  db_user_password     = module.oracle_free.db_user_password
   oracle_db_ip         = module.oracle_free.instance.network_interface[0].network_ip
   vpc_connector_id     = module.landing_zone.vpc_connector_id
   db_instance_dependency = module.oracle_free.instance
