@@ -21,13 +21,11 @@ variable "apis" {
 variable "vm_oracle_password" {
   type        = string
   description = "The password for the Oracle database."
-  sensitive   = true
 }
 
 variable "db_user_password" {
   type        = string
   description = "The password for the internal database users (like ORDS_PUBLIC_USER)."
-  sensitive   = true
 }
 
 variable "oracle_db_ip" {

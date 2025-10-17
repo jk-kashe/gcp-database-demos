@@ -80,8 +80,8 @@ resource "null_resource" "provision_db_vm" {
         sudo sed -i "s/OrclAPEX1999!/${random_password.apex_admin_password.result}/g" /tmp/unattended_apex_install_23c.sh && \
         sudo sed -i "s/ALTER USER APEX_PUBLIC_USER IDENTIFIED BY E;/ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${random_password.db_user_password.result};/g" /tmp/unattended_apex_install_23c.sh && \
         sudo sed -i "/<<EOT/,/EOT/ s/^E$/${random_password.db_user_password.result}/" /tmp/unattended_apex_install_23c.sh && \
-        sudo sed -i "s|sh /home/oracle/scripts/start_ords.sh|# sh /home/oracle/scripts/start_ords.sh|g" /tmp/unattended_apex_install_23c.sh && \
-        sudo sed -i "s|echo .*01_auto_ords.sh|# echo .*01_auto_ords.sh|g" /tmp/unattended_apex_install_23c.sh && \
+#        sudo sed -i "s|sh /home/oracle/scripts/start_ords.sh|# sh /home/oracle/scripts/start_ords.sh|g" /tmp/unattended_apex_install_23c.sh && \
+#        sudo sed -i "s|echo .*01_auto_ords.sh|# echo .*01_auto_ords.sh|g" /tmp/unattended_apex_install_23c.sh && \
         sudo docker create --name oracle-free -p 1521:1521 -e ORACLE_PWD=${var.vm_oracle_password} container-registry.oracle.com/database/free:latest && \
         sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh && \
         sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh && \
