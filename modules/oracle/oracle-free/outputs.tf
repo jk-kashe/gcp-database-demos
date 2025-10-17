@@ -12,6 +12,6 @@ output "instance" {
   value = google_compute_instance.oracle_vm
 }
 
-output "install_finished" {
-  value = time_sleep.wait_for_apex_install.id
+output "startup_script_wait" {
+  value = time_sleep.wait_for_startup_script.id
 }
