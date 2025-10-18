@@ -12,7 +12,14 @@ sudo apt-get install -y docker.io gcsfuse
 
 # Mount the GCS bucket with verbose logging
 sudo mkdir -p /mnt/ords_config
-sudo gcsfuse ${gcs_bucket_name} /mnt/ords_config --log-severity trace
+sudo gcsfuse ${gcs_bucket_name} /mnt/ords_config --log-severity trace --foreground &
+
+# Wait for the mount to be ready before proceeding
+while ! mount | grep -q "/mnt/ords_config type fuse.gcsfuse"; do
+  echo "Waiting for GCS bucket to mount..."
+  sleep 2
+done
+
 sudo chmod -R 777 /mnt/ords_config
 
 curl -o /tmp/unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
