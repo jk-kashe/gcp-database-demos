@@ -108,6 +108,10 @@ resource "google_cloud_run_v2_service" "ords" {
       ports {
         container_port = 8080
       }
+      volume_mounts {
+        name       = "ords-config"
+        mount_path = "/etc/ords/config"
+      }
       env {
         name  = "DBHOST"
         value = var.oracle_db_ip
@@ -178,6 +182,13 @@ resource "google_cloud_run_v2_service" "ords" {
     vpc_access {
       connector = var.vpc_connector_id
       egress    = "ALL_TRAFFIC"
+    }
+    volumes {
+      name = "ords-config"
+      gcs {
+        bucket    = var.gcs_bucket_name
+        read_only = true
+      }
     }
   }
 

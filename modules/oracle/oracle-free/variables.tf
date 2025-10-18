@@ -46,3 +46,9 @@ variable "client_script_path" {
   description = "The local path to write the sqlplus.sh script to."
   default     = null
 }
+
+variable "gcs_bucket_name" {
+  type        = string
+  description = "The name of the GCS bucket to store the ORDS config in"
+  default     = null
+}

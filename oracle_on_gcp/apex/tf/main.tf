@@ -9,6 +9,13 @@ resource "random_shuffle" "zone" {
   result_count = 1
 }
 
+resource "google_storage_bucket" "ords_config" {
+  name          = "ords-config-${var.project_id}"
+  location      = var.region
+  force_destroy = true
+}
+
+
 module "landing_zone" {
   source = "../../../modules/landing-zone"
 
@@ -28,6 +35,7 @@ module "oracle_free" {
   zone               = module.landing_zone.zone
   vm_oracle_password = var.vm_oracle_password
   client_script_path = "../sqlplus.sh"
+  gcs_bucket_name    = google_storage_bucket.ords_config.name
 }
 
 # Generate the polling script from the template
@@ -67,12 +75,15 @@ module "cloud_run_ords" {
   vpc_connector_id       = module.landing_zone.vpc_connector_id
   ords_container_tag     = data.local_file.ords_version.content
   db_instance_dependency = module.oracle_free.startup_script_wait
+  gcs_bucket_name        = google_storage_bucket.ords_config.name
   iam_dependency = [
     google_storage_bucket_iam_member.compute_gcs_access,
     google_storage_bucket_iam_member.cloudbuild_gcs_access,
     google_project_iam_member.compute_ar_writer,
     google_project_iam_member.compute_log_writer
   ]
+
+  depends_on = [module.oracle-free]
 }
 
 resource "local_file" "credentials" {
