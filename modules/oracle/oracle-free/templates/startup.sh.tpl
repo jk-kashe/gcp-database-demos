@@ -56,6 +56,10 @@ sudo sed -i "0,/^E$/s//${vm_oracle_password}/" /tmp/unattended_apex_install_23c.
 # Then, replace the second (now only) password placeholder with the APEX_PUBLIC_USER password
 sudo sed -i "s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
 
+# Get the VM's internal IP address from the metadata server and replace the hardcoded 'localhost'
+INTERNAL_IP=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
+sudo sed -i "s/--db-hostname localhost/--db-hostname $INTERNAL_IP/g" /tmp/unattended_apex_install_23c.sh
+
 # Inject the version reporting command into the installation script
 sudo sed -i "/dnf install ords -y/a ORDS_VERSION=\$(rpm -q --qf '%%{VERSION}' ords) \&\& curl -X PUT --data \"\$${ORDS_VERSION}\" -H \"Metadata-Flavor: Google\" http://metadata.google.internal/computeMetadata/v1/instance/guest-attributes/ords/version" /tmp/unattended_apex_install_23c.sh
 
