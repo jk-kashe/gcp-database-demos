@@ -38,8 +38,7 @@ resource "google_compute_instance" "oracle_vm" {
       apex_admin_password = random_password.apex_admin_password.result,
       db_user_password    = random_password.db_user_password.result,
       vm_oracle_password  = var.vm_oracle_password,
-      gcs_bucket_name     = var.gcs_bucket_name,
-      vm_name             = google_compute_instance.oracle_vm.name
+      gcs_bucket_name     = var.gcs_bucket_name
     })
   }
 
