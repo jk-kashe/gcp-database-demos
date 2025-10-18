@@ -1,10 +1,12 @@
 output "apex_admin_password" {
   value       = random_password.apex_admin_password.result
+  sensitive   = true
   description = "The generated password for the APEX ADMIN user."
 }
 
 output "db_user_password" {
   value       = random_password.db_user_password.result
+  sensitive   = true
   description = "The generated password for the internal database users."
 }
 

@@ -47,3 +47,13 @@ module "cloud_run_ords" {
     google_project_iam_member.compute_log_writer
   ]
 }
+
+resource "local_file" "credentials" {
+  filename = "../apex-credentials.txt"
+  content  = <<-EOT
+Your APEX and database credentials:
+
+APEX Admin Password: ${module.oracle_free.apex_admin_password}
+Database User Password: ${module.oracle_free.db_user_password}
+  EOT
+}

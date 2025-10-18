@@ -44,3 +44,5 @@ alloydb/cymbal-air/combine.sh
 alloydb/cymbal-air/combined.txt
 spanner/finance-advisor/spanner-client.sh
 .vscode/settings.json
+*-credentials.txt
+
