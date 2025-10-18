@@ -83,7 +83,7 @@ module "cloud_run_ords" {
     google_project_iam_member.compute_log_writer
   ]
 
-  depends_on = [module.oracle-free]
+  depends_on = [module.oracle_free]
 }
 
 resource "local_file" "credentials" {
