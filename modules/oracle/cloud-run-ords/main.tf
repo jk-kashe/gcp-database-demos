@@ -42,56 +42,56 @@ resource "google_cloud_run_v2_service" "ords" {
       # Provide the SYS password for the initial installation
       env {
         name = "ORACLE_PWD"
-        valueFrom {
+        value_source {
           secret_key_ref {
-            secret  = "vm_oracle_password"
-            version = "1"
+            secret  = google_secret_manager_secret.vm_oracle_password.secret_id
+            version = "latest"
           }
         }
       }
       # Provide the password for the other database users that will be configured
       env {
         name = "ORDS_PUBLIC_USER_PASSWORD"
-        valueFrom {
+        value_source {
           secret_key_ref {
-            secret  = "db_user_password"
-            version = "1"
+            secret  = google_secret_manager_secret.db_user_password.secret_id
+            version = "latest"
           }
         }
       }
        env {
         name = "APEX_PUBLIC_USER_PASSWORD"
-        valueFrom {
+        value_source {
           secret_key_ref {
-            secret  = "db_user_password"
-            version = "1"
+            secret  = google_secret_manager_secret.db_user_password.secret_id
+            version = "latest"
           }
         }
       }
        env {
         name = "APEX_LISTENER_PASSWORD"
-        valueFrom {
+        value_source {
           secret_key_ref {
-            secret  = "db_user_password"
-            version = "1"
+            secret  = google_secret_manager_secret.db_user_password.secret_id
+            version = "latest"
           }
         }
       }
        env {
         name = "APEX_REST_PUBLIC_USER_PASSWORD"
-        valueFrom {
+        value_source {
           secret_key_ref {
-            secret  = "db_user_password"
-            version = "1"
+            secret  = google_secret_manager_secret.db_user_password.secret_id
+            version = "latest"
           }
         }
       }
       env {
         name = "ORDS_METADATA_USER_PASSWORD"
-        valueFrom {
+        value_source {
           secret_key_ref {
-            secret  = "db_user_password"
-            version = "1"
+            secret  = google_secret_manager_secret.db_user_password.secret_id
+            version = "latest"
           }
         }
       }
