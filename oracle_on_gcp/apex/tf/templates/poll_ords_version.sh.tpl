@@ -7,13 +7,16 @@ MAX_RETRIES=40
 VM_NAME="${vm_name}"
 ZONE="${zone}"
 PROJECT_ID="${project_id}"
+OUTPUT_FILE="${output_file}"
 
 while true; do
-  VALUE=$(gcloud compute instances get-guest-attributes "$VM_NAME" --query-path="ords/version" --zone="$ZONE" --project="$PROJECT_ID" 2>/dev/null)
+  # Use --format="value(query_value)" to get only the version string
+  VALUE=$(gcloud compute instances get-guest-attributes "$VM_NAME" --query-path="ords/version" --zone="$ZONE" --project="$PROJECT_ID" --format="value(query_value)" 2>/dev/null)
+  
   if [[ -n "$VALUE" ]]; then
     echo "Found ORDS version: $VALUE"
-    # Output the value so Terraform can capture it if needed, though we're just using this for polling.
-    echo "$VALUE"
+    # Write the value to the output file for Terraform to read
+    echo -n "$VALUE" > "$OUTPUT_FILE"
     exit 0
   fi
 
