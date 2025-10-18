@@ -1,4 +1,5 @@
-FROM container-registry.oracle.com/database/ords-developer:24.4.0
+ARG ORDS_VERSION
+FROM container-registry.oracle.com/database/ords:${ORDS_VERSION}
 
 WORKDIR /opt/oracle
 COPY start.sh .
