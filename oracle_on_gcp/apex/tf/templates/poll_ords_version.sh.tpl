@@ -23,6 +23,6 @@ while true; do
     exit 1
   fi
 
-  echo "Waiting for ORDS version attribute... (Attempt ${COUNTER}/${MAX_RETRIES})"
+  echo "Waiting for ORDS version attribute... (Attempt $${COUNTER}/$${MAX_RETRIES})"
   sleep 60
 done
