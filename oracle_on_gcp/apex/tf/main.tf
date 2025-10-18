@@ -9,10 +9,17 @@ resource "random_shuffle" "zone" {
   result_count = 1
 }
 
+resource "random_string" "bucket_suffix" {
+  length  = 4
+  special = false
+  upper   = false
+}
+
 resource "google_storage_bucket" "ords_config" {
-  name          = "ords-config-${var.project_id}"
-  location      = var.region
-  force_destroy = true
+  name                         = "ords-config-${var.project_id}-${random_string.bucket_suffix.result}"
+  location                     = var.region
+  force_destroy                = true
+  uniform_bucket_level_access = true
 }
 
 
