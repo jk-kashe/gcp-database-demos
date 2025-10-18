@@ -33,7 +33,7 @@ resource "google_compute_instance" "oracle_vm" {
 
   metadata = {
     enable-oslogin = "TRUE"
-    startup-script = templatefile("${path.module}/startup.sh.tpl", {
+    startup-script = templatefile("${path.module}/templates/startup.sh.tpl", {
       apex_admin_password = random_password.apex_admin_password.result,
       db_user_password    = random_password.db_user_password.result,
       vm_oracle_password  = var.vm_oracle_password
@@ -83,4 +83,32 @@ resource "local_file" "sqlplus_client_script" {
 
 gcloud compute ssh ${google_compute_instance.oracle_vm.name} --zone=${var.zone} --tunnel-through-iap --project ${var.project_id} -- -t "sudo docker exec -it oracle-free sqlplus system@//localhost:1521/FREEPDB1"
   EOT
+}
+
+resource "local_file" "ords_connect_script" {
+  count    = var.client_script_path == null ? 0 : 1
+  filename = "${dirname(var.client_script_path)}/ords-connect.sh"
+  content  = templatefile("${path.module}/templates/ords-connect.sh.tpl", {
+    vm_name    = google_compute_instance.oracle_vm.name,
+    zone       = var.zone,
+    project_id = var.project_id
+  })
+}
+
+resource "null_resource" "make_scripts_executable" {
+  count = var.client_script_path == null ? 0 : 1
+
+  triggers = {
+    sqlplus_script = local_file.sqlplus_client_script[0].filename
+    ords_script    = local_file.ords_connect_script[0].filename
+  }
+
+  provisioner "local-exec" {
+    command = "chmod +x ${local_file.sqlplus_client_script[0].filename} && chmod +x ${local_file.ords_connect_script[0].filename}"
+  }
+
+  depends_on = [
+    local_file.sqlplus_client_script,
+    local_file.ords_connect_script
+  ]
 }
