@@ -84,6 +84,7 @@ resource "google_secret_manager_secret_iam_member" "db_password_accessor" {
 
 # Deploy the built container to Cloud Run
 resource "google_cloud_run_v2_service" "ords" {
+  provider = google-beta
   name     = "ords"
   location = var.region
   project  = var.project_id
