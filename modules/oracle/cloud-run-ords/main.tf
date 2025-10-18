@@ -87,6 +87,9 @@ resource "google_cloud_run_v2_service" "ords" {
   name     = "ords"
   location = var.region
   project  = var.project_id
+  ingress      = "INGRESS_TRAFFIC_ALL"
+  launch_stage = "BETA"
+  iap_enabled  = true
   deletion_protection = false
 
   template {
@@ -183,4 +186,13 @@ resource "google_cloud_run_v2_service" "ords" {
     google_secret_manager_secret_iam_member.oracle_password_accessor,
     google_secret_manager_secret_iam_member.db_password_accessor
   ]
+}
+
+resource "google_cloud_run_v2_service_iam_member" "iap_invoker" {
+  project = google_cloud_run_v2_service.ords.project
+  location = google_cloud_run_v2_service.ords.location
+  name = google_cloud_run_v2_service.ords.name
+  role   = "roles/run.invoker"
+  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-iap.iam.gserviceaccount.com"
+  depends_on = [google_cloud_run_v2_service.ords]
 }
