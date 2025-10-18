@@ -1,6 +1,9 @@
 #!/bin/bash
 exec > >(logger -t startup-script) 2>&1
 
+# Get the VM's hostname from the metadata server
+VM_HOSTNAME=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/name" -H "Metadata-Flavor: Google")
+
 sudo apt-get update
 
 # Install the Ops Agent to forward system logs to Cloud Logging
@@ -57,7 +60,7 @@ sudo sed -i "0,/^E$/s//${vm_oracle_password}/" /tmp/unattended_apex_install_23c.
 sudo sed -i "s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
 
 # Replace the hardcoded 'localhost' in the ORDS install command with the VM's actual hostname
-sudo sed -i "s/--db-hostname localhost/--db-hostname ${vm_name}/g" /tmp/unattended_apex_install_23c.sh
+sudo sed -i "s/--db-hostname localhost/--db-hostname ${VM_HOSTNAME}/g" /tmp/unattended_apex_install_23c.sh
 
 # Inject the version reporting command into the installation script
 sudo sed -i "/dnf install ords -y/a ORDS_VERSION=\$(rpm -q --qf '%%{VERSION}' ords) \&\& curl -X PUT --data \"\$${ORDS_VERSION}\" -H \"Metadata-Flavor: Google\" http://metadata.google.internal/computeMetadata/v1/instance/guest-attributes/ords/version" /tmp/unattended_apex_install_23c.sh
@@ -69,7 +72,7 @@ if [ ! "$(sudo docker ps -a -q -f name=oracle-free)" ]; then
   echo "Removing old ORDS configuration from GCS mount..."
   sudo rm -rf /mnt/ords_config/*
   sudo docker rm -f oracle-free || true
-  sudo docker create --name oracle-free --hostname=${vm_name} -p 1521:1521 -p 8080:8080 -v /mnt/ords_config:/etc/ords/config --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
+  sudo docker create --name oracle-free --hostname=${VM_HOSTNAME} -p 1521:1521 -p 8080:8080 -v /mnt/ords_config:/etc/ords/config --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
   sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh
   sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh
   sudo docker start oracle-free
