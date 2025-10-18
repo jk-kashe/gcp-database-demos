@@ -61,6 +61,48 @@ module "oracle_free" {
   depends_on = [time_sleep.wait_for_iam_propagation]
 }
 
+# Service Directory and DNS for short-name resolution
+resource "google_service_directory_namespace" "oracle_apex_ns" {
+  project      = module.landing_zone.project_id
+  namespace_id = "oracle-apex-namespace"
+  location     = module.landing_zone.region
+}
+
+resource "google_service_directory_service" "oracle_vm_sd" {
+  project    = module.landing_zone.project_id
+  namespace  = google_service_directory_namespace.oracle_apex_ns.id
+  service_id = module.oracle_free.instance.name # Dynamic service name
+  location   = module.landing_zone.region
+}
+
+resource "google_service_directory_endpoint" "oracle_vm_sd_endpoint" {
+  project     = module.landing_zone.project_id
+  service     = google_service_directory_service.oracle_vm_sd.id
+  endpoint_id = "${module.oracle_free.instance.name}-endpoint"
+  location    = module.landing_zone.region
+  address     = module.oracle_free.instance.network_interface[0].network_ip
+  port        = 1521
+}
+
+resource "google_dns_managed_zone" "sd_dns_zone" {
+  name        = "oracle-vm-sd-zone"
+  dns_name    = "svc.internal."
+  description = "Private DNS zone for Service Directory"
+  visibility  = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = module.landing_zone.demo_network.id
+    }
+  }
+
+  service_directory_config {
+    namespace {
+      namespace_url = google_service_directory_namespace.oracle_apex_ns.id
+    }
+  }
+}
+
 # Generate the polling script from the template
 resource "local_file" "poll_script" {
   filename = "${path.module}/scripts/poll_ords_version.sh"
@@ -106,7 +148,11 @@ module "cloud_run_ords" {
     google_project_iam_member.compute_log_writer
   ]
 
-  depends_on = [module.oracle_free, module.landing_zone]
+  depends_on = [
+    module.oracle_free,
+    module.landing_zone,
+    google_dns_managed_zone.sd_dns_zone
+  ]
 }
 
 resource "local_file" "credentials" {
