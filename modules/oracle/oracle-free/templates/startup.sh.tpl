@@ -25,7 +25,7 @@ sudo sed -i "0,/^E$/s//${vm_oracle_password}/" /tmp/unattended_apex_install_23c.
 sudo sed -i "s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
 
 # Inject the version reporting command into the installation script
-sudo sed -i "/dnf -y install ords/a ORDS_VERSION=\$(rpm -q --qf '%{VERSION}' ords) \&\& curl -X PUT --data \"\${ORDS_VERSION}\" -H \"Metadata-Flavor: Google\" http://metadata.google.internal/computeMetadata/v1/instance/guest-attributes/ords/version" /tmp/unattended_apex_install_23c.sh
+sudo sed -i "/dnf -y install ords/a ORDS_VERSION=\$(rpm -q --qf '%%{VERSION}' ords) \&\& curl -X PUT --data \"\$${ORDS_VERSION}\" -H \"Metadata-Flavor: Google\" http://metadata.google.internal/computeMetadata/v1/instance/guest-attributes/ords/version" /tmp/unattended_apex_install_23c.sh
 
 # Create and start the container
 sudo docker rm -f oracle-free || true
