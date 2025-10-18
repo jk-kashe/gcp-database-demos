@@ -11,7 +11,7 @@ OUTPUT_FILE="${output_file}"
 
 while true; do
   # Use --format="value(query_value)" to get only the version string
-  VALUE=$(gcloud compute instances get-guest-attributes "$VM_NAME" --query-path="ords/version" --zone="$ZONE" --project="$PROJECT_ID" --format="value(query_value)" 2>/dev/null)
+  VALUE=$(gcloud compute instances get-guest-attributes "$VM_NAME" --query-path="ords/version" --zone="$ZONE" --project="$PROJECT_ID" --format="value(query_value)")
   
   if [[ -n "$VALUE" ]]; then
     echo "Found ORDS version: $VALUE"
