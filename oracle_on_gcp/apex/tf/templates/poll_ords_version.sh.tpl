@@ -12,8 +12,8 @@ echo "Starting to poll for ORDS version via direct SSH..."
 
 while true; do
   # Use gcloud ssh to execute the command directly inside the container.
-  # Suppress stderr (2>/dev/null) as failures are expected while the container is starting up or ORDS is installing.
-  VERSION=$(gcloud compute ssh "$VM_NAME" --zone="$ZONE" --project="$PROJECT_ID" --command="sudo docker exec oracle-free rpm -q --qf '%{VERSION}' ords" 2>/dev/null)
+  # The "2>/dev/null" is now inside the command string to suppress errors on the remote host.
+  VERSION=$(gcloud compute ssh "$VM_NAME" --zone="$ZONE" --project="$PROJECT_ID" --command="sudo docker exec oracle-free rpm -q --qf '%{VERSION}' ords 2>/dev/null")
   
   # Check if we got a non-empty version string that doesn't contain an error message.
   if [[ -n "$VERSION" && "$VERSION" != *"not installed"* && "$VERSION" != *"No such container"* ]]; then
