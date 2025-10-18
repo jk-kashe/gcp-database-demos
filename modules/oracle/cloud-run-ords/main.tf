@@ -87,6 +87,7 @@ resource "google_cloud_run_v2_service" "ords" {
   name     = "ords"
   location = var.region
   project  = var.project_id
+  deletion_protection = false
 
   template {
     scaling {
