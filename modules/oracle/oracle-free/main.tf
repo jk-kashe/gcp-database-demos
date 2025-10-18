@@ -37,7 +37,8 @@ resource "google_compute_instance" "oracle_vm" {
     startup-script = templatefile("${path.module}/templates/startup.sh.tpl", {
       apex_admin_password = random_password.apex_admin_password.result,
       db_user_password    = random_password.db_user_password.result,
-      vm_oracle_password  = var.vm_oracle_password
+      vm_oracle_password  = var.vm_oracle_password,
+      gcs_bucket_name     = var.gcs_bucket_name
     })
   }
 

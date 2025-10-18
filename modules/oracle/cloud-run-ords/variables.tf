@@ -54,3 +54,9 @@ variable "ords_container_tag" {
   type        = string
   description = "The container tag for the ORDS image, derived from the VM installation."
 }
+
+variable "gcs_bucket_name" {
+  type        = string
+  description = "The name of the GCS bucket where the ORDS config is stored."
+  default     = null
+}

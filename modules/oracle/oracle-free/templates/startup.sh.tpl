@@ -1,7 +1,16 @@
 #!/bin/bash
 sudo apt-get update
-sudo apt-get install -y docker.io
+sudo apt-get install -y docker.io gcsfuse
+
+# Mount the GCS bucket
+sudo mkdir -p /mnt/ords_config
+sudo gcsfuse ${gcs_bucket_name} /mnt/ords_config
+sudo chmod -R 777 /mnt/ords_config
+
 curl -o /tmp/unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
+
+# Remove conflicting directory creation from the install script
+sudo sed -i '/mkdir \/etc\/ords/d' /tmp/unattended_apex_install_23c.sh
 
 # Create the new entrypoint script with the wait logic
 cat > /tmp/00_start_apex_ords_installer.sh <<'EOF'
@@ -31,7 +40,7 @@ sudo sed -i "/dnf install ords -y/a ORDS_VERSION=\$(rpm -q --qf '%%{VERSION}' or
 if [ ! "$(sudo docker ps -a -q -f name=oracle-free)" ]; then
   echo "Container 'oracle-free' not found. Running initial setup..."
   sudo docker rm -f oracle-free || true
-  sudo docker create --name oracle-free -p 1521:1521 -p 8080:8080 --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
+  sudo docker create --name oracle-free -p 1521:1521 -p 8080:8080 -v /mnt/ords_config:/etc/ords/config --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
   sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh
   sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh
   sudo docker start oracle-free
