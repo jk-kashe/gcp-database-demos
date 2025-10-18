@@ -71,10 +71,8 @@ resource "google_service_directory_namespace" "oracle_apex_ns" {
 
 resource "google_service_directory_service" "oracle_vm_sd" {
   provider   = google-beta
-  project    = module.landing_zone.project_id
   namespace  = google_service_directory_namespace.oracle_apex_ns.id
   service_id = module.oracle_free.instance.name # Dynamic service name
-  location   = module.landing_zone.region
 }
 
 resource "google_service_directory_endpoint" "oracle_vm_sd_endpoint" {
