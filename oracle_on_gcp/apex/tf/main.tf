@@ -67,34 +67,12 @@ resource "time_sleep" "wait_for_apis" {
   depends_on = [module.landing_zone]
 }
 
-# Service Directory and DNS for short-name resolution
-resource "google_service_directory_namespace" "oracle_apex_ns" {
-  provider     = google-beta
-  project      = module.landing_zone.project_id
-  namespace_id = "oracle-apex-namespace"
-  location     = module.landing_zone.region
-  depends_on = [time_sleep.wait_for_apis]
-}
-
-resource "google_service_directory_service" "oracle_vm_sd" {
-  provider   = google-beta
-  namespace  = google_service_directory_namespace.oracle_apex_ns.id
-  service_id = module.oracle_free.instance.name # Dynamic service name
-}
-
-resource "google_service_directory_endpoint" "oracle_vm_sd_endpoint" {
+# Private DNS zone for the Oracle VM short name
+resource "google_dns_managed_zone" "oracle_vm_private_zone" {
   provider    = google-beta
-  service     = google_service_directory_service.oracle_vm_sd.id
-  endpoint_id = "${module.oracle_free.instance.name}-endpoint"
-  address     = module.oracle_free.instance.network_interface[0].network_ip
-  port        = 1521
-}
-
-resource "google_dns_managed_zone" "sd_dns_zone" {
-  provider    = google-beta
-  name        = "oracle-vm-sd-zone"
-  dns_name    = "svc.internal."
-  description = "Private DNS zone for Service Directory"
+  name        = "${module.oracle_free.instance.name}-zone"
+  dns_name    = "${module.oracle_free.instance.name}."
+  description = "Private DNS zone for Oracle VM short name resolution"
   visibility  = "private"
 
   private_visibility_config {
@@ -102,12 +80,18 @@ resource "google_dns_managed_zone" "sd_dns_zone" {
       network_url = module.landing_zone.demo_network.id
     }
   }
+  
+  depends_on = [time_sleep.wait_for_apis]
+}
 
-  service_directory_config {
-    namespace {
-      namespace_url = google_service_directory_namespace.oracle_apex_ns.id
-    }
-  }
+# A record for the Oracle VM
+resource "google_dns_record_set" "oracle_vm_a_record" {
+  provider     = google-beta
+  name         = google_dns_managed_zone.oracle_vm_private_zone.dns_name
+  managed_zone = google_dns_managed_zone.oracle_vm_private_zone.name
+  type         = "A"
+  ttl          = 300
+  rrdatas      = [module.oracle_free.instance.network_interface[0].network_ip]
 }
 
 # Generate the polling script from the template
@@ -158,7 +142,7 @@ module "cloud_run_ords" {
   depends_on = [
     module.oracle_free,
     module.landing_zone,
-    google_dns_managed_zone.sd_dns_zone
+    google_dns_record_set.oracle_vm_a_record
   ]
 }
 
