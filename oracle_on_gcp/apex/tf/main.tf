@@ -77,10 +77,8 @@ resource "google_service_directory_service" "oracle_vm_sd" {
 
 resource "google_service_directory_endpoint" "oracle_vm_sd_endpoint" {
   provider    = google-beta
-  project     = module.landing_zone.project_id
   service     = google_service_directory_service.oracle_vm_sd.id
   endpoint_id = "${module.oracle_free.instance.name}-endpoint"
-  location    = module.landing_zone.region
   address     = module.oracle_free.instance.network_interface[0].network_ip
   port        = 1521
 }
