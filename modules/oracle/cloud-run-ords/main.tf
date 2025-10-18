@@ -119,7 +119,7 @@ resource "google_cloud_run_v2_service" "ords" {
 resource "google_secret_manager_secret" "vm_oracle_password" {
   secret_id = "vm_oracle_password"
   replication {
-    automatic = true
+    automatic {}
   }
 }
 
@@ -131,7 +131,7 @@ resource "google_secret_manager_secret_version" "vm_oracle_password_version" {
 resource "google_secret_manager_secret" "db_user_password" {
   secret_id = "db_user_password"
   replication {
-    automatic = true
+    automatic {}
   }
 }
 
