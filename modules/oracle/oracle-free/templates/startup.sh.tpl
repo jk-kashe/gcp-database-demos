@@ -30,6 +30,8 @@ done
 echo "PDB FREEPDB1 is open. Starting APEX installation."
 # Now, execute the main installation script
 sh /home/oracle/unattended_apex_install_23c.sh
+# After installation, configure ORDS to allow CORS from any origin
+sed -i '/<\/properties>/i <entry key="security.externalSessionTrustedOrigins">*</entry>' /etc/ords/config/global/settings.xml
 EOF
 
   # Modify the main installation script to set passwords
