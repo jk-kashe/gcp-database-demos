@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 COUNTER=0
 # 40 retries * 60s = 2400s = 40 minutes
@@ -10,8 +9,9 @@ PROJECT_ID="${project_id}"
 OUTPUT_FILE="${output_file}"
 
 while true; do
-  # Use --format="value(query_value)" to get only the version string. Append "|| true" to prevent the script from exiting on an initial 404.
-  VALUE=$(gcloud compute instances get-guest-attributes "$VM_NAME" --query-path="ords/version" --zone="$ZONE" --project="$PROJECT_ID" --format="value(query_value)" || true)
+  # Use --format="value(query_value)" to get only the version string.
+  # Redirect stderr to /dev/null to suppress the initial 404 error, which is expected.
+  VALUE=$(gcloud compute instances get-guest-attributes "$VM_NAME" --query-path="ords/version" --zone="$ZONE" --project="$PROJECT_ID" --format="value(query_value)" 2>/dev/null)
   
   if [[ -n "$VALUE" ]]; then
     echo "Found ORDS version: $VALUE"
