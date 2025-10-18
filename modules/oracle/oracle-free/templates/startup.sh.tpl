@@ -15,7 +15,7 @@ sudo mkdir -p /mnt/ords_config
 sudo gcsfuse ${gcs_bucket_name} /mnt/ords_config --foreground --debug_gcs --debug_fuse > /var/log/gcsfuse.log 2>&1
 sudo chmod -R 777 /mnt/ords_config
 
-curl -o /tmp/unattended_apex_install_23c.sh https://raw..githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
+curl -o /tmp/unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
 
 # Remove conflicting directory creation from the install script
 sudo sed -i '/mkdir \/etc\/ords/d' /tmp/unattended_apex_install_23c.sh
