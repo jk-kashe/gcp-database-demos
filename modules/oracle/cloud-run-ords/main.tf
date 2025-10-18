@@ -28,8 +28,8 @@ resource "null_resource" "ords_container_build" {
   }
 
   provisioner "local-exec" {
-    # Pass the polled version to the build and use it to tag the image
-    command = "gcloud builds submit --tag ${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:${var.ords_container_tag} --build-arg=ORDS_VERSION=${var.ords_container_tag} ${path.module}/files/ords-container"
+    # Use cloudbuild.yaml and substitutions to correctly pass the version to the build process.
+    command = "gcloud builds submit --config ${path.module}/files/ords-container/cloudbuild.yaml --substitutions=_TAG='${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:${var.ords_container_tag}',_ORDS_VERSION='${var.ords_container_tag}' ${path.module}/files/ords-container"
   }
 
   depends_on = [
