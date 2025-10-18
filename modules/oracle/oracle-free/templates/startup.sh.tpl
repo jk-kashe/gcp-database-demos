@@ -63,8 +63,8 @@ INTERNAL_IP=$(curl -H "Metadata-Flavor: Google" http://metadata.google.internal/
 # This is a multi-line sed command to replace the block of db parameters with the custom URL.
 sudo sed -i "
 /--db-hostname localhost/ {
-    c\
---db-custom-url \"jdbc:oracle:thin:@//${INTERNAL_IP}:1521/FREEPDB1\"
+    c\\
+--db-custom-url \"jdbc:oracle:thin:@//$${INTERNAL_IP}:1521/FREEPDB1\"
     d
     d
 }
