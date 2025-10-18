@@ -95,6 +95,12 @@ resource "google_cloud_run_v2_service" "ords" {
     }
     containers {
       image = "${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:${var.ords_container_tag}"
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "2Gi"
+        }
+      }
       ports {
         container_port = 8080
       }
