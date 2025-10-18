@@ -39,7 +39,7 @@ resource "google_compute_instance" "oracle_vm" {
       db_user_password    = random_password.db_user_password.result,
       vm_oracle_password  = var.vm_oracle_password,
       gcs_bucket_name     = var.gcs_bucket_name,
-      vm_name             = self.name
+      vm_name             = google_compute_instance.oracle_vm.name
     })
   }
 
