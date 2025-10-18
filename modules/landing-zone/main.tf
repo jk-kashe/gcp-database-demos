@@ -147,7 +147,7 @@ resource "null_resource" "enable_service_usage_api" {
 
 #Enable APIs
 locals {
-  apis_to_enable = [
+  default_apis = [
     "compute.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "servicenetworking.googleapis.com",
@@ -156,6 +156,7 @@ locals {
     "iap.googleapis.com",
     "serviceusage.googleapis.com"
   ]
+  apis_to_enable = toset(concat(local.default_apis, var.additional_apis))
 }
 
 resource "google_project_service" "project_services" {

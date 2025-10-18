@@ -47,3 +47,9 @@ variable "vpc_connector_max_throughput" {
   description = "The maximum throughput for the VPC connector."
   default     = 300
 }
+
+variable "additional_apis" {
+  type        = list(string)
+  description = "A list of additional APIs to enable in the project."
+  default     = []
+}
