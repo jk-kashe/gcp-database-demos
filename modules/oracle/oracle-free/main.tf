@@ -33,6 +33,7 @@ resource "google_compute_instance" "oracle_vm" {
 
   metadata = {
     enable-oslogin = "TRUE"
+    enable-guest-attributes = "TRUE"
     startup-script = templatefile("${path.module}/templates/startup.sh.tpl", {
       apex_admin_password = random_password.apex_admin_password.result,
       db_user_password    = random_password.db_user_password.result,
