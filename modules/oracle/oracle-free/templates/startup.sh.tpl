@@ -28,8 +28,13 @@ sudo sed -i "s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
 sudo sed -i "/dnf install ords -y/a ORDS_VERSION=\$(rpm -q --qf '%%{VERSION}' ords) \&\& curl -X PUT --data \"\$${ORDS_VERSION}\" -H \"Metadata-Flavor: Google\" http://metadata.google.internal/computeMetadata/v1/instance/guest-attributes/ords/version" /tmp/unattended_apex_install_23c.sh
 
 # Create and start the container
-sudo docker rm -f oracle-free || true
-sudo docker create --name oracle-free -p 1521:1521 -p 8080:8080 --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
-sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh
-sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh
-sudo docker start oracle-free
+if [ ! "$(sudo docker ps -a -q -f name=oracle-free)" ]; then
+  echo "Container 'oracle-free' not found. Running initial setup..."
+  sudo docker rm -f oracle-free || true
+  sudo docker create --name oracle-free -p 1521:1521 -p 8080:8080 --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
+  sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh
+  sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh
+  sudo docker start oracle-free
+else
+  echo "Container 'oracle-free' already exists. Skipping creation."
+fi
