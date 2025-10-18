@@ -65,24 +65,21 @@ resource "google_secret_manager_secret_version" "db_user_password_version" {
   secret_data = var.db_user_password
 }
 
-# Grant the Cloud Run service account access to the secrets
-resource "google_project_service_identity" "run_sa" {
-  provider   = google-beta
-  project    = var.project_id
-  service    = "run.googleapis.com"
-  depends_on = [google_project_service.api["run.googleapis.com"]]
+# Grant the default Compute Engine service account (used by Cloud Run by default) access to the secrets
+data "google_project" "project" {
+  project_id = var.project_id
 }
 
 resource "google_secret_manager_secret_iam_member" "oracle_password_accessor" {
   secret_id = google_secret_manager_secret.vm_oracle_password.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_project_service_identity.run_sa.email}"
+  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 resource "google_secret_manager_secret_iam_member" "db_password_accessor" {
   secret_id = google_secret_manager_secret.db_user_password.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_project_service_identity.run_sa.email}"
+  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 # Deploy the built container to Cloud Run
