@@ -46,3 +46,4 @@ spanner/finance-advisor/spanner-client.sh
 .vscode/settings.json
 *-credentials.txt
 
+*.swp

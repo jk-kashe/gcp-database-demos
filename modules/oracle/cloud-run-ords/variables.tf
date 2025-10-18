@@ -49,3 +49,8 @@ variable "iam_dependency" {
   type        = any
   default     = null
 }
+
+variable "ords_container_tag" {
+  type        = string
+  description = "The container tag for the ORDS image, derived from the VM installation."
+}

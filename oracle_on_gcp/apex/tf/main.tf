@@ -30,6 +30,50 @@ module "oracle_free" {
   client_script_path = "../sqlplus.sh"
 }
 
+# Use a local script to poll the VM until the ORDS version guest attribute is available.
+resource "null_resource" "wait_for_ords_version_script" {
+  depends_on = [module.oracle_free.instance]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      bash -c '
+        COUNTER=0
+        MAX_RETRIES=40 # 40 * 60s = 2400s = 40 minutes
+        VM_NAME="${module.oracle_free.instance.name}"
+        ZONE="${module.oracle_free.instance.zone}"
+        PROJECT_ID="${module.landing_zone.project_id}"
+
+        while true; do
+          VALUE=$(gcloud compute instances get-guest-attributes ${VM_NAME} --query-path="ords/version" --zone="${ZONE}" --project="${PROJECT_ID}" 2>/dev/null)
+          if [[ -n "$VALUE" ]]; then
+            echo "Found ORDS version: $VALUE"
+            break
+          fi
+
+          ((COUNTER++))
+          if ((COUNTER > MAX_RETRIES)); then
+            echo "Error: Timed out waiting for ORDS version attribute on VM ${VM_NAME}."
+            exit 1
+          fi
+
+          echo "Waiting for ORDS version attribute... (Attempt ${COUNTER}/${MAX_RETRIES})"
+          sleep 60
+        done
+      '
+    EOT
+  }
+}
+
+# Read the ORDS version reported by the VM from its guest attributes.
+data "google_compute_instance_guest_attributes" "ords_version" {
+  project = module.landing_zone.project_id
+  zone    = module.landing_zone.zone
+  name    = module.oracle_free.instance.name
+  query_path = "ords/version"
+
+  depends_on = [null_resource.wait_for_ords_version_script]
+}
+
 module "cloud_run_ords" {
   source = "../../../modules/oracle/cloud-run-ords"
 
@@ -39,6 +83,7 @@ module "cloud_run_ords" {
   db_user_password     = module.oracle_free.db_user_password
   oracle_db_ip         = module.oracle_free.instance.network_interface[0].network_ip
   vpc_connector_id     = module.landing_zone.vpc_connector_id
+  ords_container_tag   = data.google_compute_instance_guest_attributes.ords_version.query_value
   db_instance_dependency = module.oracle_free.startup_script_wait
   iam_dependency = [
     google_storage_bucket_iam_member.compute_gcs_access,
