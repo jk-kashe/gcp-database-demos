@@ -34,13 +34,14 @@ module "oracle_free" {
 resource "local_file" "poll_script" {
   filename = "${path.module}/scripts/poll_ords_version.sh"
   content  = templatefile("${path.module}/templates/poll_ords_version.sh.tpl", {
-    vm_name    = module.oracle_free.instance.name,
-    zone       = module.oracle_free.instance.zone,
-    project_id = module.landing_zone.project_id
+    vm_name     = module.oracle_free.instance.name,
+    zone        = module.oracle_free.instance.zone,
+    project_id  = module.landing_zone.project_id,
+    output_file = ".ords_version.tmp"
   })
 }
 
-# Use the generated script to poll the VM until the ORDS version is available.
+# Use the generated script to poll the VM and write the version to a local file.
 resource "null_resource" "wait_for_ords_version_script" {
   depends_on = [module.oracle_free.instance, local_file.poll_script]
 
@@ -49,26 +50,22 @@ resource "null_resource" "wait_for_ords_version_script" {
   }
 }
 
-# Read the ORDS version reported by the VM from its guest attributes.
-data "google_compute_instance_guest_attributes" "ords_version" {
-  project = module.landing_zone.project_id
-  zone    = module.landing_zone.zone
-  name    = module.oracle_free.instance.name
-  query_path = "ords/version"
-
+# Read the ORDS version from the local file created by the polling script.
+data "local_file" "ords_version" {
+  filename   = ".ords_version.tmp"
   depends_on = [null_resource.wait_for_ords_version_script]
 }
 
 module "cloud_run_ords" {
   source = "../../../modules/oracle/cloud-run-ords"
 
-  project_id           = module.landing_zone.project_id
-  region               = module.landing_zone.region
-  vm_oracle_password   = var.vm_oracle_password
-  db_user_password     = module.oracle_free.db_user_password
-  oracle_db_ip         = module.oracle_free.instance.network_interface[0].network_ip
-  vpc_connector_id     = module.landing_zone.vpc_connector_id
-  ords_container_tag   = data.google_compute_instance_guest_attributes.ords_version.query_value
+  project_id             = module.landing_zone.project_id
+  region                 = module.landing_zone.region
+  vm_oracle_password     = var.vm_oracle_password
+  db_user_password       = module.oracle_free.db_user_password
+  oracle_db_ip           = module.oracle_free.instance.network_interface[0].network_ip
+  vpc_connector_id       = module.landing_zone.vpc_connector_id
+  ords_container_tag     = data.local_file.ords_version.content
   db_instance_dependency = module.oracle_free.startup_script_wait
   iam_dependency = [
     google_storage_bucket_iam_member.compute_gcs_access,
