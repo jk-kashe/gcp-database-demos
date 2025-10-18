@@ -1,4 +1,12 @@
 #!/bin/bash
+exec > >(logger -t startup-script) 2>&1
+
+sudo apt-get update
+# Install gcsfuse using the modern, signed-by method
+sudo apt-get install -y curl lsb-release
+export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
+echo "deb [signed-by=/usr/share/keyrings/cloud.google.asc] https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee /usr/share/keyrings/cloud.google.asc
 sudo apt-get update
 sudo apt-get install -y docker.io gcsfuse
 
