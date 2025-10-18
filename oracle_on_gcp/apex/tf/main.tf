@@ -44,7 +44,7 @@ module "landing_zone" {
   region                  = var.region
   zone                    = random_shuffle.zone.result[0]
   provision_vpc_connector = true
-  additional_apis         = ["secretmanager.googleapis.com", "cloudbuild.googleapis.com", "servicedirectory.googleapis.com"]
+  additional_apis         = ["secretmanager.googleapis.com", "cloudbuild.googleapis.com", "servicedirectory.googleapis.com", "dns.googleapis.com"]
 }
 
 module "oracle_free" {
