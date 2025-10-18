@@ -2,6 +2,12 @@
 exec > >(logger -t startup-script) 2>&1
 
 sudo apt-get update
+
+# Install the Ops Agent to forward system logs to Cloud Logging
+curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+sudo bash add-google-cloud-ops-agent-repo.sh --also-install
+sudo systemctl restart google-cloud-ops-agent
+
 # Install gcsfuse using the modern, signed-by method
 sudo apt-get install -y curl lsb-release
 export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
