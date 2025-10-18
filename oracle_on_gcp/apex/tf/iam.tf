@@ -7,7 +7,7 @@ resource "google_storage_bucket_iam_member" "compute_gcs_access" {
   member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 
   depends_on = [
-    module.landing_zone.google_project_service.project_services["cloudbuild.googleapis.com"]
+    module.landing_zone
   ]
 }
 
@@ -18,7 +18,7 @@ resource "google_storage_bucket_iam_member" "cloudbuild_gcs_access" {
   member = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
 
   depends_on = [
-    module.landing_zone.google_project_service.project_services["cloudbuild.googleapis.com"]
+    module.landing_zone
   ]
 }
 
