@@ -141,14 +141,22 @@ resource "google_secret_manager_secret_version" "db_user_password_version" {
 }
 
 # Grant the Cloud Run service account access to the secrets
+resource "google_project_service_identity" "run_sa" {
+  provider = google-beta
+  project  = var.project_id
+  service  = "run.googleapis.com"
+
+  depends_on = [google_project_service.api["run.googleapis.com"]]
+}
+
 resource "google_secret_manager_secret_iam_member" "oracle_password_accessor" {
   secret_id = google_secret_manager_secret.vm_oracle_password.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-run.iam.gserviceaccount.com"
+  member    = "serviceAccount:${google_project_service_identity.run_sa.email}"
 }
 
 resource "google_secret_manager_secret_iam_member" "db_password_accessor" {
   secret_id = google_secret_manager_secret.db_user_password.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-run.iam.gserviceaccount.com"
+  member    = "serviceAccount:${google_project_service_identity.run_sa.email}"
 }
