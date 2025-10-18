@@ -1,5 +1,6 @@
 #!/bin/bash
-{
+exec > >(logger -t startup-script) 2>&1
+
   sudo apt-get update
   # Install gcsfuse using the modern, signed-by method
   sudo apt-get install -y curl lsb-release
@@ -56,4 +57,4 @@ EOF
   else
     echo "Container 'oracle-free' already exists. Skipping creation."
   fi
-} > >(logger -t startup-script) 2>&1
+
