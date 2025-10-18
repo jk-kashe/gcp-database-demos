@@ -30,37 +30,22 @@ module "oracle_free" {
   client_script_path = "../sqlplus.sh"
 }
 
-# Use a local script to poll the VM until the ORDS version guest attribute is available.
+# Generate the polling script from the template
+resource "local_file" "poll_script" {
+  filename = "${path.module}/scripts/poll_ords_version.sh"
+  content  = templatefile("${path.module}/templates/poll_ords_version.sh.tpl", {
+    vm_name    = module.oracle_free.instance.name,
+    zone       = module.oracle_free.instance.zone,
+    project_id = module.landing_zone.project_id
+  })
+}
+
+# Use the generated script to poll the VM until the ORDS version is available.
 resource "null_resource" "wait_for_ords_version_script" {
-  depends_on = [module.oracle_free.instance]
+  depends_on = [module.oracle_free.instance, local_file.poll_script]
 
   provisioner "local-exec" {
-    command = <<-EOT
-      bash -c '
-        COUNTER=0
-        MAX_RETRIES=40 # 40 * 60s = 2400s = 40 minutes
-        VM_NAME="${module.oracle_free.instance.name}"
-        ZONE="${module.oracle_free.instance.zone}"
-        PROJECT_ID="${module.landing_zone.project_id}"
-
-        while true; do
-          VALUE=$(gcloud compute instances get-guest-attributes ${VM_NAME} --query-path="ords/version" --zone="${ZONE}" --project="${PROJECT_ID}" 2>/dev/null)
-          if [[ -n "$VALUE" ]]; then
-            echo "Found ORDS version: $VALUE"
-            break
-          fi
-
-          ((COUNTER++))
-          if ((COUNTER > MAX_RETRIES)); then
-            echo "Error: Timed out waiting for ORDS version attribute on VM ${VM_NAME}."
-            exit 1
-          fi
-
-          echo "Waiting for ORDS version attribute... (Attempt ${COUNTER}/${MAX_RETRIES})"
-          sleep 60
-        done
-      '
-    EOT
+    command = "chmod +x ${local_file.poll_script.filename} && ${local_file.poll_script.filename}"
   }
 }
 
