@@ -28,6 +28,12 @@ resource "google_storage_bucket_iam_member" "compute_sa_gcs_access" {
   member = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
+resource "time_sleep" "wait_for_iam_propagation" {
+  create_duration = "30s"
+  depends_on = [google_storage_bucket_iam_member.compute_sa_gcs_access]
+}
+
+
 
 
 module "landing_zone" {
@@ -51,6 +57,8 @@ module "oracle_free" {
   vm_oracle_password = var.vm_oracle_password
   client_script_path = "../sqlplus.sh"
   gcs_bucket_name    = google_storage_bucket.ords_config.name
+
+  depends_on = [time_sleep.wait_for_iam_propagation]
 }
 
 # Generate the polling script from the template
