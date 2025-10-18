@@ -44,7 +44,7 @@ module "landing_zone" {
   region                  = var.region
   zone                    = random_shuffle.zone.result[0]
   provision_vpc_connector = true
-  additional_apis         = ["secretmanager.googleapis.com", "cloudbuild.googleapis.com"]
+  additional_apis         = ["secretmanager.googleapis.com", "cloudbuild.googleapis.com", "servicedirectory.googleapis.com"]
 }
 
 module "oracle_free" {
@@ -61,12 +61,19 @@ module "oracle_free" {
   depends_on = [time_sleep.wait_for_iam_propagation]
 }
 
+# Wait for APIs to be enabled
+resource "time_sleep" "wait_for_apis" {
+  create_duration = "60s"
+  depends_on = [module.landing_zone]
+}
+
 # Service Directory and DNS for short-name resolution
 resource "google_service_directory_namespace" "oracle_apex_ns" {
   provider     = google-beta
   project      = module.landing_zone.project_id
   namespace_id = "oracle-apex-namespace"
   location     = module.landing_zone.region
+  depends_on = [time_sleep.wait_for_apis]
 }
 
 resource "google_service_directory_service" "oracle_vm_sd" {
