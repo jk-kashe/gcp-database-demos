@@ -1,32 +1,105 @@
 # Enable APIs
 resource "google_project_service" "api" {
-  for_each = toset(var.apis)
-
-  service            = each.value
-  disable_on_destroy = false
+  for_each = toset([
+    "run.googleapis.com",
+    "secretmanager.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "cloudbuild.googleapis.com"
+  ])
+  project                    = var.project_id
+  service                    = each.key
+  disable_dependent_services = true
 }
 
-resource "time_sleep" "wait_for_api" {
-  create_duration = "60s"
-
-  depends_on = [google_project_service.api]
+# Repository for the custom ORDS container image
+resource "google_artifact_registry_repository" "ords_custom" {
+  location      = var.region
+  repository_id = "ords-custom"
+  description   = "Repository for custom ORDS container images"
+  format        = "DOCKER"
+  depends_on    = [google_project_service.api["artifactregistry.googleapis.com"]]
 }
 
-data "google_project" "project" {}
+# Build the custom ORDS container image using Cloud Build
+resource "null_resource" "ords_container_build" {
+  triggers = {
+    # Re-run the build if the version changes
+    ords_version = var.ords_container_tag
+  }
 
+  provisioner "local-exec" {
+    # Pass the polled version to the build and use it to tag the image
+    command = "gcloud builds submit --tag ${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:${var.ords_container_tag} --build-arg=ORDS_VERSION=${var.ords_container_tag} ${path.module}/files/ords-container"
+  }
+
+  depends_on = [
+    google_artifact_registry_repository.ords_custom,
+    var.iam_dependency
+  ]
+}
+
+# Create Secret Manager secrets for the passwords
+resource "google_secret_manager_secret" "vm_oracle_password" {
+  secret_id = "vm_oracle_password"
+  project   = var.project_id
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "vm_oracle_password_version" {
+  secret      = google_secret_manager_secret.vm_oracle_password.id
+  secret_data = var.vm_oracle_password
+}
+
+resource "google_secret_manager_secret" "db_user_password" {
+  secret_id = "db_user_password"
+  project   = var.project_id
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "db_user_password_version" {
+  secret      = google_secret_manager_secret.db_user_password.id
+  secret_data = var.db_user_password
+}
+
+# Grant the Cloud Run service account access to the secrets
+resource "google_project_service_identity" "run_sa" {
+  provider   = google-beta
+  project    = var.project_id
+  service    = "run.googleapis.com"
+  depends_on = [google_project_service.api["run.googleapis.com"]]
+}
+
+resource "google_secret_manager_secret_iam_member" "oracle_password_accessor" {
+  secret_id = google_secret_manager_secret.vm_oracle_password.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_project_service_identity.run_sa.email}"
+}
+
+resource "google_secret_manager_secret_iam_member" "db_password_accessor" {
+  secret_id = google_secret_manager_secret.db_user_password.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_project_service_identity.run_sa.email}"
+}
+
+# Deploy the built container to Cloud Run
 resource "google_cloud_run_v2_service" "ords" {
-  provider = google-beta
   name     = "ords"
   location = var.region
-  deletion_protection = false
-  ingress      = "INGRESS_TRAFFIC_ALL"
-  launch_stage = "BETA"
+  project  = var.project_id
 
   template {
+    scaling {
+      max_instance_count = 1
+    }
     containers {
-      # Use the official Oracle ORDS container image with the version matching the VM
-      image = "container-registry.oracle.com/database/ords:${var.ords_container_tag}"
-
+      image = "${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:${var.ords_container_tag}"
+      ports {
+        container_port = 8080
+      }
       env {
         name  = "DBHOST"
         value = var.oracle_db_ip
@@ -39,7 +112,6 @@ resource "google_cloud_run_v2_service" "ords" {
         name  = "DBSERVICE"
         value = "FREEPDB1"
       }
-      # Provide the SYS password for the initial installation
       env {
         name = "ORACLE_PWD"
         value_source {
@@ -49,7 +121,6 @@ resource "google_cloud_run_v2_service" "ords" {
           }
         }
       }
-      # Provide the password for the other database users that will be configured
       env {
         name = "ORDS_PUBLIC_USER_PASSWORD"
         value_source {
@@ -59,7 +130,7 @@ resource "google_cloud_run_v2_service" "ords" {
           }
         }
       }
-       env {
+      env {
         name = "APEX_PUBLIC_USER_PASSWORD"
         value_source {
           secret_key_ref {
@@ -68,7 +139,7 @@ resource "google_cloud_run_v2_service" "ords" {
           }
         }
       }
-       env {
+      env {
         name = "APEX_LISTENER_PASSWORD"
         value_source {
           secret_key_ref {
@@ -77,7 +148,7 @@ resource "google_cloud_run_v2_service" "ords" {
           }
         }
       }
-       env {
+      env {
         name = "APEX_REST_PUBLIC_USER_PASSWORD"
         value_source {
           secret_key_ref {
@@ -95,15 +166,7 @@ resource "google_cloud_run_v2_service" "ords" {
           }
         }
       }
-
-      resources {
-        limits = {
-          memory = "2Gi"
-          cpu    = "1"
-        }
-      }
     }
-
     vpc_access {
       connector = var.vpc_connector_id
       egress    = "ALL_TRAFFIC"
@@ -111,52 +174,9 @@ resource "google_cloud_run_v2_service" "ords" {
   }
 
   depends_on = [
-    var.db_instance_dependency
+    var.db_instance_dependency,
+    null_resource.ords_container_build,
+    google_secret_manager_secret_iam_member.oracle_password_accessor,
+    google_secret_manager_secret_iam_member.db_password_accessor
   ]
-}
-
-# Create Secret Manager secrets for the passwords
-resource "google_secret_manager_secret" "vm_oracle_password" {
-  secret_id = "vm_oracle_password"
-  replication {
-    auto {}
-  }
-}
-
-resource "google_secret_manager_secret_version" "vm_oracle_password_version" {
-  secret      = google_secret_manager_secret.vm_oracle_password.id
-  secret_data = var.vm_oracle_password
-}
-
-resource "google_secret_manager_secret" "db_user_password" {
-  secret_id = "db_user_password"
-  replication {
-    auto {}
-  }
-}
-
-resource "google_secret_manager_secret_version" "db_user_password_version" {
-  secret      = google_secret_manager_secret.db_user_password.id
-  secret_data = var.db_user_password
-}
-
-# Grant the Cloud Run service account access to the secrets
-resource "google_project_service_identity" "run_sa" {
-  provider = google-beta
-  project  = var.project_id
-  service  = "run.googleapis.com"
-
-  depends_on = [google_project_service.api["run.googleapis.com"]]
-}
-
-resource "google_secret_manager_secret_iam_member" "oracle_password_accessor" {
-  secret_id = google_secret_manager_secret.vm_oracle_password.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_project_service_identity.run_sa.email}"
-}
-
-resource "google_secret_manager_secret_iam_member" "db_password_accessor" {
-  secret_id = google_secret_manager_secret.db_user_password.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_project_service_identity.run_sa.email}"
 }
