@@ -117,7 +117,7 @@ resource "google_cloud_run_v2_service" "ords" {
         value = "1521"
       }
       env {
-        name  = "DBSERVICE"
+        name  = "DBSERVICENAME"
         value = "FREEPDB1"
       }
       env {
