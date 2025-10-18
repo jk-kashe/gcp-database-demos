@@ -106,7 +106,7 @@ module "cloud_run_ords" {
     google_project_iam_member.compute_log_writer
   ]
 
-  depends_on = [module.oracle_free]
+  depends_on = [module.oracle_free, module.landing_zone]
 }
 
 resource "local_file" "credentials" {
