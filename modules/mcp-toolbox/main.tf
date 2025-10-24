@@ -1,0 +1,101 @@
+resource "google_service_account" "mcp_toolbox_identity" {
+  account_id   = var.service_account_id
+  display_name = "MCP Toolbox Identity"
+  project      = var.project_id
+}
+
+resource "google_project_iam_member" "mcp_toolbox_secret_accessor" {
+  project = var.project_id
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.mcp_toolbox_identity.email}"
+}
+
+resource "google_project_iam_member" "extra_roles" {
+  for_each = toset(var.extra_service_account_roles)
+  project  = var.project_id
+  role     = each.value
+  member   = "serviceAccount:${google_service_account.mcp_toolbox_identity.email}"
+}
+
+resource "google_project_service" "secretmanager_api" {
+  project            = var.project_id
+  service            = "secretmanager.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_secret_manager_secret" "mcp_toolbox_tools_yaml_secret" {
+  secret_id = "${var.service_name}-tools-yaml"
+  project   = var.project_id
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secretmanager_api]
+}
+
+resource "google_secret_manager_secret_version" "mcp_toolbox_tools_yaml_secret_version" {
+  secret      = google_secret_manager_secret.mcp_toolbox_tools_yaml_secret.id
+  secret_data = var.tools_yaml_content
+}
+
+resource "google_vpc_access_connector" "mcp_toolbox_vpc_connector" {
+  name           = "${var.service_name}-vpc-connector"
+  project        = var.project_id
+  region         = var.region
+  network        = var.network_name
+  ip_cidr_range  = var.vpc_connector_ip_cidr_range
+  min_throughput = 200
+  max_throughput = 300
+}
+
+resource "google_cloud_run_v2_service" "mcp_toolbox" {
+  name                = var.service_name
+  location            = var.region
+  project             = var.project_id
+  deletion_protection = false
+
+  depends_on = [
+    google_project_iam_member.mcp_toolbox_secret_accessor,
+    google_project_iam_member.extra_roles
+  ]
+
+  template {
+    service_account = google_service_account.mcp_toolbox_identity.email
+
+    containers {
+      image = var.container_image
+      args  = ["--tools-file=/app/tools.yaml", "--address=0.0.0.0", "--port=8080"]
+
+      volume_mounts {
+        name       = "tools-yaml"
+        mount_path = "/app"
+      }
+    }
+
+    volumes {
+      name = "tools-yaml"
+      secret {
+        secret = google_secret_manager_secret.mcp_toolbox_tools_yaml_secret.secret_id
+        items {
+          path    = "tools.yaml"
+          version = google_secret_manager_secret_version.mcp_toolbox_tools_yaml_secret_version.version
+        }
+      }
+    }
+
+    vpc_access {
+      connector = google_vpc_access_connector.mcp_toolbox_vpc_connector.id
+      egress    = "ALL_TRAFFIC"
+    }
+  }
+}
+
+resource "google_cloud_run_service_iam_member" "mcp_toolbox_invoker" {
+  for_each = toset(var.invoker_users)
+  location = google_cloud_run_v2_service.mcp_toolbox.location
+  project  = google_cloud_run_v2_service.mcp_toolbox.project
+  service  = google_cloud_run_v2_service.mcp_toolbox.name
+  role     = "roles/run.invoker"
+  member   = each.value
+}

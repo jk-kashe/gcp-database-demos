@@ -120,6 +120,10 @@ data "local_file" "ords_version" {
   depends_on = [null_resource.wait_for_ords_version_script]
 }
 
+data "external" "gcloud_user" {
+  program = ["bash", "${path.module}/files/get_user_email.sh"]
+}
+
 module "cloud_run_ords" {
   source = "../../../modules/oracle/cloud-run-ords"
 
@@ -138,6 +142,25 @@ module "cloud_run_ords" {
     google_project_iam_member.compute_ar_writer,
     google_project_iam_member.compute_log_writer
   ]
+
+  depends_on = [
+    module.oracle_free,
+    module.landing_zone,
+    google_dns_record_set.oracle_vm_a_record
+  ]
+}
+
+module "mcp_toolbox_oracle" {
+  source = "../../../modules/oracle/mcp-toolbox-oracle"
+
+  project_id      = module.landing_zone.project_id
+  region          = module.landing_zone.region
+  network_name    = module.landing_zone.demo_network.name
+  oracle_host     = module.oracle_free.instance.network_interface[0].network_ip
+  oracle_user     = "ADMIN"
+  oracle_password = module.oracle_free.apex_admin_password
+  oracle_service  = "FREEPDB1"
+  invoker_users   = ["user:${data.external.gcloud_user.result.email}"]
 
   depends_on = [
     module.oracle_free,
