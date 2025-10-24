@@ -43,14 +43,14 @@ variable "invoker_users" {
   default     = []
 }
 
-variable "vpc_connector_ip_cidr_range" {
-  description = "The IP CIDR range for the VPC connector."
-  type        = string
-  default     = "10.8.0.0/28"
-}
-
 variable "container_image" {
   description = "The container image to deploy."
   type        = string
   default     = "us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:latest"
+}
+
+variable "vpc_connector_id" {
+  description = "The ID of an existing VPC Access Connector."
+  type        = string
+  default     = null
 }
