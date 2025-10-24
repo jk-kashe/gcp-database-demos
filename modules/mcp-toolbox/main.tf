@@ -39,15 +39,6 @@ resource "google_secret_manager_secret_version" "mcp_toolbox_tools_yaml_secret_v
   secret_data = var.tools_yaml_content
 }
 
-resource "google_vpc_access_connector" "mcp_toolbox_vpc_connector" {
-  name           = "${var.service_name}-vpc-connector"
-  project        = var.project_id
-  region         = var.region
-  network        = var.network_name
-  ip_cidr_range  = var.vpc_connector_ip_cidr_range
-  min_throughput = 200
-  max_throughput = 300
-}
 
 resource "google_cloud_run_v2_service" "mcp_toolbox" {
   name                = var.service_name
@@ -85,7 +76,7 @@ resource "google_cloud_run_v2_service" "mcp_toolbox" {
     }
 
     vpc_access {
-      connector = google_vpc_access_connector.mcp_toolbox_vpc_connector.id
+      connector = var.vpc_connector_id
       egress    = "ALL_TRAFFIC"
     }
   }

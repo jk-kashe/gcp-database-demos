@@ -52,8 +52,8 @@ variable "oracle_service" {
   type        = string
 }
 
-variable "vpc_connector_ip_cidr_range" {
-  description = "The IP CIDR range for the VPC connector."
+variable "vpc_connector_id" {
+  description = "The ID of an existing VPC Access Connector."
   type        = string
-  default     = "10.8.0.0/28"
+  default     = null
 }

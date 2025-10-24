@@ -160,7 +160,8 @@ module "mcp_toolbox_oracle" {
   oracle_user     = "ADMIN"
   oracle_password = module.oracle_free.apex_admin_password
   oracle_service  = "FREEPDB1"
-  invoker_users   = ["user:${data.external.gcloud_user.result.email}"]
+  vpc_connector_id = module.landing_zone.vpc_connector_id
+  invoker_users    = ["user:${data.external.gcloud_user.result.email}"]
 
   depends_on = [
     module.oracle_free,

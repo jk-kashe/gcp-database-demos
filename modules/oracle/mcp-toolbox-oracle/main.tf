@@ -26,5 +26,5 @@ module "mcp_toolbox" {
   tools_yaml_content = local.tools_yaml
   service_name                  = var.service_name
   invoker_users                 = var.invoker_users
-  vpc_connector_ip_cidr_range = var.vpc_connector_ip_cidr_range
+  vpc_connector_id            = var.vpc_connector_id
 }
