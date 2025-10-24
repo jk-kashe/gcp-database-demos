@@ -1,0 +1,30 @@
+locals {
+  tools_yaml = <<-EOT
+    sources:
+      my-oracle-source:
+        kind: oracle
+        host: ${var.oracle_host}
+        port: ${var.oracle_port}
+        user: ${var.oracle_user}
+        password: ${var.oracle_password}
+        service: ${var.oracle_service}
+
+    tools:
+      execute-ad-hoc-oracle-sql:
+        kind: oracle-execute-sql
+        source: my-oracle-source
+        description: "Executes an arbitrary SQL statement against the Oracle database."
+  EOT
+}
+
+module "mcp_toolbox" {
+  source = "../../mcp-toolbox"
+
+  project_id         = var.project_id
+  region             = var.region
+  network_name       = var.network_name
+  tools_yaml_content = local.tools_yaml
+  service_name                  = var.service_name
+  invoker_users                 = var.invoker_users
+  vpc_connector_ip_cidr_range = var.vpc_connector_ip_cidr_range
+}
