@@ -7,13 +7,17 @@ locals {
         port: ${var.oracle_port}
         user: ${var.oracle_user}
         password: ${var.oracle_password}
-        service: ${var.oracle_service}
+        serviceName: ${var.oracle_service}
 
     tools:
       execute-ad-hoc-oracle-sql:
         kind: oracle-execute-sql
         source: my-oracle-source
         description: "Executes an arbitrary SQL statement against the Oracle database."
+
+    toolsets:
+      oracle-tools:
+        - execute-ad-hoc-oracle-sql
   EOT
 }
 

@@ -56,7 +56,7 @@ resource "google_cloud_run_v2_service" "mcp_toolbox" {
 
     containers {
       image = var.container_image
-      args  = ["--tools-file=/app/tools.yaml", "--address=0.0.0.0", "--port=8080"]
+      args  = ["--tools-file=/app/tools.yaml", "--address=0.0.0.0", "--port=8080", "--log-level=DEBUG"]
 
       volume_mounts {
         name       = "tools-yaml"
