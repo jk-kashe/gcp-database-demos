@@ -158,6 +158,9 @@ module "cloud_run_ords" {
 
 module "mcp_toolbox_oracle" {
   source = "../../../modules/oracle/mcp-toolbox-oracle"
+  providers = {
+    google-beta = google-beta
+  }
 
   project_id      = module.landing_zone.project_id
   region          = module.landing_zone.region
@@ -168,6 +171,7 @@ module "mcp_toolbox_oracle" {
   oracle_service  = "FREEPDB1"
   vpc_connector_id = module.landing_zone.vpc_connector_id
   invoker_users    = ["user:${data.external.gcloud_user.result.email}"]
+  current_user_email = data.external.gcloud_user.result.email
 
   depends_on = [
     module.oracle_free,

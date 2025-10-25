@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    google-beta = {
+      source  = "hashicorp/google-beta"
+    }
+  }
+}
+
 resource "google_service_account" "mcp_toolbox_identity" {
   account_id   = var.service_account_id
   display_name = "MCP Toolbox Identity"
@@ -41,10 +49,13 @@ resource "google_secret_manager_secret_version" "mcp_toolbox_tools_yaml_secret_v
 
 
 resource "google_cloud_run_v2_service" "mcp_toolbox" {
+  provider            = google-beta
   name                = var.service_name
   location            = var.region
   project             = var.project_id
   deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+  iap_enabled         = true
 
   depends_on = [
     google_project_iam_member.mcp_toolbox_secret_accessor,
@@ -81,6 +92,22 @@ resource "google_cloud_run_v2_service" "mcp_toolbox" {
     }
   }
 }
+
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
+resource "google_cloud_run_v2_service_iam_member" "iap_invoker" {
+  provider = google-beta
+  project  = google_cloud_run_v2_service.mcp_toolbox.project
+  location = google_cloud_run_v2_service.mcp_toolbox.location
+  name     = google_cloud_run_v2_service.mcp_toolbox.name
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-iap.iam.gserviceaccount.com"
+  depends_on = [google_cloud_run_v2_service.mcp_toolbox]
+}
+
+
 
 resource "google_cloud_run_service_iam_member" "mcp_toolbox_invoker" {
   for_each = toset(var.invoker_users)

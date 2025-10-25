@@ -54,3 +54,9 @@ variable "vpc_connector_id" {
   type        = string
   default     = null
 }
+
+variable "current_user_email" {
+  type        = string
+  description = "Email of the current user to grant IAP access."
+}
+
