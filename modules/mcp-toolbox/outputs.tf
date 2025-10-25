@@ -1,6 +1,6 @@
 output "service_url" {
   description = "The URL of the MCP toolbox."
-  value       = google_cloud_run_v2_service.mcp_toolbox.uri
+  value       = module.cr_iap.service_url
 }
 
 output "service_account_email" {
