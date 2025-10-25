@@ -19,17 +19,6 @@ variable "service_name" {
   default     = "mcp-toolbox-oracle"
 }
 
-variable "invoker_users" {
-  description = "A list of user emails to grant invoker role to the Cloud Run service. e.g. ['user:foo@example.com']"
-  type        = list(string)
-  default     = []
-}
-
-variable "current_user_email" {
-  type        = string
-  description = "Email of the current user to grant IAP access."
-}
-
 
 variable "oracle_host" {
   description = "The hostname or IP address of the Oracle database."
@@ -62,4 +51,10 @@ variable "vpc_connector_id" {
   description = "The ID of an existing VPC Access Connector."
   type        = string
   default     = null
+}
+
+variable "invoker_users" {
+  description = "A list of user emails to grant invoker role to the Cloud Run service. e.g. ['user:foo@example.com']"
+  type        = list(string)
+  default     = []
 }

@@ -47,8 +47,8 @@ resource "google_secret_manager_secret_version" "mcp_toolbox_tools_yaml_secret_v
   secret_data = var.tools_yaml_content
 }
 
-module "cr_iap" {
-  source = "../cr-iap"
+module "cr_base" {
+  source = "../cr-base"
 
   project_id            = var.project_id
   region                = var.region
@@ -56,7 +56,8 @@ module "cr_iap" {
   container_image       = var.container_image
   service_account_email = google_service_account.mcp_toolbox_identity.email
   vpc_connector_id      = var.vpc_connector_id
-  invoker_users         = distinct(concat(var.invoker_users, ["user:${var.current_user_email}"]))
+  invoker_users         = var.invoker_users
+  use_iap               = false
 
   container_args = ["--tools-file=/app/tools.yaml", "--address=0.0.0.0", "--port=8080", "--log-level=DEBUG"]
 
@@ -80,4 +81,24 @@ module "cr_iap" {
     google_project_iam_member.mcp_toolbox_secret_accessor,
     google_project_iam_member.extra_roles
   ]
+}
+
+resource "local_file" "update_settings_sh" {
+  count = var.generate_gemini_config ? 1 : 0
+
+  content = templatefile("${path.module}/templates/update_settings.sh.tpl", {
+    mcp_server_url  = module.cr_base.service_url,
+    mcp_server_name = var.service_name,
+    config_path     = var.gemini_config_path
+  })
+  filename = var.update_script_path
+}
+
+resource "null_resource" "run_update_settings" {
+  count = var.generate_gemini_config ? 1 : 0
+  depends_on = [local_file.update_settings_sh, module.cr_base]
+
+  provisioner "local-exec" {
+    command = "chmod +x ${var.update_script_path} && ${var.update_script_path}"
+  }
 }

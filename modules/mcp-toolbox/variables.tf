@@ -55,8 +55,21 @@ variable "vpc_connector_id" {
   default     = null
 }
 
-variable "current_user_email" {
+variable "generate_gemini_config" {
+  description = "If true, generates a Gemini CLI settings file."
+  type        = bool
+  default     = true
+}
+
+variable "gemini_config_path" {
+  description = "The path (relative to the update_settings.sh script) where the Gemini CLI settings file will be generated."
   type        = string
-  description = "Email of the current user to grant IAP access."
+  default     = ".gemini/settings.json"
+}
+
+variable "update_script_path" {
+  description = "The path where the script to refresh the Gemini token is generated."
+  type        = string
+  default     = "../update_settings.sh"
 }
 

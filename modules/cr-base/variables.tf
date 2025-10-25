@@ -64,3 +64,9 @@ variable "env_vars" {
   type        = any
   default     = []
 }
+
+variable "use_iap" {
+  description = "Enable IAP for the Cloud Run service."
+  type        = bool
+  default     = true
+}
