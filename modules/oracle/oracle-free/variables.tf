@@ -52,3 +52,12 @@ variable "gcs_bucket_name" {
   description = "The name of the GCS bucket to store the ORDS config in"
   default     = null
 }
+
+variable "additional_db_users" {
+  description = "A list of additional database users to create."
+  type = list(object({
+    username = string
+    grants   = list(string)
+  }))
+  default = []
+}

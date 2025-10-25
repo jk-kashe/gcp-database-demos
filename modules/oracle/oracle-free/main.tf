@@ -38,7 +38,8 @@ resource "google_compute_instance" "oracle_vm" {
       apex_admin_password = random_password.apex_admin_password.result,
       db_user_password    = random_password.db_user_password.result,
       vm_oracle_password  = var.vm_oracle_password,
-      gcs_bucket_name     = var.gcs_bucket_name
+      gcs_bucket_name     = var.gcs_bucket_name,
+      additional_db_users = local.additional_users_for_template
     })
   }
 
@@ -68,6 +69,23 @@ resource "random_password" "apex_admin_password" {
 resource "random_password" "db_user_password" {
   length  = 16
   special = false
+}
+
+resource "random_password" "additional_db_user_passwords" {
+  for_each = { for user in var.additional_db_users : user.username => user }
+  length  = 16
+  special = false
+}
+
+locals {
+  additional_users_for_template = [
+    for user in var.additional_db_users :
+    {
+      username = user.username
+      password = random_password.additional_db_user_passwords[user.username].result
+      grants   = user.grants
+    }
+  ]
 }
 
 resource "time_sleep" "wait_for_startup_script" {
