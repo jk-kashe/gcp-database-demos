@@ -15,5 +15,17 @@ output "instance" {
 }
 
 output "startup_script_wait" {
+
   value = time_sleep.wait_for_startup_script.id
+
+}
+
+
+
+output "additional_db_user_passwords" {
+
+  value = { for user in var.additional_db_users : user.username => random_password.additional_db_user_passwords[user.username].result }
+
+  sensitive = true
+
 }

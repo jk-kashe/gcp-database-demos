@@ -57,6 +57,12 @@ module "oracle_free" {
   vm_oracle_password = var.vm_oracle_password
   client_script_path = "../sqlplus.sh"
   gcs_bucket_name    = google_storage_bucket.ords_config.name
+  additional_db_users = [
+    {
+      username = "MCP_DEMO_USER"
+      grants   = ["CONNECT", "RESOURCE", "SELECT ANY TABLE", "SELECT ANY DICTIONARY"]
+    },
+  ]
 
   depends_on = [time_sleep.wait_for_iam_propagation]
 }
@@ -157,8 +163,8 @@ module "mcp_toolbox_oracle" {
   region          = module.landing_zone.region
   network_name    = module.landing_zone.demo_network.name
   oracle_host     = module.oracle_free.instance.network_interface[0].network_ip
-  oracle_user     = "ADMIN"
-  oracle_password = module.oracle_free.apex_admin_password
+  oracle_user     = "MCP_DEMO_USER"
+  oracle_password = module.oracle_free.additional_db_user_passwords["MCP_DEMO_USER"]
   oracle_service  = "FREEPDB1"
   vpc_connector_id = module.landing_zone.vpc_connector_id
   invoker_users    = ["user:${data.external.gcloud_user.result.email}"]

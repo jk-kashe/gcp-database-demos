@@ -17,3 +17,9 @@ output "db_user_password" {
   description = "The password for the database user."
   sensitive   = true
 }
+
+output "mcp_demo_user_password" {
+  value       = module.oracle_free.additional_db_user_passwords["MCP_DEMO_USER"]
+  description = "The password for the MCP_DEMO_USER."
+  sensitive   = true
+}
