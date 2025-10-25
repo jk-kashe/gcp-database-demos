@@ -25,6 +25,12 @@ variable "invoker_users" {
   default     = []
 }
 
+variable "current_user_email" {
+  type        = string
+  description = "Email of the current user to grant IAP access."
+}
+
+
 variable "oracle_host" {
   description = "The hostname or IP address of the Oracle database."
   type        = string

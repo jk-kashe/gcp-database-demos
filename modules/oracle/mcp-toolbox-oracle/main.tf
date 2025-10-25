@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    google-beta = {
+      source  = "hashicorp/google-beta"
+    }
+  }
+}
+
 locals {
   tools_yaml = <<-EOT
     sources:
@@ -23,6 +31,9 @@ locals {
 
 module "mcp_toolbox" {
   source = "../../mcp-toolbox"
+  providers = {
+    google-beta = google-beta
+  }
 
   project_id         = var.project_id
   region             = var.region
@@ -31,4 +42,5 @@ module "mcp_toolbox" {
   service_name                  = var.service_name
   invoker_users                 = var.invoker_users
   vpc_connector_id            = var.vpc_connector_id
+  current_user_email          = var.current_user_email
 }
