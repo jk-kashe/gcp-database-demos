@@ -40,7 +40,6 @@ module "mcp_toolbox" {
   network_name       = var.network_name
   tools_yaml_content = local.tools_yaml
   service_name                  = var.service_name
-  invoker_users                 = var.invoker_users
   vpc_connector_id            = var.vpc_connector_id
-  current_user_email          = var.current_user_email
+  invoker_users                 = var.invoker_users
 }

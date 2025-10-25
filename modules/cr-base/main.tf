@@ -16,7 +16,7 @@ resource "google_cloud_run_v2_service" "iap_service" {
   project             = var.project_id
   deletion_protection = false
   ingress             = "INGRESS_TRAFFIC_ALL"
-  iap_enabled         = true
+  iap_enabled         = var.use_iap
   launch_stage        = "BETA"
 
   template {
@@ -90,6 +90,7 @@ data "google_project" "project" {
 
 # Allow IAP to invoke the service
 resource "google_cloud_run_v2_service_iam_member" "iap_invoker" {
+  count    = var.use_iap ? 1 : 0
   provider = google-beta
   project  = google_cloud_run_v2_service.iap_service.project
   location = google_cloud_run_v2_service.iap_service.location
