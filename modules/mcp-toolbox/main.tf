@@ -89,7 +89,7 @@ resource "local_file" "update_settings_sh" {
   content = templatefile("${path.module}/templates/update_settings.sh.tpl", {
     mcp_server_url  = module.cr_base.service_url,
     mcp_server_name = var.service_name,
-    config_path     = var.gemini_config_path
+    config_path     = abspath(var.gemini_config_path)
   })
   filename = var.update_script_path
 }
@@ -99,6 +99,6 @@ resource "null_resource" "run_update_settings" {
   depends_on = [local_file.update_settings_sh, module.cr_base]
 
   provisioner "local-exec" {
-    command = "chmod +x ${var.update_script_path} && ${var.update_script_path}"
+    command = "chmod +x ${local_file.update_settings_sh[0].filename} && ${local_file.update_settings_sh[0].filename}"
   }
 }

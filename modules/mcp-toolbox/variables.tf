@@ -64,7 +64,7 @@ variable "generate_gemini_config" {
 variable "gemini_config_path" {
   description = "The path (relative to the update_settings.sh script) where the Gemini CLI settings file will be generated."
   type        = string
-  default     = ".gemini/settings.json"
+  default     = "../.gemini/settings.json"
 }
 
 variable "update_script_path" {
