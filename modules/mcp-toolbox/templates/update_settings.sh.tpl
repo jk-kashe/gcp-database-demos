@@ -4,6 +4,7 @@ set -e
 CONFIG_PATH="${config_path}"
 
 echo "Generating Gemini CLI config at $CONFIG_PATH..."
+mkdir -p "$(dirname "$CONFIG_PATH")"
 TOKEN=$(gcloud auth print-identity-token --audiences='${mcp_server_url}')
 
 cat <<EOF > "$CONFIG_PATH"
