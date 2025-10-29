@@ -4,6 +4,10 @@ exec > >(logger -t startup-script) 2>&1
 # Get the VM's hostname from the metadata server
 VM_HOSTNAME=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/name" -H "Metadata-Flavor: Google")
 
+# Get the CDN script from metadata and write it to a temp file
+curl -s "http://metadata.google.internal/computeMetadata/v1/instance/attributes/cdn-script" -H "Metadata-Flavor: Google" > /tmp/99_configure_apex_cdn.sh
+chmod +x /tmp/99_configure_apex_cdn.sh
+
 sudo apt-get update
 
 # Install the Ops Agent to forward system logs to Cloud Logging
@@ -92,6 +96,7 @@ if [ ! "$(sudo docker ps -a -q -f name=oracle-free)" ]; then
   sudo docker create --name oracle-free --hostname=$${VM_HOSTNAME} -p 1521:1521 -p 8080:8080 -v /mnt/ords_config:/etc/ords/config --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
   sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh
   sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh
+  sudo docker cp /tmp/99_configure_apex_cdn.sh oracle-free:/opt/oracle/scripts/startup/99_configure_apex_cdn.sh
   sudo docker start oracle-free
 else
   echo "Container 'oracle-free' already exists. Skipping creation."
