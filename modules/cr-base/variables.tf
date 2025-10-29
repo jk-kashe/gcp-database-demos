@@ -70,3 +70,14 @@ variable "use_iap" {
   type        = bool
   default     = true
 }
+
+variable "container_resources" {
+  description = "Container resource limits."
+  type = object({
+    limits = object({
+      cpu    = string
+      memory = string
+    })
+  })
+  default = null
+}

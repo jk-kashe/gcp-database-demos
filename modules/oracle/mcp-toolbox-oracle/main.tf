@@ -79,6 +79,10 @@ locals {
   EOT
 }
 
+resource "time_sleep" "wait_for_oracle" {
+  create_duration = "60s"
+}
+
 module "mcp_toolbox" {
   source = "../../mcp-toolbox"
   providers = {
@@ -92,4 +96,6 @@ module "mcp_toolbox" {
   service_name                  = var.service_name
   vpc_connector_id            = var.vpc_connector_id
   invoker_users                 = var.invoker_users
+
+  depends_on = [time_sleep.wait_for_oracle]
 }
