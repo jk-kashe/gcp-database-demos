@@ -1,4 +1,4 @@
-adk
+google-adk
 mcp-toolbox
 fastapi
 uvicorn
