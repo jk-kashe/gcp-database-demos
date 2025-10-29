@@ -55,6 +55,30 @@ module "cr_base" {
     {
       name  = "MCP_TOOLBOX_URL"
       value = var.mcp_toolbox_url
+    },
+    {
+      name  = "ADK_AGENT_MODEL"
+      value = var.adk_agent_model
+    },
+    {
+      name  = "ADK_AGENT_NAME"
+      value = var.adk_agent_name
+    },
+    {
+      name  = "ADK_AGENT_DESCRIPTION"
+      value = var.adk_agent_description
+    },
+    {
+      name  = "ADK_AGENT_INSTRUCTION"
+      value = var.adk_agent_instruction
+    },
+    {
+      name  = "ADK_AGENT_INCLUDE_THOUGHTS"
+      value = var.adk_agent_include_thoughts
+    },
+    {
+      name  = "ADK_AGENT_THINKING_BUDGET"
+      value = var.adk_agent_thinking_budget
     }
   ]
 
