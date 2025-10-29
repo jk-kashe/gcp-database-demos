@@ -66,132 +66,117 @@ resource "google_secret_manager_secret_version" "db_user_password_version" {
   secret_data = var.db_user_password
 }
 
-# Grant the default Compute Engine service account (used by Cloud Run by default) access to the secrets
-data "google_project" "project" {
-  project_id = var.project_id
+resource "google_service_account" "ords_identity" {
+  account_id   = var.service_account_id
+  display_name = "ORDS Cloud Run Identity"
+  project      = var.project_id
 }
 
 resource "google_secret_manager_secret_iam_member" "oracle_password_accessor" {
   secret_id = google_secret_manager_secret.vm_oracle_password.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  member    = "serviceAccount:${google_service_account.ords_identity.email}"
 }
 
 resource "google_secret_manager_secret_iam_member" "db_password_accessor" {
   secret_id = google_secret_manager_secret.db_user_password.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  member    = "serviceAccount:${google_service_account.ords_identity.email}"
 }
 
-# Deploy the built container to Cloud Run
-resource "google_cloud_run_v2_service" "ords" {
-  provider = google-beta
-  name     = "ords"
-  location = var.region
-  project  = var.project_id
-  ingress      = "INGRESS_TRAFFIC_ALL"
-  launch_stage = "BETA"
-  iap_enabled  = true
-  deletion_protection = false
+module "cr_base" {
+  source = "../../cr-base"
 
-  template {
-    scaling {
-      max_instance_count = 1
-    }
-    containers {
-      image = "${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:${var.ords_container_tag}"
-      resources {
-        limits = {
-          cpu    = "1"
-          memory = "2Gi"
+  project_id            = var.project_id
+  region                = var.region
+  service_name          = var.service_name
+  container_image       = "${google_artifact_registry_repository.ords_custom.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_custom.repository_id}/ords-custom:${var.ords_container_tag}"
+  service_account_email = google_service_account.ords_identity.email
+  vpc_connector_id      = var.vpc_connector_id
+  invoker_users         = var.invoker_users
+  use_iap               = true
+
+  env_vars = [
+    {
+      name  = "DBHOST"
+      value = var.oracle_db_ip
+    },
+    {
+      name  = "DBPORT"
+      value = "1521"
+    },
+    {
+      name  = "DBSERVICENAME"
+      value = "FREEPDB1"
+    },
+    {
+      name = "ORACLE_PWD"
+      value_source = {
+        secret_key_ref = {
+          secret  = google_secret_manager_secret.vm_oracle_password.secret_id
+          version = "latest"
         }
       }
-      ports {
-        container_port = 8080
-      }
-      volume_mounts {
-        name       = "ords-config"
-        mount_path = "/etc/ords/config"
-      }
-      env {
-        name  = "DBHOST"
-        value = var.oracle_db_ip
-      }
-      env {
-        name  = "DBPORT"
-        value = "1521"
-      }
-      env {
-        name  = "DBSERVICENAME"
-        value = "FREEPDB1"
-      }
-      env {
-        name = "ORACLE_PWD"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.vm_oracle_password.secret_id
-            version = "latest"
-          }
+    },
+    {
+      name = "ORDS_PUBLIC_USER_PASSWORD"
+      value_source = {
+        secret_key_ref = {
+          secret  = google_secret_manager_secret.db_user_password.secret_id
+          version = "latest"
         }
       }
-      env {
-        name = "ORDS_PUBLIC_USER_PASSWORD"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.db_user_password.secret_id
-            version = "latest"
-          }
+    },
+    {
+      name = "APEX_PUBLIC_USER_PASSWORD"
+      value_source = {
+        secret_key_ref = {
+          secret  = google_secret_manager_secret.db_user_password.secret_id
+          version = "latest"
         }
       }
-      env {
-        name = "APEX_PUBLIC_USER_PASSWORD"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.db_user_password.secret_id
-            version = "latest"
-          }
+    },
+    {
+      name = "APEX_LISTENER_PASSWORD"
+      value_source = {
+        secret_key_ref = {
+          secret  = google_secret_manager_secret.db_user_password.secret_id
+          version = "latest"
         }
       }
-      env {
-        name = "APEX_LISTENER_PASSWORD"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.db_user_password.secret_id
-            version = "latest"
-          }
+    },
+    {
+      name = "APEX_REST_PUBLIC_USER_PASSWORD"
+      value_source = {
+        secret_key_ref = {
+          secret  = google_secret_manager_secret.db_user_password.secret_id
+          version = "latest"
         }
       }
-      env {
-        name = "APEX_REST_PUBLIC_USER_PASSWORD"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.db_user_password.secret_id
-            version = "latest"
-          }
-        }
-      }
-      env {
-        name = "ORDS_METADATA_USER_PASSWORD"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.db_user_password.secret_id
-            version = "latest"
-          }
+    },
+    {
+      name = "ORDS_METADATA_USER_PASSWORD"
+      value_source = {
+        secret_key_ref = {
+          secret  = google_secret_manager_secret.db_user_password.secret_id
+          version = "latest"
         }
       }
     }
-    vpc_access {
-      connector = var.vpc_connector_id
-      egress    = "ALL_TRAFFIC"
+  ]
+
+  template_volumes = [{
+    name = "ords-config"
+    gcs = {
+      bucket    = var.gcs_bucket_name
+      read_only = true
     }
-    volumes {
-      name = "ords-config"
-      gcs {
-        bucket    = var.gcs_bucket_name
-        read_only = true
-      }
-    }
-  }
+  }]
+
+  container_volume_mounts = [{
+    name       = "ords-config"
+    mount_path = "/etc/ords/config"
+  }]
 
   depends_on = [
     var.db_instance_dependency,
@@ -201,22 +186,13 @@ resource "google_cloud_run_v2_service" "ords" {
   ]
 }
 
-resource "google_cloud_run_v2_service_iam_member" "iap_invoker" {
-  project = google_cloud_run_v2_service.ords.project
-  location = google_cloud_run_v2_service.ords.location
-  name = google_cloud_run_v2_service.ords.name
-  role   = "roles/run.invoker"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-iap.iam.gserviceaccount.com"
-  depends_on = [google_cloud_run_v2_service.ords]
-}
-
 # 1. Update ORDS settings.xml with the Cloud Run URL for CORS
 resource "null_resource" "update_ords_settings" {
   # This resource runs after the Cloud Run service is available.
-  depends_on = [google_cloud_run_v2_service.ords]
+  depends_on = [module.cr_base]
 
   provisioner "local-exec" {
     # The script will download, update, and re-upload settings.xml to GCS.
-    command = "bash ${path.module}/scripts/update_cors.sh '${var.gcs_bucket_name}' '${google_cloud_run_v2_service.ords.uri}'"
+    command = "bash ${path.module}/scripts/update_cors.sh '${var.gcs_bucket_name}' '${module.cr_base.service_url}'"
   }
 }

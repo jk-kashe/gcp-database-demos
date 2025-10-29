@@ -8,24 +8,34 @@ variable "region" {
   description = "The region to deploy to."
 }
 
-variable "apis" {
+variable "service_name" {
+  description = "The name of the Cloud Run service for the MCP toolbox."
+  type        = string
+  default     = "ords"
+}
+
+variable "service_account_id" {
+  description = "The account id for the service account."
+  type        = string
+  default     = "ords-identity"
+}
+
+variable "invoker_users" {
+  description = "A list of user emails to grant invoker role to the Cloud Run service. e.g. ['user:foo@example.com']"
   type        = list(string)
-  description = "The APIs to enable."
-  default = [
-    "artifactregistry.googleapis.com",
-    "run.googleapis.com",
-    "cloudbuild.googleapis.com"
-  ]
+  default     = []
 }
 
 variable "vm_oracle_password" {
   type        = string
   description = "The password for the Oracle database."
+  sensitive   = true
 }
 
 variable "db_user_password" {
   type        = string
   description = "The password for the internal database users (like ORDS_PUBLIC_USER)."
+  sensitive   = true
 }
 
 variable "oracle_db_ip" {
