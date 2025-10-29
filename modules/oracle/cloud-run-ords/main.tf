@@ -209,3 +209,14 @@ resource "google_cloud_run_v2_service_iam_member" "iap_invoker" {
   member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-iap.iam.gserviceaccount.com"
   depends_on = [google_cloud_run_v2_service.ords]
 }
+
+# 1. Update ORDS settings.xml with the Cloud Run URL for CORS
+resource "null_resource" "update_ords_settings" {
+  # This resource runs after the Cloud Run service is available.
+  depends_on = [google_cloud_run_v2_service.ords]
+
+  provisioner "local-exec" {
+    # The script will download, update, and re-upload settings.xml to GCS.
+    command = "bash ${path.module}/scripts/update_cors.sh '${var.gcs_bucket_name}' '${google_cloud_run_v2_service.ords.uri}'"
+  }
+}
