@@ -1,6 +1,6 @@
-from adk.agent import Agent
-from adk.llm import LlmAgent
-from adk.tool import MCPToolset
+from google.adk.agent import Agent
+from google.adk.llm import LlmAgent
+from google.adk.tool import MCPToolset
 import os
 
 
