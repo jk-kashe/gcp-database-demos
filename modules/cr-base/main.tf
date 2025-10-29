@@ -59,14 +59,24 @@ resource "google_cloud_run_v2_service" "iap_service" {
       for_each = var.template_volumes
       content {
         name = volumes.value.name
-        secret {
-          secret = volumes.value.secret.secret
-          dynamic "items" {
-            for_each = volumes.value.secret.items
-            content {
-              path    = items.value.path
-              version = items.value.version
+        dynamic "secret" {
+          for_each = lookup(volumes.value, "secret", null) != null ? [volumes.value.secret] : []
+          content {
+            secret = secret.value.secret
+            dynamic "items" {
+              for_each = lookup(secret.value, "items", [])
+              content {
+                path    = items.value.path
+                version = items.value.version
+              }
             }
+          }
+        }
+        dynamic "gcs" {
+          for_each = lookup(volumes.value, "gcs", null) != null ? [volumes.value.gcs] : []
+          content {
+            bucket    = gcs.value.bucket
+            read_only = lookup(gcs.value, "read_only", false)
           }
         }
       }
