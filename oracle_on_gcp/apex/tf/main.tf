@@ -179,6 +179,19 @@ module "mcp_toolbox_oracle" {
   ]
 }
 
+module "mcp_adk_bridge" {
+  source = "../../../modules/mcp-adk-bridge"
+
+  project_id      = module.landing_zone.project_id
+  region          = module.landing_zone.region
+  mcp_toolbox_url = module.mcp_toolbox_oracle.service_url
+  invoker_users   = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
+
+  depends_on = [
+    module.mcp_toolbox_oracle
+  ]
+}
+
 resource "local_file" "credentials" {
   filename = "../apex-credentials.txt"
   content  = <<-EOT
