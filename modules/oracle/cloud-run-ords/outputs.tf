@@ -1,3 +1,4 @@
 output "apex_url" {
-  value = google_cloud_run_v2_service.ords.uri
+  description = "The URL of the APEX application."
+  value       = "${module.cr_base.service_url}"
 }
