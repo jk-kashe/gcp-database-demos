@@ -84,6 +84,13 @@ resource "google_secret_manager_secret_iam_member" "db_password_accessor" {
   member    = "serviceAccount:${google_service_account.ords_identity.email}"
 }
 
+resource "google_storage_bucket_iam_member" "gcs_bucket_reader" {
+  bucket = var.gcs_bucket_name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.ords_identity.email}"
+}
+
+
 module "cr_base" {
   source = "../../cr-base"
 
