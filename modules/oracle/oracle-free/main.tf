@@ -41,6 +41,7 @@ resource "google_compute_instance" "oracle_vm" {
       gcs_bucket_name     = var.gcs_bucket_name,
       additional_db_users = local.additional_users_for_template
     })
+    cdn-script = templatefile("${path.module}/templates/99_configure_apex_cdn.sh.tpl", {})
   }
 
   service_account {
