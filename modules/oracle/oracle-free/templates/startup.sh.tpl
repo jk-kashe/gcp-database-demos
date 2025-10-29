@@ -58,20 +58,12 @@ echo "PDB FREEPDB1 is open. Starting APEX installation."
 sh /home/oracle/unattended_apex_install_23c.sh
 # After installation, configure ORDS to allow CORS from any origin
 sed -i '/<\/properties>/i <entry key="security.externalSessionTrustedOrigins">*</entry>' /etc/ords/config/global/settings.xml
-EOF
 
-# Modify the main installation script to set passwords
-sudo sed -i "s/OrclAPEX1999!/${apex_admin_password}/g" /tmp/unattended_apex_install_23c.sh
-sudo sed -i "s/ALTER USER APEX_PUBLIC_USER IDENTIFIED BY E;/ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${db_user_password};/g" /tmp/unattended_apex_install_23c.sh
-# In the ORDS install heredoc, replace the first password placeholder with the SYS password
-sudo sed -i "0,/^E$/s//${vm_oracle_password}/" /tmp/unattended_apex_install_23c.sh
-# Then, replace the second (now only) password placeholder with the APEX_PUBLIC_USER password
-sudo sed -i "s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
-
+echo "Creating additional database users..."
 # Create additional database users
 %{
   for user in additional_db_users ~}
-sqlplus / as sysdba <<EOF
+sqlplus / as sysdba <<SQL
 ALTER SESSION SET CONTAINER = FREEPDB1;
 CREATE USER ${user.username} IDENTIFIED BY "${user.password}" DEFAULT TABLESPACE USERS QUOTA UNLIMITED ON USERS;
 %{
@@ -81,9 +73,19 @@ GRANT ${grant} TO ${user.username};
     endfor ~}
 ALTER USER ${user.username} DEFAULT ROLE ALL;
 EXIT;
-EOF
+SQL
 %{
   endfor ~}
+echo "Additional database users created."
+EOF
+
+# Modify the main installation script to set passwords
+sudo sed -i "s/OrclAPEX1999!/${apex_admin_password}/g" /tmp/unattended_apex_install_23c.sh
+sudo sed -i "s/ALTER USER APEX_PUBLIC_USER IDENTIFIED BY E;/ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${db_user_password};/g" /tmp/unattended_apex_install_23c.sh
+# In the ORDS install heredoc, replace the first password placeholder with the SYS password
+sudo sed -i "0,/^E$/s//${vm_oracle_password}/" /tmp/unattended_apex_install_23c.sh
+# Then, replace the second (now only) password placeholder with the APEX_PUBLIC_USER password
+sudo sed -i "s/^E$/${db_user_password}/" /tmp/unattended_apex_install_23c.sh
 
 # Replace the hardcoded 'localhost' in the ORDS install command with the VM's actual hostname
 sudo sed -i "s/--db-hostname localhost/--db-hostname $${VM_HOSTNAME}/g" /tmp/unattended_apex_install_23c.sh
