@@ -72,7 +72,7 @@ main() {
 
     local gcs_bucket_name=$1
     local cloud_run_url=$2
-    local settings_file="settings.xml"
+    local settings_file="global/settings.xml"
     local temp_settings_file
     temp_settings_file=$(mktemp)
 
