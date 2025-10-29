@@ -102,6 +102,7 @@ module "cr_base" {
   vpc_connector_id      = var.vpc_connector_id
   invoker_users         = var.invoker_users
   use_iap               = true
+  container_resources   = var.container_resources
 
   env_vars = [
     {

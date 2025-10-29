@@ -70,3 +70,19 @@ variable "gcs_bucket_name" {
   description = "The name of the GCS bucket where the ORDS config is stored."
   default     = null
 }
+
+variable "container_resources" {
+  description = "Container resource limits."
+  type = object({
+    limits = object({
+      cpu    = string
+      memory = string
+    })
+  })
+  default = {
+    limits = {
+      cpu    = "1"
+      memory = "2Gi"
+    }
+  }
+}

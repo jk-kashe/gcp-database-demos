@@ -29,6 +29,16 @@ resource "google_cloud_run_v2_service" "iap_service" {
         container_port = var.container_port
       }
 
+      dynamic "resources" {
+        for_each = var.container_resources != null ? [var.container_resources] : []
+        content {
+          limits = {
+            cpu    = resources.value.limits.cpu
+            memory = resources.value.limits.memory
+          }
+        }
+      }
+
       dynamic "volume_mounts" {
         for_each = var.container_volume_mounts
         content {
