@@ -37,6 +37,11 @@ sudo chmod -R 777 /mnt/ords_config
 
 curl -o /tmp/unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
 
+# If a specific ORDS version is provided, modify the installer script to use it.
+%{ if ords_version != "" ~}
+sudo sed -i 's/dnf install ords -y/dnf install ords-${ords_version} -y/g' /tmp/unattended_apex_install_23c.sh
+%{ endif ~}
+
 # Remove conflicting directory creation from the install script
 sudo sed -i '/mkdir \/etc\/ords/d' /tmp/unattended_apex_install_23c.sh
 

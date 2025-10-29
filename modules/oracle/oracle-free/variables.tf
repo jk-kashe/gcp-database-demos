@@ -61,3 +61,9 @@ variable "additional_db_users" {
   }))
   default = []
 }
+
+variable "ords_version" {
+  description = "The specific version of the ORDS RPM package to install. If empty, the latest version will be installed."
+  type        = string
+  default     = "25.3.0"
+}

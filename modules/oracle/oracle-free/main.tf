@@ -39,7 +39,8 @@ resource "google_compute_instance" "oracle_vm" {
       db_user_password    = random_password.db_user_password.result,
       vm_oracle_password  = var.vm_oracle_password,
       gcs_bucket_name     = var.gcs_bucket_name,
-      additional_db_users = local.additional_users_for_template
+      additional_db_users = local.additional_users_for_template,
+      ords_version        = var.ords_version
     })
     cdn-script = templatefile("${path.module}/templates/99_configure_apex_cdn.sh.tpl", {})
   }
