@@ -3,9 +3,12 @@ import google.auth.transport.requests
 import google.oauth2.id_token
 from google.adk.agents import LlmAgent
 from google.adk.planners.built_in_planner import BuiltInPlanner
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset
+from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 from google.genai.types import ThinkingConfig
+from fastapi import FastAPI, Request
+from fastapi.responses import PlainTextResponse
+import uvicorn
 
 # Get the MCP Server URL from the environment variable set in Terraform.
 MCP_SERVER_URL = os.environ.get("MCP_TOOLBOX_URL")
@@ -35,7 +38,7 @@ agent = LlmAgent(
         )
     ),
     tools=[
-        MCPToolset(
+        McpToolset(
             connection_params=StreamableHTTPConnectionParams(
                 url=MCP_SERVER_URL,
                 headers={
@@ -48,3 +51,26 @@ agent = LlmAgent(
         )
     ],
 )
+
+app = FastAPI()
+
+@app.post("/", response_class=PlainTextResponse)
+async def invoke_agent(request: Request):
+    """Invoke the agent with a prompt."""
+    try:
+        # Get the prompt from the request body.
+        prompt = await request.body()
+        prompt = prompt.decode("utf-8")
+
+        # Run the agent with the prompt.
+        response = agent.run(prompt)
+
+        # Return the response.
+        return response
+
+    except Exception as e:
+        return f"Error: {e}", 500
+
+if __name__ == "__main__":
+    server_port = os.environ.get("PORT", "8080")
+    uvicorn.run(app, host="0.0.0.0", port=int(server_port))
