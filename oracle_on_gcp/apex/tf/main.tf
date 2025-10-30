@@ -9,6 +9,8 @@ resource "random_shuffle" "zone" {
   result_count = 1
 }
 
+data "google_project" "project" {}
+
 resource "random_string" "bucket_suffix" {
   length  = 4
   special = false
@@ -170,7 +172,7 @@ module "mcp_toolbox_oracle" {
   oracle_password = module.oracle_free.additional_db_user_passwords["MCP_DEMO_USER"]
   oracle_service  = "FREEPDB1"
   vpc_connector_id = module.landing_zone.vpc_connector_id
-  invoker_users    = ["user:${trimspace(data.external.gcloud_user.result.email)}", "serviceAccount:${google_service_account.adk_bridge.email}"]
+  invoker_users    = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
 
   depends_on = [
     module.oracle_free,
@@ -179,14 +181,15 @@ module "mcp_toolbox_oracle" {
   ]
 }
 
-module "mcp_adk_bridge" {
-  source = "../../../modules/mcp-adk-bridge"
+module "adk_reasoning_engine" {
+  source = "../../../modules/adk-reasoning-engine"
 
-  project_id            = module.landing_zone.project_id
-  region                = module.landing_zone.region
-  mcp_toolbox_url       = module.mcp_toolbox_oracle.service_url
-  invoker_users         = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
-  service_account_email = google_service_account.adk_bridge.email
+  project_id          = module.landing_zone.project_id
+  region              = module.landing_zone.region
+  mcp_toolbox_url     = module.mcp_toolbox_oracle.service_url
+  staging_bucket_name = "adk-staging-${data.google_project.project.number}"
+  agent_display_name  = "Oracle NL2SQL Agent"
+  agent_app_name      = "oracle_agent"
   adk_agent_instruction = <<-EOT
   You are an expert Oracle SQL agent. Your primary function is to translate natural language questions into precise and executable Oracle SQL queries.
 
@@ -203,15 +206,15 @@ module "mcp_adk_bridge" {
   4.  **Provide the Answer:** Return the result of the SQL query to the user in a clear and understandable format.
   EOT
 
-  depends_on = [
-    module.mcp_toolbox_oracle
-  ]
+  depends_on = [module.mcp_toolbox_oracle]
 }
 
-resource "google_service_account" "adk_bridge" {
-  project      = module.landing_zone.project_id
-  account_id   = "mcp-adk-bridge-sa"
-  display_name = "MCP ADK Bridge Service Account"
+resource "google_cloud_run_v2_service_iam_member" "agent_engine_can_invoke_mcp" {
+  project  = module.landing_zone.project_id
+  location = module.landing_zone.region
+  name     = module.mcp_toolbox_oracle.service_name
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
 }
 
 resource "local_file" "credentials" {

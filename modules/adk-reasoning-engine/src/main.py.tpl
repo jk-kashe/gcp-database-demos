@@ -10,10 +10,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
 import uvicorn
 
-# Get the MCP Server URL from the environment variable set in Terraform.
-MCP_SERVER_URL = os.environ.get("MCP_TOOLBOX_URL")
-if not MCP_SERVER_URL:
-    raise ValueError("The MCP_TOOLBOX_URL environment variable is not set.")
+# This will be replaced by Terraform
+MCP_SERVER_URL = "${mcp_toolbox_url}"
 
 def get_id_token():
     """Get an ID token to authenticate with the MCP server."""
@@ -25,16 +23,14 @@ def get_id_token():
 
 # The ADK runtime will look for an agent instance to run.
 agent = LlmAgent(
-    model=os.environ.get("ADK_AGENT_MODEL", 'gemini-2.5-flash'),
-    name=os.environ.get("ADK_AGENT_NAME", 'mcp_agent'),
-    description=os.environ.get("ADK_AGENT_DESCRIPTION", 'Agent to interact with an MCP server.'),
-    instruction=(os.environ.get("ADK_AGENT_INSTRUCTION",
-        'You are a helpful agent who can answer user questions by using the tools available from the MCP server.'
-    )),
+    model="${adk_agent_model}",
+    name="${adk_agent_name}",
+    description="${adk_agent_description}",
+    instruction='''${adk_agent_instruction}''',
     planner=BuiltInPlanner(
         thinking_config=ThinkingConfig(
-            include_thoughts=os.environ.get("ADK_AGENT_INCLUDE_THOUGHTS", "False").lower() == "true",
-            thinking_budget=int(os.environ.get("ADK_AGENT_THINKING_BUDGET", 0))
+            include_thoughts=${adk_agent_include_thoughts},
+            thinking_budget=${adk_agent_thinking_budget}
         )
     ),
     tools=[
