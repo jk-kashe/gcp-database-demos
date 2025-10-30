@@ -8,33 +8,30 @@ variable "region" {
   type        = string
 }
 
-variable "service_name" {
-  description = "The name of the Cloud Run service for the ADK agent."
-  type        = string
-  default     = "mcp-adk-bridge"
-}
-
 variable "mcp_toolbox_url" {
-  description = "The URL of the MCP toolbox service."
+  description = "The URL of the MCP toolbox to be injected into the Python agent code."
   type        = string
 }
 
-variable "invoker_users" {
-  description = "A list of user emails to grant invoker role to the Cloud Run service. e.g. ['user:foo@example.com']"
-  type        = list(string)
-  default     = []
+variable "agent_display_name" {
+  description = "The name for the agent in Agentspace (e.g., 'Oracle NL2SQL Agent')."
+  type        = string
 }
 
-variable "service_account_email" {
-  description = "The email of the service account to use for the Cloud Run service. If not provided, a new one will be created."
+variable "agent_app_name" {
+  description = "A short, code-friendly name for the ADK app."
   type        = string
-  default     = null
+}
+
+variable "staging_bucket_name" {
+  description = "The GCS bucket required by the ADK tool for deployment artifacts."
+  type        = string
 }
 
 variable "adk_agent_model" {
   description = "The model to use for the ADK agent."
   type        = string
-  default     = "gemini-2.5-flash"
+  default     = "gemini-1.5-flash"
 }
 
 variable "adk_agent_name" {
