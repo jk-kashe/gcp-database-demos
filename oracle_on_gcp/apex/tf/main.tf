@@ -213,6 +213,8 @@ resource "google_cloud_run_v2_service_iam_member" "agent_engine_can_invoke_mcp" 
   name     = module.mcp_toolbox_oracle.service_name
   role     = "roles/run.invoker"
   member   = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
+
+  depends_on = [module.adk_reasoning_engine]
 }
 
 resource "local_file" "credentials" {
