@@ -37,11 +37,23 @@ resource "null_resource" "deploy_agent" {
   provisioner "local-exec" {
     command = "bash ${local_file.deploy_script.filename}"
   }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "bash ${local_file.undeploy_script.filename}"
+  }
 }
 
 data "local_file" "reasoning_engine" {
   depends_on = [null_resource.deploy_agent]
   filename   = "${path.module}/reasoning_engine.txt"
+}
+
+resource "local_file" "undeploy_script" {
+  content = templatefile("${path.module}/templates/undeploy.sh.tpl", {
+    reasoning_engine_resource_name = trimspace(data.local_file.reasoning_engine.content)
+  })
+  filename = "${path.module}/undeploy.sh"
 }
 
 resource "local_file" "invoke_py" {
