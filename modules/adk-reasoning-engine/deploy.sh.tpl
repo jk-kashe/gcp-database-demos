@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Navigate to the script's directory to ensure relative paths work correctly
+cd "$(dirname "$0")"
+
 # Navigate to the agent source directory
 cd ${agent_src_path}
 
@@ -17,5 +20,5 @@ adk deploy agent_engine \
   --region ${region} \
   --staging_bucket gs://${staging_bucket_name} \
   --display_name "${agent_display_name}" \
-  ${agent_src_path} | grep "projects/.*/locations/.*/reasoningEngines/.*" > ${output_file_path}
-echo ">>> Deployment complete. Output written to ${output_file_path}"
+  . | grep "projects/.*/locations/.*/reasoningEngines/.*" > ../${output_file_path}
+echo ">>> Deployment complete. Output written to ../${output_file_path}"
