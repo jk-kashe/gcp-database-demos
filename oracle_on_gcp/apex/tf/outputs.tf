@@ -9,7 +9,7 @@ output "adk_reasoning_engine_resource_name" {
 
 output "agent_invoke_command" {
   description = "The command to run to query the deployed agent."
-  value       = "To query your agent, run the following command from the 'oracle_on_gcp/apex' directory: cd ../../../modules/adk-reasoning-engine && chmod +x invoke.sh && ./invoke.sh \"your natural language query\""
+  value       = "To query your agent, run the following command from the 'oracle_on_gcp/apex' directory: cd ../../../modules/adk-reasoning-engine/src && chmod +x invoke.sh && ./invoke.sh \"your natural language query\""
 }
 
 output "apex_url" {
