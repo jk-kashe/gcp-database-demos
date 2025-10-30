@@ -29,6 +29,10 @@ resource "local_file" "deploy_script" {
     output_file_path    = "reasoning_engine.txt"
   })
   filename = "${path.module}/deploy.sh"
+
+  provisioner "local-exec" {
+    command = "chmod +x ${self.filename}"
+  }
 }
 
 resource "null_resource" "deploy_agent" {
@@ -54,6 +58,10 @@ resource "local_file" "undeploy_script" {
     reasoning_engine_resource_name = trimspace(data.local_file.reasoning_engine.content)
   })
   filename = "${path.module}/undeploy.sh"
+
+  provisioner "local-exec" {
+    command = "chmod +x ${self.filename}"
+  }
 }
 
 resource "local_file" "invoke_py" {
