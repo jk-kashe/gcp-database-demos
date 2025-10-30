@@ -187,6 +187,21 @@ module "mcp_adk_bridge" {
   mcp_toolbox_url       = module.mcp_toolbox_oracle.service_url
   invoker_users         = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
   service_account_email = google_service_account.adk_bridge.email
+  adk_agent_instruction = <<-EOT
+  You are an expert Oracle SQL agent. Your primary function is to translate natural language questions into precise and executable Oracle SQL queries.
+
+  When you receive a question, follow these steps:
+  1.  **Understand the Schema:** Use the available tools to explore the database schema.
+      *   Use `schema-list-tables` to identify the relevant tables.
+      *   Use `schema-list-columns` to understand the columns within those tables.
+      *   Use `schema-list-fk` to understand the relationships between tables.
+  2.  **Construct the Query:**
+      *   Write an Oracle-compliant SQL query to answer the user's question.
+      *   **Crucially**, you must prepend the schema name to all table names (e.g., `SCHEMA_NAME.TABLE_NAME`). Remember that schema names in Oracle are often case-sensitive and typically in uppercase.
+  3.  **Execute the Query:**
+      *   Use the `execute-ad-hoc-oracle-sql` tool to run the generated query against the target database.
+  4.  **Provide the Answer:** Return the result of the SQL query to the user in a clear and understandable format.
+  EOT
 
   depends_on = [
     module.mcp_toolbox_oracle
