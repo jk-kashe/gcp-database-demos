@@ -2,11 +2,14 @@ import vertexai
 from vertexai import agent_engines
 import argparse
 import sys
+import asyncio
+from google.adk.sessions import VertexAiSessionService
 
 # --- Configuration (Hardcoded by Terraform) ---
 PROJECT_ID = "${project_id}"
 LOCATION = "${location}"
 REASONING_ENGINE_ID = "${reasoning_engine_id}"
+USER_ID = "test-user"
 
 def query_agent(prompt):
     """Initializes Vertex AI and sends a prompt to the specified agent."""
@@ -14,11 +17,23 @@ def query_agent(prompt):
     print(f"--- Initializing Vertex AI for project '{PROJECT_ID}' in '{LOCATION}' ---", file=sys.stderr)
     vertexai.init(project=PROJECT_ID, location=LOCATION)
 
+    print(f"--- Creating session for user: {USER_ID} ---", file=sys.stderr)
+    session_service = VertexAiSessionService(PROJECT_ID, LOCATION)
+    session = asyncio.run(session_service.create_session(
+        app_name=REASONING_ENGINE_ID,
+        user_id=USER_ID
+    ))
+    print(f"--- Session created: {session.id} ---", file=sys.stderr)
+
     print(f"--- Getting a reference to agent: {REASONING_ENGINE_ID} ---", file=sys.stderr)
     remote_agent = agent_engines.get(REASONING_ENGINE_ID)
 
     print(f"\n--- Querying Agent with prompt: '{prompt}' ---", file=sys.stderr)
-    response_stream = remote_agent.stream_query(message=prompt)
+    response_stream = remote_agent.stream_query(
+        message=prompt, 
+        user_id=USER_ID,
+        session_id=session.id
+    )
 
     print("\n--- Agent Response ---")
     # The main response is printed to stdout for easy capture
