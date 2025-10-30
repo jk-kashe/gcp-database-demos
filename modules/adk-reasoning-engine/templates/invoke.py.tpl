@@ -1,5 +1,5 @@
 import vertexai
-from vertexai.agent_engines import AgentEngine
+from vertexai import agent_engines
 import argparse
 import sys
 
@@ -15,16 +15,15 @@ def query_agent(prompt):
     vertexai.init(project=PROJECT_ID, location=LOCATION)
 
     print(f"--- Getting a reference to agent: {REASONING_ENGINE_ID} ---", file=sys.stderr)
-    remote_agent = AgentEngine.get(
-        f"projects/{PROJECT_ID}/locations/{LOCATION}/reasoningEngines/{REASONING_ENGINE_ID}"
-    )
+    remote_agent = agent_engines.get(REASONING_ENGINE_ID)
 
     print(f"\n--- Querying Agent with prompt: '{prompt}' ---", file=sys.stderr)
-    response = remote_agent.query(input=prompt)
+    response_stream = remote_agent.stream_query(message=prompt)
 
     print("\n--- Agent Response ---")
     # The main response is printed to stdout for easy capture
-    print(response)
+    for chunk in response_stream:
+        print(chunk)
     print("\n--- End of Response ---", file=sys.stderr)
 
 
