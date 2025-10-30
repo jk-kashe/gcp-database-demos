@@ -6,7 +6,7 @@ resource "google_storage_bucket" "staging" {
 }
 
 resource "local_file" "agent_py" {
-  content = templatefile("${path.module}/src/main.py.tpl", {
+  content = templatefile("${path.module}/src/agent.py.tpl", {
     mcp_toolbox_url              = var.mcp_toolbox_url
     adk_agent_model              = var.adk_agent_model
     adk_agent_name               = var.adk_agent_name
@@ -15,7 +15,7 @@ resource "local_file" "agent_py" {
     adk_agent_include_thoughts   = var.adk_agent_include_thoughts ? "True" : "False"
     adk_agent_thinking_budget    = var.adk_agent_thinking_budget
   })
-  filename = "${path.module}/src/main.py"
+  filename = "${path.module}/src/agent.py"
 }
 
 resource "local_file" "deploy_script" {
