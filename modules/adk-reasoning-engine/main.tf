@@ -52,7 +52,6 @@ data "local_file" "reasoning_engine" {
 resource "local_file" "undeploy_script" {
   content = templatefile("${path.module}/templates/undeploy.sh.tpl", {
     reasoning_engine_resource_name = trimspace(data.local_file.reasoning_engine.content)
-    LOCATION                       = var.region
   })
   filename = "${path.module}/undeploy.sh"
 }
