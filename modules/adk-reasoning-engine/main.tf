@@ -6,7 +6,7 @@ resource "google_storage_bucket" "staging" {
 }
 
 resource "local_file" "agent_py" {
-  content = templatefile("${path.module}/src/agent.py.tpl", {
+  content = templatefile("${path.module}/templates/agent.py.tpl", {
     mcp_toolbox_url              = var.mcp_toolbox_url
     adk_agent_model              = var.adk_agent_model
     adk_agent_name               = var.adk_agent_name
@@ -19,7 +19,7 @@ resource "local_file" "agent_py" {
 }
 
 resource "local_file" "deploy_script" {
-  content = templatefile("${path.module}/deploy.sh.tpl", {
+  content = templatefile("${path.module}/templates/deploy.sh.tpl", {
     project_id          = var.project_id,
     region              = var.region,
     staging_bucket_name = google_storage_bucket.staging.name,
@@ -46,7 +46,7 @@ data "local_file" "reasoning_engine" {
 
 resource "local_file" "invoke_py" {
   depends_on = [null_resource.deploy_agent]
-  content = templatefile("${path.module}/src/invoke.py.tpl", {
+  content = templatefile("${path.module}/templates/invoke.py.tpl", {
     project_id          = var.project_id,
     location            = var.region,
     reasoning_engine_id = trimspace(data.local_file.reasoning_engine.content)
