@@ -25,8 +25,8 @@ resource "local_file" "deploy_script" {
     staging_bucket_name = google_storage_bucket.staging.name,
     agent_display_name  = var.agent_display_name,
     agent_app_name      = var.agent_app_name,
-    agent_src_path      = "${path.module}/src",
-    output_file_path    = "${path.module}/reasoning_engine.txt"
+    agent_src_path      = "src",
+    output_file_path    = "reasoning_engine.txt"
   })
   filename = "${path.module}/deploy.sh"
 }
