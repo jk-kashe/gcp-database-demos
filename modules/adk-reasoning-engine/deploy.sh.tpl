@@ -20,5 +20,5 @@ adk deploy agent_engine \
   --region ${region} \
   --staging_bucket gs://${staging_bucket_name} \
   --display_name "${agent_display_name}" \
-  . | grep "projects/.*/locations/.*/reasoningEngines/.*" > ../${output_file_path}
+  . | awk '/^AgentEngine created. Resource name: / {print $5}' > ../${output_file_path}
 echo ">>> Deployment complete. Output written to ../${output_file_path}"
