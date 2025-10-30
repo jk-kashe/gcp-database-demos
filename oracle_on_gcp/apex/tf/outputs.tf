@@ -2,9 +2,9 @@ output "mcp_toolbox_url" {
   value = module.mcp_toolbox_oracle.service_url
 }
 
-output "adk_agent_url" {
-  description = "The URL of the ADK agent service."
-  value       = module.mcp_adk_bridge.service_url
+output "adk_reasoning_engine_resource_name" {
+  description = "The resource name of the deployed ADK Reasoning Engine."
+  value       = module.adk_reasoning_engine.reasoning_engine_resource_name
 }
 
 output "apex_url" {
