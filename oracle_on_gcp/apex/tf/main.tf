@@ -9,8 +9,6 @@ resource "random_shuffle" "zone" {
   result_count = 1
 }
 
-data "google_project" "project" {}
-
 resource "random_string" "bucket_suffix" {
   length  = 4
   special = false
