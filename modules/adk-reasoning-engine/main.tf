@@ -43,3 +43,13 @@ data "local_file" "reasoning_engine" {
   depends_on = [null_resource.deploy_agent]
   filename   = "${path.module}/reasoning_engine.txt"
 }
+
+resource "local_file" "invoke_py" {
+  depends_on = [null_resource.deploy_agent]
+  content = templatefile("${path.module}/invoke.py.tpl", {
+    project_id          = var.project_id,
+    location            = var.region,
+    reasoning_engine_id = trimspace(data.local_file.reasoning_engine.content)
+  })
+  filename = "${path.module}/invoke.py"
+}
