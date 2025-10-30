@@ -1,4 +1,9 @@
+locals {
+  service_account_email = var.service_account_email == null ? google_service_account.adk_agent[0].email : var.service_account_email
+}
+
 resource "google_service_account" "adk_agent" {
+  count        = var.service_account_email == null ? 1 : 0
   project      = var.project_id
   account_id   = var.service_name
   display_name = "ADK Agent Service Account"
@@ -48,7 +53,7 @@ module "cr_base" {
   region                = var.region
   service_name          = var.service_name
   container_image       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.adk_agent.repository_id}/${var.service_name}:latest"
-  service_account_email = google_service_account.adk_agent.email
+  service_account_email = local.service_account_email
   use_iap               = false
   invoker_users         = local.invokers
   env_vars = [

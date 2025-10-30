@@ -25,6 +25,12 @@ variable "invoker_users" {
   default     = []
 }
 
+variable "service_account_email" {
+  description = "The email of the service account to use for the Cloud Run service. If not provided, a new one will be created."
+  type        = string
+  default     = null
+}
+
 variable "adk_agent_model" {
   description = "The model to use for the ADK agent."
   type        = string
