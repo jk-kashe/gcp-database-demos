@@ -31,7 +31,7 @@ variable "staging_bucket_name" {
 variable "adk_agent_model" {
   description = "The model to use for the ADK agent."
   type        = string
-  default     = "gemini-1.5-flash"
+  default     = "gemini-2.5-flash"
 }
 
 variable "adk_agent_name" {
