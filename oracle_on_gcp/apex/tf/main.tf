@@ -170,7 +170,7 @@ module "mcp_toolbox_oracle" {
   oracle_password = module.oracle_free.additional_db_user_passwords["MCP_DEMO_USER"]
   oracle_service  = "FREEPDB1"
   vpc_connector_id = module.landing_zone.vpc_connector_id
-  invoker_users    = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
+  invoker_users    = ["user:${trimspace(data.external.gcloud_user.result.email)}", "serviceAccount:${google_service_account.adk_bridge.email}"]
 
   depends_on = [
     module.oracle_free,
@@ -182,14 +182,21 @@ module "mcp_toolbox_oracle" {
 module "mcp_adk_bridge" {
   source = "../../../modules/mcp-adk-bridge"
 
-  project_id      = module.landing_zone.project_id
-  region          = module.landing_zone.region
-  mcp_toolbox_url = module.mcp_toolbox_oracle.service_url
-  invoker_users   = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
+  project_id            = module.landing_zone.project_id
+  region                = module.landing_zone.region
+  mcp_toolbox_url       = module.mcp_toolbox_oracle.service_url
+  invoker_users         = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
+  service_account_email = google_service_account.adk_bridge.email
 
   depends_on = [
     module.mcp_toolbox_oracle
   ]
+}
+
+resource "google_service_account" "adk_bridge" {
+  project      = module.landing_zone.project_id
+  account_id   = "mcp-adk-bridge-sa"
+  display_name = "MCP ADK Bridge Service Account"
 }
 
 resource "local_file" "credentials" {
