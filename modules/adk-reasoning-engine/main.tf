@@ -40,7 +40,7 @@ resource "null_resource" "deploy_agent" {
 
   provisioner "local-exec" {
     when    = destroy
-    command = "bash ${local_file.undeploy_script.filename}"
+    command = "bash ${path.module}/undeploy.sh"
   }
 }
 
