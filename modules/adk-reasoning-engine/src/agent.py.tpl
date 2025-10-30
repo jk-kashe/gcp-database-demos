@@ -22,7 +22,7 @@ def get_id_token():
     return id_token
 
 # The ADK runtime will look for an agent instance to run.
-agent = LlmAgent(
+root_agent = LlmAgent(
     model="${adk_agent_model}",
     name="${adk_agent_name}",
     description="${adk_agent_description}",
