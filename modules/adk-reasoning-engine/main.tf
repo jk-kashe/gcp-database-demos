@@ -1,7 +1,8 @@
 resource "google_storage_bucket" "staging" {
-  name          = var.staging_bucket_name
-  location      = var.region
-  force_destroy = true
+  name                          = var.staging_bucket_name
+  location                      = var.region
+  force_destroy                 = true
+  uniform_bucket_level_access = true
 }
 
 resource "local_file" "agent_py" {
