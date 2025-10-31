@@ -1,1 +1,2 @@
 google-adk
+google-cloud-logging
