@@ -12,6 +12,19 @@ resource "google_project_service" "api" {
   disable_dependent_services = true
 }
 
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
+locals {
+  # Construct the canonical URL used by the Cloud Console
+  # Format: https://<service-name>-<project-number>.<region>.run.app
+  canonical_cloud_run_url = "https://$${var.service_name}-$${data.google_project.project.number}.$${var.region}.run.app"
+  
+  # Combine both URL formats to be safe
+  cors_urls = "$${local.canonical_cloud_run_url},$${module.cr_base.service_url}"
+}
+
 # Repository for the custom ORDS container image
 resource "google_artifact_registry_repository" "ords_custom" {
   location      = var.region
@@ -201,6 +214,6 @@ resource "null_resource" "update_ords_settings" {
 
   provisioner "local-exec" {
     # The script will download, update, and re-upload settings.xml to GCS.
-    command = "bash ${path.module}/scripts/update_cors.sh '${var.gcs_bucket_name}' '${module.cr_base.service_url}' '${var.service_name}' '${var.region}' '${var.project_id}'"
+    command = "bash ${path.module}/scripts/update_cors.sh '${var.gcs_bucket_name}' '${local.cors_urls}' '${var.service_name}' '${var.region}' '${var.project_id}'"
   }
 }

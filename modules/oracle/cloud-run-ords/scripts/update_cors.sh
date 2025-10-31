@@ -85,12 +85,23 @@ main() {
         error "Failed to download settings.xml from bucket '$gcs_bucket_name'. The bucket or file may not exist yet."
     fi
 
-    # 3. Prepare the URL (remove trailing slash if it exists)
+    # 3. Prepare the URL (remove trailing slash from each URL in the comma-separated list)
+    local input_urls=$2
+    local cleaned_urls_array=()
+    IFS=',' read -r -a urls_array <<< "$input_urls"
+    for url in "$${urls_array[@]}"; do
+        # Remove trailing slashes
+        cleaned_url=$(echo "$url" | sed 's:/*$::')
+        # Add to the new array
+        cleaned_urls_array+=("$cleaned_url")
+    done
+    
+    # Join the cleaned URLs back into a single comma-separated string
     local clean_url
-    clean_url=$(echo "$cloud_run_url" | sed 's:/*$::')
+    clean_url=$(IFS=,; echo "$${cleaned_urls_array[*]}")
 
     # 4. Idempotently update CORS settings using XMLStarlet
-    info "Updating CORS settings with URL: $clean_url"
+    info "Updating CORS settings with URL(s): $clean_url"
 
     declare -A settings_to_update
     settings_to_update["cors.allowedOrigins"]="$clean_url"
