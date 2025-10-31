@@ -18,7 +18,7 @@ if [ -z "$LOCATION" ]; then
   exit 0
 fi
 
-API_ENDPOINT="https://${LOCATION}-aiplatform.googleapis.com/v1/${RESOURCE_NAME}"
+API_ENDPOINT="https://$${LOCATION}-aiplatform.googleapis.com/v1/$${RESOURCE_NAME}"
 
 echo ">>> Deleting ADK Reasoning Engine via REST API: $RESOURCE_NAME"
 curl -f -s -X DELETE \
