@@ -30,11 +30,20 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
         enable_tracing=True,
     )
 
-    print(f"--- Deploying to Agent Engine with display name: '{display_name}' ---", file=sys.stderr)
-    # The requirements are automatically picked up from the active virtual environment.
+    requirements_path = os.path.join(agent_app_path, "requirements.txt")
+    print(f"--- Loading requirements from: {requirements_path} ---", file=sys.stderr)
+    try:
+        with open(requirements_path, "r") as f:
+            requirements = [line.strip() for line in f if line.strip()]
+    except FileNotFoundError:
+        print(f"Warning: requirements.txt not found at {requirements_path}. Deploying without explicit requirements.", file=sys.stderr)
+        requirements = []
+
+    print(f"--- Deploying to Agent Engine with display name: '{display_name}' and requirements: {requirements} ---", file=sys.stderr)
     remote_agent = agent_engines.create(
         app,
-        display_name=display_name
+        display_name=display_name,
+        requirements=requirements
     )
 
     print(f"--- Agent Engine created. Resource name: {remote_agent.resource_name} ---", file=sys.stderr)
