@@ -1,17 +1,15 @@
+WHENEVER SQLERROR EXIT SQL.SQLCODE;
 -- 1) Create a dedicated schema for the workspace
 DECLARE
-  l_ts_name     VARCHAR2(30) := '${apex_schema}_TS';
   l_db_username VARCHAR2(30) := '${apex_schema}';
   l_db_password VARCHAR2(30) := "${oracle_password}";
 BEGIN
-  EXECUTE IMMEDIATE 'CREATE TABLESPACE '||l_ts_name||' DATAFILE SIZE 100M AUTOEXTEND ON NEXT 100M';
-
   EXECUTE IMMEDIATE 'CREATE USER '||l_db_username||
                     ' IDENTIFIED BY "'||l_db_password||'" '||
-                    ' DEFAULT TABLESPACE '||l_ts_name||
-                    ' QUOTA UNLIMITED ON '||l_ts_name;
+                    ' DEFAULT TABLESPACE USERS'||
+                    ' QUOTA UNLIMITED ON USERS';
 
-  GRANT create session, create table, create sequence, create view TO ${apex_schema};
+  EXECUTE IMMEDIATE 'GRANT create session, create table, create sequence, create view TO ${apex_schema}';
 END;
 /
 -- 2) Create the APEX workspace and map it to the schema

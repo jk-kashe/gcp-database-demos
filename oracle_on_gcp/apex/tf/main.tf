@@ -146,7 +146,7 @@ resource "null_resource" "create_apex_workspace" {
     command = <<-EOT
       gcloud compute scp ${local_file.create_workspace_script.filename} ${module.oracle_free.instance.name}:/tmp/create_workspace.sql --zone ${module.oracle_free.instance.zone} --project ${var.project_id}
       gcloud compute ssh ${module.oracle_free.instance.name} --zone ${module.oracle_free.instance.zone} --project ${var.project_id} --command 'sudo docker cp /tmp/create_workspace.sql oracle-free:/tmp/create_workspace.sql'
-      gcloud compute ssh ${module.oracle_free.instance.name} --zone ${module.oracle_free.instance.zone} --project ${var.project_id} --command 'sudo docker exec oracle-free sqlplus sys/${var.vm_oracle_password} as sysdba @/tmp/create_workspace.sql'
+      gcloud compute ssh ${module.oracle_free.instance.name} --zone ${module.oracle_free.instance.zone} --project ${var.project_id} --command 'sudo docker exec oracle-free sqlplus sys/${var.vm_oracle_password}@//localhost:1521/FREEPDB1 as sysdba @/tmp/create_workspace.sql'
     EOT
   }
 }
