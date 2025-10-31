@@ -243,6 +243,14 @@ resource "google_cloud_run_v2_service_iam_member" "agent_engine_can_invoke_mcp" 
   depends_on = [module.adk_reasoning_engine]
 }
 
+resource "google_project_iam_member" "aiplatform_sa_cloudrun_invoker" {
+  project = module.landing_zone.project_id
+  role    = "roles/run.invoker"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
+
+  depends_on = [module.adk_reasoning_engine]
+}
+
 resource "local_file" "credentials" {
   filename = "../apex-credentials.txt"
   content  = <<-EOT
