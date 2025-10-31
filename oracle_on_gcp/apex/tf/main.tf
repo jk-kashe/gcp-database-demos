@@ -126,6 +126,31 @@ data "local_file" "ords_version" {
   depends_on = [null_resource.wait_for_ords_version_script]
 }
 
+# Generate the APEX workspace creation script
+resource "local_file" "create_workspace_script" {
+  content = templatefile("${path.module}/templates/create_workspace.sql.tpl", {
+    apex_workspace  = var.apex_workspace,
+    apex_schema     = var.apex_schema,
+    apex_user       = var.apex_user,
+    oracle_password = var.vm_oracle_password,
+    user_email      = trimspace(data.external.gcloud_user.result.email)
+  })
+  filename = "${path.module}/files/create_workspace.sql"
+}
+
+# Execute the APEX workspace creation script
+resource "null_resource" "create_apex_workspace" {
+  depends_on = [module.oracle_free.startup_script_wait, local_file.create_workspace_script, null_resource.wait_for_ords_version_script]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      gcloud compute scp ${local_file.create_workspace_script.filename} ${module.oracle_free.instance.name}:/tmp/create_workspace.sql --zone ${module.oracle_free.instance.zone} --project ${var.project_id}
+      gcloud compute ssh ${module.oracle_free.instance.name} --zone ${module.oracle_free.instance.zone} --project ${var.project_id} --command 'sudo docker cp /tmp/create_workspace.sql oracle-free:/tmp/create_workspace.sql'
+      gcloud compute ssh ${module.oracle_free.instance.name} --zone ${module.oracle_free.instance.zone} --project ${var.project_id} --command 'sudo docker exec oracle-free sqlplus sys/${var.vm_oracle_password} as sysdba @/tmp/create_workspace.sql'
+    EOT
+  }
+}
+
 data "external" "gcloud_user" {
   program = ["bash", "${path.module}/files/get_user_email.sh"]
 }
@@ -175,7 +200,8 @@ module "mcp_toolbox_oracle" {
   depends_on = [
     module.oracle_free,
     module.landing_zone,
-    google_dns_record_set.oracle_vm_a_record
+    google_dns_record_set.oracle_vm_a_record,
+    null_resource.wait_for_ords_version_script
   ]
 }
 
