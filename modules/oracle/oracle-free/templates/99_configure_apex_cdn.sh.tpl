@@ -10,6 +10,7 @@ run_sql_as_sys() {
     ALTER SESSION SET CONTAINER = FREEPDB1;
     SET HEADING OFF FEEDBACK OFF PAGESIZE 0;
     $1
+    COMMIT;
     EXIT;
   " | sqlplus -s / as sysdba
 }
@@ -67,6 +68,11 @@ if [ -n "$BEST_MATCH_VERSION" ]; then
   run_sql_as_sys "BEGIN APEX_INSTANCE_ADMIN.SET_PARAMETER('IMAGE_PREFIX', '$CDN_URL'); END;"
   
   echo "Successfully set IMAGE_PREFIX to $CDN_URL"
+  
+  # Verify the change
+  echo "Verifying IMAGE_PREFIX in database:"
+  run_sql_as_sys "SELECT parameter_value FROM apex_instance_admin.all_parameters WHERE parameter_name = 'IMAGE_PREFIX';"
+
   # Report success to guest attributes for visibility
   curl -X PUT --data "SUCCESS: $CDN_URL" -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/guest-attributes/apex/cdn_status"
   exit 0
