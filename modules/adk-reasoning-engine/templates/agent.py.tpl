@@ -10,7 +10,10 @@ from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnecti
 from google.genai.types import ThinkingConfig
 
 # This will be replaced by Terraform
-MCP_SERVER_URL = "${mcp_toolbox_url}"
+_mcp_server_url = "${mcp_toolbox_url}"
+if not _mcp_server_url.endswith('/mcp'):
+    _mcp_server_url += '/mcp'
+MCP_SERVER_URL = _mcp_server_url
 
 def get_id_token():
     """Get an ID token to authenticate with the MCP server."""
@@ -23,9 +26,9 @@ def get_id_token():
     except Exception as e:
         print(f"Error getting default credentials: {e}", file=sys.stderr)
 
-    print(f"MCP_SERVER_URL: {MCP_SERVER_URL}", file=sys.stderr)
+    print(f"MCP_SERVER_URL for toolset: {MCP_SERVER_URL}", file=sys.stderr)
     # The audience is the root URL of the Cloud Run service.
-    audience = MCP_SERVER_URL.split('/mcp')[0] if '/mcp' in MCP_SERVER_URL else MCP_SERVER_URL
+    audience = MCP_SERVER_URL.split('/mcp')[0]
     print(f"Audience for ID token: {audience}", file=sys.stderr)
     auth_req = google.auth.transport.requests.Request()
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
