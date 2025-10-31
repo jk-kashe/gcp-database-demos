@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import google.auth
 import google.auth.transport.requests
 import google.oauth2.id_token
 import google.cloud.logging
@@ -19,6 +20,15 @@ MCP_SERVER_URL = "${mcp_toolbox_url}"
 
 def get_id_token():
     """Get an ID token to authenticate with the MCP server."""
+    try:
+        creds, project = google.auth.default()
+        if hasattr(creds, 'service_account_email'):
+            logging.info(f"Running as service account: {creds.service_account_email}")
+        else:
+            logging.warning("Could not determine service account email from credentials.")
+    except Exception as e:
+        logging.error(f"Error getting default credentials: {e}")
+
     logging.info(f"MCP_SERVER_URL: {MCP_SERVER_URL}")
     # The audience is the root URL of the Cloud Run service.
     audience = MCP_SERVER_URL.split('/mcp')[0] if '/mcp' in MCP_SERVER_URL else MCP_SERVER_URL
