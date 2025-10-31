@@ -2,7 +2,7 @@ WHENEVER SQLERROR EXIT SQL.SQLCODE;
 -- 1) Create a dedicated schema for the workspace
 DECLARE
   l_db_username VARCHAR2(30) := '${apex_schema}';
-  l_db_password VARCHAR2(30) := "${oracle_password}";
+  l_db_password VARCHAR2(30) := '${oracle_password}';
 BEGIN
   EXECUTE IMMEDIATE 'CREATE USER '||l_db_username||
                     ' IDENTIFIED BY "'||l_db_password||'" '||
