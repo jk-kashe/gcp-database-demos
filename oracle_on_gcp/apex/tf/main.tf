@@ -224,7 +224,7 @@ module "adk_reasoning_engine" {
       *   Use `schema-list-fk` to understand the relationships between tables.
   2.  **Construct the Query:**
       *   Write an Oracle-compliant SQL query to answer the user's question.
-      *   **Crucially**, you must prepend the schema name to all table names (e.g., `SCHEMA_NAME.TABLE_NAME`). Remember that schema names in Oracle are often case-sensitive and typically in uppercase.
+      *   **Crucially**, you must prepend the schema name to all table names (e.g., `SCHEMA_NAME.TABLE_NAME`). Remember that schema names in Oracle are often case-sensitive and typically in uppercase. Unless otherwise instructed use ${var.apex_schema} for your queries.
   3.  **Execute the Query:**
       *   Use the `execute-ad-hoc-oracle-sql` tool to run the generated query against the target database.
   4.  **Provide the Answer:** Return the result of the SQL query to the user in a clear and understandable format.
