@@ -55,7 +55,7 @@ data "local_file" "reasoning_engine" {
 
 resource "local_file" "undeploy_py" {
   content = templatefile("${path.module}/templates/undeploy.py.tpl", {})
-  filename = "${path.module}/undeploy.py"
+  filename = "${path.module}/src/undeploy.py"
 }
 
 resource "local_file" "run_python_undeploy_script" {
@@ -67,10 +67,21 @@ resource "local_file" "run_python_undeploy_script" {
   provisioner "local-exec" {
     command = "chmod +x ${self.filename}"
   }
+}
+
+resource "null_resource" "undeploy_agent" {
+  depends_on = [
+    local_file.undeploy_py,
+    local_file.run_python_undeploy_script
+  ]
+
+  triggers = {
+    script_hash = local_file.run_python_undeploy_script.content_sha1
+  }
 
   provisioner "local-exec" {
     when    = destroy
-    command = "bash ${self.filename}"
+    command = "bash ${local_file.run_python_undeploy_script.filename}"
   }
 }
 
