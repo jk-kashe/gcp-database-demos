@@ -77,11 +77,12 @@ resource "null_resource" "undeploy_agent" {
 
   triggers = {
     script_hash = local_file.run_python_undeploy_script.content_sha1
+    script_filename = local_file.run_python_undeploy_script.filename
   }
 
   provisioner "local-exec" {
     when    = destroy
-    command = "bash ${local_file.run_python_undeploy_script.filename}"
+    command = "bash ${self.triggers.script_filename}"
   }
 }
 
