@@ -41,11 +41,6 @@ resource "null_resource" "deploy_agent" {
   provisioner "local-exec" {
     command = "bash ${local_file.deploy_script.filename}"
   }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = "bash ${path.module}/undeploy.sh"
-  }
 }
 
 data "local_file" "reasoning_engine" {
@@ -61,6 +56,11 @@ resource "local_file" "undeploy_script" {
 
   provisioner "local-exec" {
     command = "chmod +x ${self.filename}"
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "bash ${self.filename}"
   }
 }
 
