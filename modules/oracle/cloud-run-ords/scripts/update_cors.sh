@@ -98,11 +98,11 @@ main() {
         info "Processing setting: $key"
         
         # First, delete any existing entry for the key to ensure no duplicates
-        xmlstarlet ed -L -d "/pool-config/properties/entry[@key='$key']" "$temp_settings_file"
+        xmlstarlet ed -L -d "/properties/entry[@key='$key']" "$temp_settings_file"
         
         # Second, add the new, updated entry
-        xmlstarlet ed -L -s "/pool-config/properties" -t elem -n "entry" -v "$value" \
-            -i "/pool-config/properties/entry[not(@key)]" -t attr -n "key" -v "$key" \
+        xmlstarlet ed -L -s "/properties" -t elem -n "entry" -v "$value" \
+            -i "/properties/entry[not(@key)]" -t attr -n "key" -v "$key" \
             "$temp_settings_file"
     done
 
