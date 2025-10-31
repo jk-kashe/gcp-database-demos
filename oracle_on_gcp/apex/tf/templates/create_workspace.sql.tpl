@@ -9,7 +9,7 @@ BEGIN
                     ' DEFAULT TABLESPACE USERS'||
                     ' QUOTA UNLIMITED ON USERS';
 
-  EXECUTE IMMEDIATE 'GRANT create session, create table, create sequence, create view TO ${apex_schema}';
+  EXECUTE IMMEDIATE 'GRANT create session, create table, create sequence, create view, create procedure, create trigger, create type, create synonym TO ${apex_schema}';
 END;
 /
 -- 2) Create the APEX workspace and map it to the schema
