@@ -201,6 +201,6 @@ resource "null_resource" "update_ords_settings" {
 
   provisioner "local-exec" {
     # The script will download, update, and re-upload settings.xml to GCS.
-    command = "bash ${path.module}/scripts/update_cors.sh '${var.gcs_bucket_name}' '${module.cr_base.service_url}'"
+    command = "bash ${path.module}/scripts/update_cors.sh '${var.gcs_bucket_name}' '${module.cr_base.service_url}' '${var.service_name}' '${var.region}' '${var.project_id}'"
   }
 }

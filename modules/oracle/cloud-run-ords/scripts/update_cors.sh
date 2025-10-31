@@ -66,12 +66,15 @@ check_and_install_deps() {
 # --- Main Logic ---
 main() {
     # 1. Validate Input
-    if [ "$#" -ne 2 ]; then
-        error "Usage: $0 <gcs_bucket_name> <cloud_run_url>"
+    if [ "$#" -ne 5 ]; then
+        error "Usage: $0 <gcs_bucket_name> <cloud_run_url> <service_name> <region> <project_id>"
     fi
 
     local gcs_bucket_name=$1
     local cloud_run_url=$2
+    local service_name=$3
+    local region=$4
+    local project_id=$5
     local settings_file="global/settings.xml"
     local temp_settings_file
     temp_settings_file=$(mktemp)
@@ -114,6 +117,15 @@ main() {
     rm "$temp_settings_file"
 
     info "CORS configuration updated successfully."
+
+    # 7. Force Cloud Run redeployment to pick up new settings.xml
+    info "Forcing Cloud Run service redeployment..."
+    gcloud run services update "$service_name" \
+      --region="$region" \
+      --project="$project_id" \
+      --update-env-vars=TF_UPDATE_TIMESTAMP=$(date +%s) # Dummy env var to force new revision
+
+    info "Cloud Run service redeployment triggered successfully."
 }
 
 # --- Execution ---
