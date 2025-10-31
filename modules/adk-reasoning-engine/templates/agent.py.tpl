@@ -1,19 +1,13 @@
 import os
 import sys
-import logging
 import google.auth
 import google.auth.transport.requests
 import google.oauth2.id_token
-import google.cloud.logging
 from google.adk.agents import LlmAgent
 from google.adk.planners.built_in_planner import BuiltInPlanner
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 from google.genai.types import ThinkingConfig
-
-# Set up structured logging
-cloud_logging_client = google.cloud.logging.Client()
-cloud_logging_client.setup_logging()
 
 # This will be replaced by Terraform
 MCP_SERVER_URL = "${mcp_toolbox_url}"
@@ -23,19 +17,19 @@ def get_id_token():
     try:
         creds, project = google.auth.default()
         if hasattr(creds, 'service_account_email'):
-            logging.info(f"Running as service account: {creds.service_account_email}")
+            print(f"Running as service account: {creds.service_account_email}", file=sys.stderr)
         else:
-            logging.warning("Could not determine service account email from credentials.")
+            print("Could not determine service account email from credentials.", file=sys.stderr)
     except Exception as e:
-        logging.error(f"Error getting default credentials: {e}")
+        print(f"Error getting default credentials: {e}", file=sys.stderr)
 
-    logging.info(f"MCP_SERVER_URL: {MCP_SERVER_URL}")
+    print(f"MCP_SERVER_URL: {MCP_SERVER_URL}", file=sys.stderr)
     # The audience is the root URL of the Cloud Run service.
     audience = MCP_SERVER_URL.split('/mcp')[0] if '/mcp' in MCP_SERVER_URL else MCP_SERVER_URL
-    logging.info(f"Audience for ID token: {audience}")
+    print(f"Audience for ID token: {audience}", file=sys.stderr)
     auth_req = google.auth.transport.requests.Request()
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
-    logging.info(f"ID token fetched (first 10 chars): {id_token[:10]}...")
+    print(f"ID token fetched (first 10 chars): {id_token[:10]}...", file=sys.stderr)
     return id_token
 
 # The ADK runtime will look for an agent instance to run.
@@ -56,7 +50,7 @@ root_agent = LlmAgent(
                 url=MCP_SERVER_URL,
                 headers={
                     "Authorization": f"Bearer {get_id_token()}",
-                }
+                },
             ),
             errlog=sys.stderr,
             # Load all tools from the MCP server at the given URL
