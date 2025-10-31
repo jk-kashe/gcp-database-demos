@@ -53,11 +53,16 @@ data "local_file" "reasoning_engine" {
   filename   = "${path.module}/reasoning_engine.txt"
 }
 
-resource "local_file" "undeploy_script" {
-  content = templatefile("${path.module}/templates/undeploy.sh.tpl", {
+resource "local_file" "undeploy_py" {
+  content = templatefile("${path.module}/templates/undeploy.py.tpl", {})
+  filename = "${path.module}/undeploy.py"
+}
+
+resource "local_file" "run_python_undeploy_script" {
+  content = templatefile("${path.module}/templates/run_python_undeploy.sh.tpl", {
     reasoning_engine_resource_name = trimspace(data.local_file.reasoning_engine.content)
   })
-  filename = "${path.module}/undeploy.sh"
+  filename = "${path.module}/run_python_undeploy.sh"
 
   provisioner "local-exec" {
     command = "chmod +x ${self.filename}"
