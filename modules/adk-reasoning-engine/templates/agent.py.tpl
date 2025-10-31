@@ -53,7 +53,6 @@ root_agent = LlmAgent(
                     "Authorization": f"Bearer {get_id_token()}",
                 },
             ),
-            errlog=sys.stderr,
             # Load all tools from the MCP server at the given URL
             tool_filter=None,
         )
