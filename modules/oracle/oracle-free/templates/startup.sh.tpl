@@ -77,6 +77,7 @@ SQL
 %{
   endfor ~}
 echo "Additional database users created."
+  /opt/oracle/scripts/startup/99_configure_apex_cdn.sh
 EOF
 
 # Modify the main installation script to set passwords
