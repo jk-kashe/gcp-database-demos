@@ -120,11 +120,12 @@ resource "google_cloud_run_v2_service_iam_member" "iap_invoker" {
 }
 
 # Allow specified users to invoke the service
-resource "google_cloud_run_service_iam_member" "user_invokers" {
+resource "google_cloud_run_v2_service_iam_member" "user_invokers" {
+  provider = google-beta
   for_each = toset(var.invoker_users)
-  location = google_cloud_run_v2_service.iap_service.location
   project  = google_cloud_run_v2_service.iap_service.project
-  service  = google_cloud_run_v2_service.iap_service.name
+  location = google_cloud_run_v2_service.iap_service.location
+  name     = google_cloud_run_v2_service.iap_service.name
   role     = "roles/run.invoker"
   member   = each.value
 }
