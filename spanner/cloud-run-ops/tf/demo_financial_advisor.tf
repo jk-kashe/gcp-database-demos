@@ -461,8 +461,17 @@ resource "google_cloud_run_service_iam_member" "demo_finance_advisor_api" {
   member   = google_service_account.demo_finance_advisor_ui.member
 }
 
+resource "null_resource" "create_iap_sa" {
+  depends_on = [google_project_service.project_services]
+
+  provisioner "local-exec" {
+    command = "gcloud beta services identity create --service=iap.googleapis.com --project=${local.project_id}"
+  }
+}
+
 resource "google_cloud_run_service_iam_member" "demo_finance_advisor_ui" {
-  for_each = toset(var.regions)
+  depends_on = [null_resource.create_iap_sa]
+  for_each   = toset(var.regions)
 
   project  = google_cloud_run_v2_service.demo_finance_advisor_ui[each.value].project
   location = google_cloud_run_v2_service.demo_finance_advisor_ui[each.value].location
