@@ -1,0 +1,55 @@
+# Spanner Operations Demo
+This demo provides a sample application and runbook for showcasing the operational capabilities of Cloud Spanner. It uses the [Finvest Spanner Demo App](https://github.com/GoogleCloudPlatform/generative-ai/tree/main/gemini/sample-apps/finance-advisor-spanner) as a basis, with the original application refactored into an API and UI component to allow for the load tests to be conducted more easily.
+
+## Delivering the demo
+Members of the [EMEA Partner Engineering Practice for Databases](https://goo.gle/emea-partner-practice-dm) or [Applicaiton Modernization](https://rsvp.withgoogle.com/events/partner-practices/partner-practice-appmod) can find a demo guide [here](https://docs.google.com/document/d/1VPcgbOA5qD5sYMHNeXNUxHdzOUJ3xRrOstRwkRHnpds/edit?tab=t.0).
+
+## Deploying the demo
+1. Create a new Google Cloud project and launch Cloud Shell.
+2. Clone this repository.
+3. Change into the `tf` directory and run `terraform apply -y`.
+
+This will deploy the various components of the demo, with the API and UI both deployed to Cloud Run as separate services.
+
+## Load test
+The generated Terraform includes a load test that an be used with [k6](https://k6.io). To run the test change into the `tf/k6` directory and run `./loadTest.sh <vus> <duration>` where `<vus>` is the number of VUs to spawn and `<duration>` is the duration of the test. For example, to run a test using 100 VUs for 10 seconds, use the command `./loadTest.sh 100 10s`.
+
+# Finvest Spanner Demo App
+
+**Authors:** [Anirban Bagchi](https://github.com/anirbanbagchi1979) and [Derek Downey](https://github.com/dtest)
+
+<img align="right" style="padding-left: 10px;" src="https://storage.googleapis.com/github-repo/generative-ai/sample-apps/finance-advisor-spanner/images/Finvest-white.jpg" width="35%" alt="Finvest Logo">
+
+Consider a modern financial services company where I am a financial advisor. Finding the right financial investments can be challenging because of the complex nature of investments from structured data such as expense ratios, fund returns, to complex data such as asset holdings, their industry sectors, and more unstructured data, such as investment philosophy and client's investment goals. Let me show you how Spanner makes this process easy by combining these diverse data structures into a single multi-model platform.
+
+The client wants me to find assets for funds in North America and Europe that invest in derivatives. I select North America and Europe and put in derivatives as my search term. Spanner runs a relational and text search to return a list of funds.
+
+Next, the client wants to narrow this list to specific fund managers. I don't know the exact name, so I put in Liz Peters, and Spanner performs a fuzzy match(Full Text Search - Substring Match) of the name Liz Peters to find funds managed by Elizabeth Peterson.
+
+Among these funds, the client wants to choose from socially responsible funds. Next, I check the box for vector search, and now I can see ESG funds because Spanner performed a KNN vector search to match the search term "socially responsible" with "environmental, social and governance".
+
+Finally, before I recommend a fund, I also want to check the exposure to a particular sector. This can be complex because funds can invest in other funds, called fund of funds which makes it hard to compute this. Spanner performs a graph search using this asset knowledge graph. By traversing the funds and its holdings which could also be funds and their holdings, Spanner can compute the client's exposure to a particular sector. I can see the funds that have exposure of 20% or more in the technology sector.
+
+With the power of Spanner's multimodel support, I can run complex workloads on a single database for relational, analytical, text and vector use cases with virtually unlimited scale, five nines of availability—including enterprise security and governance for mission critical workloads.
+
+This demo highlights [Spanner](https://cloud.google.com/spanner), integration with [Vertex AI LLMs](https://cloud.google.com/model-garden?hl=en) for both embeddings and text completion models. You will learn how Spanner can help with use cases where you run Full Text Search, Approximate Nearest Neighbor search and vector similarity search.
+
+## Tech Stack
+
+The Finvest Spanner demo application was built using:
+
+- [Spanner](https://cloud.google.com/spanner)
+- [Vertex AI](https://cloud.google.com/vertex-ai?hl=en) LLMs ([text-embedding-005](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings) )
+- [Cloud Run](https://cloud.google.com/run)
+- [Dataflow](https://cloud.google.com/dataflow?)
+- [Streamlit](https://streamlit.io/)  ```
+
+### Troubleshooting
+
+### Frontend
+
+The frontend application is Streamlit running on CloudRun
+
+# Purpose and Extensibility
+
+The purpose of this repository is to help you provision an isolated demo environment that highlights the Full Text Search, Semantic Search and Graph capabilities of Spanner. While the ideas in this repository can be extended for many real-world use cases, the demo code itself is overly permissive and has not been hardened for security or reliability. The sample code in this repository is provided on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, and it should NOT be used for production use cases without doing your own testing and security hardening.

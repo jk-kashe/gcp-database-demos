@@ -1,0 +1,13 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+%{ for tag in tags }
+      - -t
+      - ${tag}
+%{ endfor ~}
+      - .
+images:
+%{ for tag in tags }
+  - ${tag}
+%{ endfor ~}
