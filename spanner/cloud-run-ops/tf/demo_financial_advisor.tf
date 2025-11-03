@@ -87,7 +87,7 @@ resource "null_resource" "demo_finadv_schema_ops" {
   provisioner "local-exec" {
     command = <<-EOT
     # Set model endpoints
-    sed -i "s@<endpoints>@${join(", ", [for region in var.regions : "'//aiplatform.googleapis.com/projects/${local.project_id}/locations/${region}/publishers/google/models/text-embedding-005'"])}@g" files/Schema-Operations.sql
+    sed -i "s@<endpoint>@${join(", ", [for region in var.regions : "//aiplatform.googleapis.com/projects/${local.project_id}/locations/${region}/publishers/google/models/text-embedding-005"])}@g" files/Schema-Operations.sql
     # Extract the UPDATE statements
     sed -n '/UPDATE/,/CREATE SEARCH INDEX/p' files/Schema-Operations.sql | sed '$d' > files/updates.sql
     # Extract the CREATE SEARCH INDEX statements
