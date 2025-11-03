@@ -276,7 +276,6 @@ resource "null_resource" "create_gemini_enterprise_app" {
       "https://discoveryengine.googleapis.com/v1/projects/${module.landing_zone.project_id}/locations/global/collections/default_collection/engines?engineId=${local.gemini_app_id}" \
       -d '{
         "displayName": "${local.gemini_app_display_name}",
-        "dataStoreEntityIds": ["${module.landing_zone.project_id}"],
         "solutionType": "SOLUTION_TYPE_SEARCH",
         "industryVertical": "GENERIC",
         "appType": "APP_TYPE_INTRANET"
