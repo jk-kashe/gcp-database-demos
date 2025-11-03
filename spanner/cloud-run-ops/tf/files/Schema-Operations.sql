@@ -1,6 +1,6 @@
 
 ALTER MODEL EmbeddingsModel SET OPTIONS (
-endpoints = [<endpoints>]
+endpoint = '<endpoint>'
 )
 ;
 ALTER TABLE EU_MutualFunds ADD COLUMN  fund_name_Tokens TOKENLIST AS (TOKENIZE_FULLTEXT(fund_name)) HIDDEN;
