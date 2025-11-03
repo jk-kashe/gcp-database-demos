@@ -1,0 +1,12 @@
+streamlit
+itables==2.1.5
+streamlit-navigation-bar
+streamlit-extras
+streamlit-agraph
+SPARQLWrapper
+pyvis
+pydantic
+pydantic-settings
+google-auth
+pandas
+httpx[http2]

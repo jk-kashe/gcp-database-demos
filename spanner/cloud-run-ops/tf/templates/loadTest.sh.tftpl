@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Set required environment variables
+export BASE_URL=${base_url}
+export TOKEN=$(gcloud auth print-identity-token)
+export VUS=$1
+export DURATION=$2
+
+# Fine tuning - https://grafana.com/docs/k6/latest/testing-guides/running-large-tests/
+sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+sudo sysctl -w net.ipv4.tcp_tw_reuse=1
+sudo sysctl -w net.ipv4.tcp_timestamps=1
+ulimit -n 250000
+
+# Run testing script
+k6 run script.js
