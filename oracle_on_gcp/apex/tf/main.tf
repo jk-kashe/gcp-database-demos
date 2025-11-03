@@ -44,7 +44,7 @@ module "landing_zone" {
   region                  = var.region
   zone                    = random_shuffle.zone.result[0]
   provision_vpc_connector = true
-  additional_apis         = ["secretmanager.googleapis.com", "cloudbuild.googleapis.com", "servicedirectory.googleapis.com", "dns.googleapis.com"]
+  additional_apis         = ["secretmanager.googleapis.com", "cloudbuild.googleapis.com", "servicedirectory.googleapis.com", "dns.googleapis.com", "discoveryengine.googleapis.com"]
 }
 
 module "oracle_free" {
@@ -250,6 +250,68 @@ resource "google_project_iam_member" "aiplatform_sa_cloudrun_invoker" {
 
   depends_on = [module.adk_reasoning_engine]
 }
+
+resource "random_string" "gemini_app_id_suffix" {
+  length  = 10
+  special = false
+  upper   = false
+  numeric = true
+}
+
+locals {
+  gemini_app_id          = "gemini-oracle-app-${random_string.gemini_app_id_suffix.result}"
+  gemini_app_display_name = "Gemini ❤️  Oracle"
+}
+
+resource "null_resource" "create_gemini_enterprise_app" {
+  depends_on = [module.adk_reasoning_engine]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "Creating Gemini Enterprise app: ${local.gemini_app_display_name} with ID: ${local.gemini_app_id}"
+      curl -X POST \
+      -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+      -H "Content-Type: application/json" \
+      -H "X-Goog-User-Project: ${module.landing_zone.project_id}" \
+      "https://discoveryengine.googleapis.com/v1/projects/${module.landing_zone.project_id}/locations/global/collections/default_collection/engines?engineId=${local.gemini_app_id}" \
+      -d '{
+        "displayName": "${local.gemini_app_display_name}",
+        "dataStoreEntityIds": ["${module.landing_zone.project_id}"],
+        "solutionType": "SOLUTION_TYPE_SEARCH",
+        "industryVertical": "GENERIC",
+        "appType": "APP_TYPE_INTRANET"
+      }'
+    EOT
+  }
+}
+
+resource "null_resource" "link_adk_agent_to_gemini_app" {
+  depends_on = [null_resource.create_gemini_enterprise_app]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "Linking ADK Agent to Gemini Enterprise App"
+      curl -X POST \
+        -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+        -H "Content-Type: application/json" \
+        -H "X-Goog-User-Project: ${data.google_project.project.number}" \
+        "https://discoveryengine.googleapis.com/v1alpha/projects/${data.google_project.project.number}/locations/global/collections/default_collection/engines/${local.gemini_app_id}/assistants/default_assistant/agents" \
+        -d '{
+            "displayName": "Oracle NL2SQL Agent",
+            "description": "Oracle NL2SQL Agent for APEX.",
+            "adk_agent_definition": {
+              "tool_settings": {
+                "tool_description": "Use this tool to query an Oracle database. Provide question in a natural language."
+              },
+              "provisioned_reasoning_engine": {
+                "reasoning_engine": "${module.adk_reasoning_engine.reasoning_engine_resource_name}"
+              }
+            }
+        }'
+    EOT
+  }
+}
+
 
 resource "local_file" "credentials" {
   filename = "../apex-credentials.txt"

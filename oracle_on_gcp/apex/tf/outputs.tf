@@ -2,6 +2,11 @@ output "mcp_toolbox_url" {
   value = module.mcp_toolbox_oracle.service_url
 }
 
+output "gemini_app_id" {
+  description = "The ID of the created Gemini Enterprise app."
+  value       = local.gemini_app_id
+}
+
 output "adk_reasoning_engine_resource_name" {
   description = "The resource name of the deployed ADK Reasoning Engine."
   value       = module.adk_reasoning_engine.reasoning_engine_resource_name
