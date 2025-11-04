@@ -3,7 +3,7 @@ from google.adk.planners.built_in_planner import BuiltInPlanner
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 from google.genai.types import ThinkingConfig
-from auth import get_id_token
+from .auth import get_id_token
 
 # This will be replaced by Terraform. Strip any hidden whitespace/newlines.
 _mcp_server_url_base = "${mcp_toolbox_url}".strip()
