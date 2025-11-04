@@ -15,12 +15,14 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
         # The agent is in the same directory, so a direct import works.
         # This ensures the pickled object's module is just 'agent'.
         from agent import root_agent
-    except ImportError:
-        print("Error: Could not import 'root_agent' from 'agent.py'.", file=sys.stderr)
-        print("Ensure 'agent.py' is in the same directory as this script.", file=sys.stderr)
-        sys.exit(1)
     except Exception as e:
-        print(f"An unexpected error occurred while loading the agent: {e}", file=sys.stderr)
+        import traceback
+        print("--- !!! ENCOUNTERED AN EXCEPTION WHILE IMPORTING AGENT !!! ---", file=sys.stderr)
+        print(f"ERROR TYPE: {type(e).__name__}", file=sys.stderr)
+        print(f"ERROR DETAILS: {e}", file=sys.stderr)
+        print("--- STACK TRACE ---", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        print("--- END STACK TRACE ---", file=sys.stderr)
         sys.exit(1)
 
 
