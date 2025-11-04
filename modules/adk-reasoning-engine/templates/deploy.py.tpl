@@ -10,23 +10,19 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
     print(f"--- Initializing Vertex AI for project '{project_id}' in '{location}' ---", file=sys.stderr)
     vertexai.init(project=project_id, location=location, staging_bucket=staging_bucket)
 
-    # The agent is expected to be in agent.py as `root_agent` in the current directory
-    agent_file_path = os.path.join(agent_app_path, "agent.py")
-    print(f"--- Loading agent from: {agent_file_path} ---", file=sys.stderr)
+    print(f"--- Loading agent from 'src.agent' ---", file=sys.stderr)
     try:
-        sys.path.insert(0, agent_app_path)
-        import agent
-        # Reload the module to pick up any changes if it was already imported.
-        import importlib
-        importlib.reload(agent)
-        root_agent = agent.root_agent
-    except Exception as e:
-        print(f"Error loading agent: {e}", file=sys.stderr)
+        # The agent is now imported as a package, which is what the remote
+        # environment will expect.
+        from src.agent import root_agent
+    except ImportError:
+        # Provide a helpful error message if the import fails.
+        print("Error: Could not import 'root_agent' from 'src.agent'.", file=sys.stderr)
+        print("Please ensure 'src' is a package (contains __init__.py) and is in the Python path.", file=sys.stderr)
         sys.exit(1)
-    finally:
-        # Clean up sys.path
-        if agent_app_path in sys.path:
-            sys.path.remove(agent_app_path)
+    except Exception as e:
+        print(f"An unexpected error occurred while loading the agent: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
     print(f"--- Wrapping agent '{root_agent.name}' in AdkApp ---", file=sys.stderr)
