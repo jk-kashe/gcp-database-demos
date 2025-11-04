@@ -9,5 +9,5 @@ fi
 
 # Activate the virtual environment and run the python script
 # Pass all command-line arguments to the python script
-source ./.venv/bin/activate
+source ../.venv/bin/activate
 python invoke.py "$@"
