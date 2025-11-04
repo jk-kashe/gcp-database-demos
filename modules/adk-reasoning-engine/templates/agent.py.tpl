@@ -5,11 +5,10 @@ from typing import Dict
 import google.auth
 import google.auth.transport.requests
 import google.oauth2.id_token
-from google.adk.agents import LlmAgent
+from google.adk.agents import LlmAgent, ReadonlyContext
 from google.adk.planners.built_in_planner import BuiltInPlanner
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
-from google.adk.runtime.context import ReadonlyContext
 from google.genai.types import ThinkingConfig
 
 # --- Token Caching ---
@@ -74,7 +73,6 @@ root_agent = LlmAgent(
         McpToolset(
             connection_params=StreamableHTTPConnectionParams(
                 url=MCP_SERVER_URL,
-                # The headers are now supplied by the provider function below.
             ),
             header_provider=create_auth_headers,
             errlog=None,
