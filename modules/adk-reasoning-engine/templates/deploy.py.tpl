@@ -44,10 +44,7 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
         app,
         display_name=display_name,
         requirements=requirements,
-        extra_packages=[
-            os.path.join(agent_app_path, "agent.py"),
-            os.path.join(agent_app_path, "auth.py"),
-        ],
+        extra_packages=["agent.py", "auth.py"],
     )
 
     print(f"--- Agent Engine created. Resource name: {remote_agent.resource_name} ---", file=sys.stderr)
