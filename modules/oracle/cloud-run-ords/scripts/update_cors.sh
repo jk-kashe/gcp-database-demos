@@ -89,7 +89,7 @@ main() {
     local input_urls=$2
     local cleaned_urls_array=()
     IFS=',' read -r -a urls_array <<< "$input_urls"
-    for url in "$${urls_array[@]}"; do
+    for url in "${urls_array[@]}"; do
         # Remove trailing slashes
         cleaned_url=$(echo "$url" | sed 's:/*$::')
         # Add to the new array
@@ -98,7 +98,7 @@ main() {
     
     # Join the cleaned URLs back into a single comma-separated string
     local clean_url
-    clean_url=$(IFS=,; echo "$${cleaned_urls_array[*]}")
+    clean_url=$(IFS=,; echo "${cleaned_urls_array[*]}")
 
     # 4. Idempotently update CORS settings using XMLStarlet
     info "Updating CORS settings with URL(s): $clean_url"
