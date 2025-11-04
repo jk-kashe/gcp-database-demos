@@ -14,7 +14,7 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
     try:
         # Import the agent using the full package path.
         # This is now possible because of the __init__.py file.
-        from src.agent import root_agent
+        from agent import root_agent
     except Exception as e:
         import traceback
         print("--- !!! ENCOUNTERED AN EXCEPTION WHILE IMPORTING AGENT !!! ---", file=sys.stderr)

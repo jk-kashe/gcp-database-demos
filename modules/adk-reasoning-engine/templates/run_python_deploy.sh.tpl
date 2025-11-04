@@ -19,6 +19,9 @@ source "$${VENV_DIR}/bin/activate"
 pip install -r "$${REQS_FILE}"
 pip install "google-cloud-aiplatform[adk,agent_engines]>=1.111"
 
+# Navigate into the agent source directory to treat it as the root for packaging.
+cd "$${AGENT_SRC_DIR}"
+
 # Deploy to Agent Engine using the Python script from the module root.
 echo ">>> Deploying to Agent Engine via Python script..."
 python "$${DEPLOY_SCRIPT}" \
@@ -26,8 +29,8 @@ python "$${DEPLOY_SCRIPT}" \
   --region "${region}" \
   --staging_bucket "gs://${staging_bucket_name}" \
   --display_name "${agent_display_name}" \
-  --agent_app_path "$${AGENT_SRC_DIR}" \
-  --output_file "$${OUTPUT_FILE}"
+  --agent_app_path "." \
+  --output_file "$${OUTPUT_FILE}" > /dev/null
 
 echo ">>> Python deployment script finished."
 
