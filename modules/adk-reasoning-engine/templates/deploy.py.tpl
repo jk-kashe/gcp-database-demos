@@ -10,11 +10,9 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
     print(f"--- Initializing Vertex AI for project '{project_id}' in '{location}' ---", file=sys.stderr)
     vertexai.init(project=project_id, location=location, staging_bucket=staging_bucket)
 
-    print(f"--- Loading agent from 'src.agent' ---", file=sys.stderr)
+    print(f"--- Loading agent from 'agent' ---", file=sys.stderr)
     try:
-        # Import the agent using the full package path.
-        # This is now possible because of the __init__.py file.
-        from src.agent import root_agent
+        from agent import root_agent
     except Exception as e:
         import traceback
         print("--- !!! ENCOUNTERED AN EXCEPTION WHILE IMPORTING AGENT !!! ---", file=sys.stderr)
@@ -46,7 +44,10 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
         app,
         display_name=display_name,
         requirements=requirements,
-        extra_packages=[agent_app_path],
+        extra_packages=[
+            os.path.join(agent_app_path, "agent.py"),
+            os.path.join(agent_app_path, "auth.py"),
+        ],
     )
 
     print(f"--- Agent Engine created. Resource name: {remote_agent.resource_name} ---", file=sys.stderr)
