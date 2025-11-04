@@ -112,7 +112,9 @@ locals {
 }
 
 resource "google_project_iam_member" "default_compute_sa_roles_expanded" {
-  for_each = toset(local.default_compute_sa_roles_expanded)
+  depends_on = [google_project_service.project_services]
+  for_each   = toset(local.default_compute_sa_roles_expanded)
+
   project  = local.project_id
   role     = each.key
   member   = "serviceAccount:${local.project_number}-compute@developer.gserviceaccount.com"
