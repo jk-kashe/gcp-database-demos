@@ -26,7 +26,7 @@ python "$${DEPLOY_SCRIPT}" \
   --region "${region}" \
   --staging_bucket "gs://${staging_bucket_name}" \
   --display_name "${agent_display_name}" \
-  --agent_app_path "$${SCRIPT_DIR}" \
+  --agent_app_path "$${AGENT_SRC_DIR}" \
   --output_file "$${OUTPUT_FILE}" > /dev/null
 
 echo ">>> Python deployment script finished."
