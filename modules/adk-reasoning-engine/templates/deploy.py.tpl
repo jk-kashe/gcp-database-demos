@@ -14,14 +14,19 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
     agent_file_path = os.path.join(agent_app_path, "agent.py")
     print(f"--- Loading agent from: {agent_file_path} ---", file=sys.stderr)
     try:
-        spec = spec_from_file_location("agent", agent_file_path)
-        agent_module = module_from_spec(spec)
-        sys.modules["agent"] = agent_module
-        spec.loader.exec_module(agent_module)
-        root_agent = agent_module.root_agent
+        sys.path.insert(0, agent_app_path)
+        import agent
+        # Reload the module to pick up any changes if it was already imported.
+        import importlib
+        importlib.reload(agent)
+        root_agent = agent.root_agent
     except Exception as e:
         print(f"Error loading agent: {e}", file=sys.stderr)
         sys.exit(1)
+    finally:
+        # Clean up sys.path
+        if agent_app_path in sys.path:
+            sys.path.remove(agent_app_path)
 
 
     print(f"--- Wrapping agent '{root_agent.name}' in AdkApp ---", file=sys.stderr)
