@@ -3,7 +3,7 @@ set -e
 
 # Determine the absolute path of the script's directory to make all paths reliable,
 # as this script is executed by Terraform from a different working directory.
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "$${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Define all paths relative to the script's location.
 AGENT_SRC_DIR="$${SCRIPT_DIR}/${agent_src_path}"
