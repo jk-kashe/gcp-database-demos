@@ -10,11 +10,11 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
     print(f"--- Initializing Vertex AI for project '{project_id}' in '{location}' ---", file=sys.stderr)
     vertexai.init(project=project_id, location=location, staging_bucket=staging_bucket)
 
-    print(f"--- Loading agent from 'agent.py' ---", file=sys.stderr)
+    print(f"--- Loading agent from 'src.agent' ---", file=sys.stderr)
     try:
-        # The agent is in the same directory, so a direct import works.
-        # This ensures the pickled object's module is just 'agent'.
-        from agent import root_agent
+        # Import the agent using the full package path.
+        # This is now possible because of the __init__.py file.
+        from src.agent import root_agent
     except Exception as e:
         import traceback
         print("--- !!! ENCOUNTERED AN EXCEPTION WHILE IMPORTING AGENT !!! ---", file=sys.stderr)

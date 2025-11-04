@@ -20,7 +20,7 @@ resource "local_file" "agent_py" {
 
 resource "local_file" "deploy_py" {
   content = templatefile("${path.module}/templates/deploy.py.tpl", {})
-  filename = "${path.module}/src/deploy.py"
+  filename = "${path.module}/deploy.py"
 }
 
 resource "local_file" "run_python_deploy_script" {
