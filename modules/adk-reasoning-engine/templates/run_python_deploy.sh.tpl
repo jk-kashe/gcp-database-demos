@@ -20,7 +20,6 @@ python deploy.py \
   --region "${region}" \
   --staging_bucket "gs://${staging_bucket_name}" \
   --display_name "${agent_display_name}" \
-  --agent_app_path "." \
   --output_file "../${output_file_path}"
 
 echo ">>> Python deployment script finished."
