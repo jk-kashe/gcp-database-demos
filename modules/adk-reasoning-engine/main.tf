@@ -23,17 +23,16 @@ resource "local_file" "deploy_py" {
   filename = "${path.module}/deploy.py"
 }
 
-resource "local_file" "cli_deploy_script" {
-  content = templatefile("${path.module}/templates/cli_deploy.sh.tpl", {
+resource "local_file" "python_deploy_script" {
+  content = templatefile("${path.module}/templates/run_python_deploy.sh.tpl", {
     project_id          = var.project_id,
     region              = var.region,
     staging_bucket_name = google_storage_bucket.staging.name,
     agent_display_name  = var.agent_display_name,
-    agent_app_name      = var.agent_app_name,
-    agent_src_path      = "${path.module}/src",
-    output_file_path    = "${path.module}/reasoning_engine.txt"
+    agent_src_path      = "src",
+    output_file_path    = "reasoning_engine.txt"
   })
-  filename = "${path.module}/cli_deploy.sh"
+  filename = "${path.module}/run_python_deploy.sh"
 
   provisioner "local-exec" {
     command = "chmod +x ${self.filename}"
@@ -41,10 +40,10 @@ resource "local_file" "cli_deploy_script" {
 }
 
 resource "null_resource" "deploy_agent" {
-  depends_on = [local_file.agent_py, local_file.deploy_py, local_file.cli_deploy_script]
+  depends_on = [local_file.agent_py, local_file.deploy_py, local_file.python_deploy_script]
 
   provisioner "local-exec" {
-    command = "bash ${local_file.cli_deploy_script.filename}"
+    command = "bash ${local_file.python_deploy_script.filename}"
   }
 }
 

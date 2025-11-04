@@ -7,7 +7,7 @@ SCRIPT_DIR="$( cd "$( dirname "$${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Define all paths relative to the script's location.
 AGENT_SRC_DIR="$${SCRIPT_DIR}/${agent_src_path}"
-VENV_DIR="$${AGENT_SRC_DIR}/.venv"
+VENV_DIR="$${SCRIPT_DIR}/.venv" # Create venv in module root, not in src
 REQS_FILE="$${AGENT_SRC_DIR}/requirements.txt"
 DEPLOY_SCRIPT="$${SCRIPT_DIR}/deploy.py"
 OUTPUT_FILE="$${SCRIPT_DIR}/${output_file_path}"

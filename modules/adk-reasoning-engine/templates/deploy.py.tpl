@@ -45,7 +45,8 @@ def deploy_agent(project_id, location, staging_bucket, display_name, agent_app_p
     remote_agent = agent_engines.create(
         app,
         display_name=display_name,
-        requirements=requirements
+        requirements=requirements,
+        extra_packages=[agent_app_path],
     )
 
     print(f"--- Agent Engine created. Resource name: {remote_agent.resource_name} ---", file=sys.stderr)
