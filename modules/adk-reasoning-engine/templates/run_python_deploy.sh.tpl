@@ -24,13 +24,13 @@ cd "$${AGENT_SRC_DIR}"
 
 # Deploy to Agent Engine using the Python script from the module root.
 echo ">>> Deploying to Agent Engine via Python script..."
-python "../$${DEPLOY_SCRIPT_NAME}" \
+python "$${DEPLOY_SCRIPT}" \
   --project "${project_id}" \
   --region "${region}" \
   --staging_bucket "gs://${staging_bucket_name}" \
   --display_name "${agent_display_name}" \
   --agent_app_path "." \
-  --output_file "../$${OUTPUT_FILE_NAME}" > /dev/null
+  --output_file "$${OUTPUT_FILE}" > /dev/null
 
 echo ">>> Python deployment script finished."
 
