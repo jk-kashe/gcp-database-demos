@@ -5,7 +5,7 @@ from typing import Dict
 import google.auth
 import google.auth.transport.requests
 import google.oauth2.id_token
-from google.adk.agents import LlmAgent, ReadonlyContext
+from google.adk.agents import LlmAgent
 from google.adk.planners.built_in_planner import BuiltInPlanner
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
@@ -49,13 +49,7 @@ def get_id_token():
     
     return _cached_token
 
-def create_auth_headers(context: ReadonlyContext) -> Dict[str, str]:
-    """
-    This function is the header_provider. It's called by the McpToolset
-    to get fresh authentication headers for each request.
-    """
-    token = get_id_token()
-    return {"Authorization": f"Bearer {token}"}
+
 
 # The ADK runtime will look for an agent instance to run.
 root_agent = LlmAgent(
@@ -74,7 +68,7 @@ root_agent = LlmAgent(
             connection_params=StreamableHTTPConnectionParams(
                 url=MCP_SERVER_URL,
             ),
-            header_provider=create_auth_headers,
+            header_provider=lambda ctx: {"Authorization": f"Bearer {get_id_token()}"},
             errlog=None,
             tool_filter=None,
         )
