@@ -253,7 +253,7 @@ module "adk_reasoning_engine" {
                 *   `EBA_SALES_TZ_PREF`: Lookup table for time zone preferences.
                 *   `EBA_SALES_VERIFICATIONS`: Lookup table for verification records.
             *   **Views:**
-                *   `EBA_SALES_OPPORTUNITIES_V`: Detailed view of sales opportunities. Key columns: `ID`, `CUSTOMER_NAME`, `REP_NAME`, `DEAL_NAME`, `DEAL_CLOSE_DATE`, `DEAL_AMOUNT`, `DEAL_PROBABILITY`, `STATUS_CODE`, `IS_OPEN`, `IS_OVERDUE`, `WEIGHTED_FORECAST`.
+                *   `EBA_SALES_OPPORTUNITIES_V`: Detailed view of sales opportunities. Key columns: `ID`, `CUSTOMER_NAME`, `REP_NAME`, `DEAL_NAME`, `DEAL_CLOSE_DATE`, `DEAL_AMOUNT`, `DEAL_PROBABILITY`, `STATUS_CODE`, `IS_OPEN` (values: 'Yes' or 'No'), `IS_OVERDUE`, `WEIGHTED_FORECAST`.
                 *   `EBA_SALES_OPP_V`: Summarized view of sales opportunities. Key columns: `CUSTOMER_ID`, `DEAL_ID`, `CUSTOMER_NAME`, `REP_FIRST_NAME`, `REP_LAST_NAME`, `DEAL_NAME`, `DEAL_CLOSE_DATE`, `DEAL_AMOUNT`, `DEAL_PROBABILITY`, `STATUS_CODE`.
     2.  **Construct the Query:**
         *   Write an Oracle-compliant SQL query to answer the user's question.
