@@ -87,9 +87,9 @@ Once the `make apply` command completes, follow these steps to set up the APEX a
     ```
     Here are some more examples of business-oriented questions you can ask:
     *   **Performance Analysis:** `@Oracle NL2SQL Agent Which sales representative has the highest total deal amount this quarter?`
-    *   **Forecasting:** `@Oracle NL2SQL Agent What is our total weighted forecast for all open opportunities closing next month?`
+    *   **Forecasting:** `@Oracle NL2SQL Agent What is our total weighted forecast for all open opportunities closing next quarter?`
     *   **Customer Insights:** `@Oracle NL2SQL Agent Which customer has the most open opportunities by value?`
-    *   **Pipeline Health:** `@Oracle NL2SQL Agent List all deals with a probability higher than 75% that are scheduled to close this quarter.`
+    *   **Pipeline Health:** `@Oracle NL2SQL Agent List all deals with a probability higher than 75% that are scheduled to close this year.`
 
 ---
 
