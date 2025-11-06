@@ -133,6 +133,26 @@ data "local_file" "ords_version" {
   depends_on = [null_resource.wait_for_ords_version_script]
 }
 
+# Generate the APEX readiness polling script
+resource "local_file" "poll_apex_script" {
+  filename = "${path.module}/scripts/poll_apex_readiness.sh"
+  content  = templatefile("${path.module}/templates/poll_apex_readiness.sh.tpl", {
+    vm_name         = module.oracle_free.instance.name,
+    zone            = module.oracle_free.instance.zone,
+    project_id      = module.landing_zone.project_id,
+    oracle_password = var.vm_oracle_password
+  })
+}
+
+# Use the generated script to poll the VM for APEX readiness
+resource "null_resource" "wait_for_apex_readiness" {
+  depends_on = [module.oracle_free.startup_script_wait, local_file.poll_apex_script, null_resource.wait_for_ords_version_script]
+
+  provisioner "local-exec" {
+    command = "chmod +x ${local_file.poll_apex_script.filename} && ${local_file.poll_apex_script.filename}"
+  }
+}
+
 # Generate the APEX workspace creation script
 resource "local_file" "create_workspace_script" {
   content = templatefile("${path.module}/templates/create_workspace.sql.tpl", {
@@ -147,7 +167,7 @@ resource "local_file" "create_workspace_script" {
 
 # Execute the APEX workspace creation script
 resource "null_resource" "create_apex_workspace" {
-  depends_on = [module.oracle_free.startup_script_wait, local_file.create_workspace_script, null_resource.wait_for_ords_version_script]
+  depends_on = [module.oracle_free.startup_script_wait, local_file.create_workspace_script, null_resource.wait_for_ords_version_script, null_resource.wait_for_apex_readiness]
 
   provisioner "local-exec" {
     command = <<-EOT
