@@ -107,6 +107,17 @@ resource "google_dns_record_set" "oracle_vm_a_record" {
   rrdatas      = [module.oracle_free.instance.network_interface[0].network_ip]
 }
 
+# This resource runs a harmless command to ensure that gcloud SSH keys are
+# generated before any other scripts try to use SSH. This prevents the
+# key generation output from being captured by scripts that poll for values.
+resource "null_resource" "trigger_ssh_key_generation" {
+  depends_on = [module.oracle_free.instance]
+
+  provisioner "local-exec" {
+    command = "gcloud compute ssh ${module.oracle_free.instance.name} --zone ${module.oracle_free.instance.zone} --project ${var.project_id} --command='true'"
+  }
+}
+
 # Generate the polling script from the template
 resource "local_file" "poll_script" {
   filename = "${path.module}/scripts/poll_ords_version.sh"
@@ -120,7 +131,7 @@ resource "local_file" "poll_script" {
 
 # Use the generated script to poll the VM and write the version to a local file.
 resource "null_resource" "wait_for_ords_version_script" {
-  depends_on = [module.oracle_free.startup_script_wait, local_file.poll_script]
+  depends_on = [module.oracle_free.startup_script_wait, local_file.poll_script, null_resource.trigger_ssh_key_generation]
 
   provisioner "local-exec" {
     command = "chmod +x ${local_file.poll_script.filename} && ${local_file.poll_script.filename}"
