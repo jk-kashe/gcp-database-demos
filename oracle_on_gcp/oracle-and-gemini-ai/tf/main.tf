@@ -22,6 +22,13 @@ resource "google_storage_bucket" "ords_config" {
   uniform_bucket_level_access = true
 }
 
+resource "google_storage_bucket" "cloudbuild_bucket" {
+  name          = "${var.project_id}_cloudbuild"
+  location      = var.region
+  force_destroy = true
+  uniform_bucket_level_access = true
+}
+
 resource "google_storage_bucket_iam_member" "compute_sa_gcs_access" {
   bucket = google_storage_bucket.ords_config.name
   role   = "roles/storage.objectAdmin"
