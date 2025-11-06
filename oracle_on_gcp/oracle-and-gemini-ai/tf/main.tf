@@ -114,7 +114,7 @@ resource "null_resource" "trigger_ssh_key_generation" {
   depends_on = [module.oracle_free.instance]
 
   provisioner "local-exec" {
-    command = "gcloud compute ssh ${module.oracle_free.instance.name} --zone ${module.oracle_free.instance.zone} --project ${var.project_id} --command='true'"
+    command = "yes | gcloud compute ssh ${module.oracle_free.instance.name} --zone ${module.oracle_free.instance.zone} --project ${var.project_id} --command='true' || true"
   }
 }
 
