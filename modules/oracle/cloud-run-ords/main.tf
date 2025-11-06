@@ -19,10 +19,10 @@ data "google_project" "project" {
 locals {
   # Construct the canonical URL used by the Cloud Console
   # Format: https://<service-name>-<project-number>.<region>.run.app
-  canonical_cloud_run_url = "https://$${var.service_name}-$${data.google_project.project.number}.$${var.region}.run.app"
+  canonical_cloud_run_url = "https://${var.service_name}-${data.google_project.project.number}.${var.region}.run.app"
   
   # Combine both URL formats to be safe
-  cors_urls = "$${local.canonical_cloud_run_url},$${module.cr_base.service_url}"
+  cors_urls = "${local.canonical_cloud_run_url},${module.cr_base.service_url}"
 }
 
 # Repository for the custom ORDS container image
