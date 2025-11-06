@@ -23,7 +23,7 @@ set feedback off
 select 1 from apex_release;
 exit;
 EOF
-" 2>/dev/null | grep -w '1' | tr -d '\r')
+" 2>/dev/null | grep -w '1' | tr -d '\r' | xargs)
 
   if [[ "$APEX_READY" == "1" ]]; then
     echo "Success! APEX is ready."
