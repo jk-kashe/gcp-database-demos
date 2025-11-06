@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bn/bash
 
 COUNTER=0
 # 40 retries * 60s = 2400s = 40 minutes
@@ -23,7 +23,7 @@ set feedback off
 select 1 from apex_release;
 exit;
 EOF
-" 2>/dev/null | grep -w '1')
+" 2>/dev/null | grep -w '1' | tr -d '\r')
 
   if [[ "$APEX_READY" == "1" ]]; then
     echo "Success! APEX is ready."
