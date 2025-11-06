@@ -1,4 +1,4 @@
-#!/bn/bash
+#!/bin/bash
 
 COUNTER=0
 # 40 retries * 60s = 2400s = 40 minutes
