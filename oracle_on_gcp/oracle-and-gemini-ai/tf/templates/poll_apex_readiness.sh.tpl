@@ -13,7 +13,17 @@ echo "Starting to poll for APEX readiness..."
 while true; do
   # Use gcloud ssh to execute the command directly inside the container.
   # We are checking if we can connect and query an APEX view.
-  APEX_READY=$(gcloud compute ssh "$VM_NAME" --zone="$ZONE" --project="$PROJECT_ID" --command="REMOTE_PASSWORD='${oracle_password}'; echo -e 'WHENEVER SQLERROR EXIT FAILURE;\nALTER SESSION SET CONTAINER = FREEPDB1;\nset heading off;\nset feedback off;\nselect 1 from apex_release;\nexit;' | sudo docker exec -i oracle-free sqlplus -s sys/\"\$REMOTE_PASSWORD\" as sysdba" 2>/dev/null | grep -w '1')
+  APEX_READY=$(gcloud compute ssh "$VM_NAME" --zone="$ZONE" --project="$PROJECT_ID" --command="
+    REMOTE_PASSWORD='${oracle_password}'
+    sudo docker exec -i oracle-free sqlplus -s sys/\"\$REMOTE_PASSWORD\" as sysdba <<'EOF'
+WHENEVER SQLERROR EXIT FAILURE;
+ALTER SESSION SET CONTAINER = FREEPDB1;
+set heading off
+set feedback off
+select 1 from apex_release;
+exit;
+EOF
+" 2>/dev/null | grep -w '1')
 
   if [[ "$APEX_READY" == "1" ]]; then
     echo "Success! APEX is ready."
