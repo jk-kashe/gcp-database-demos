@@ -120,7 +120,7 @@ resource "local_file" "poll_script" {
 
 # Use the generated script to poll the VM and write the version to a local file.
 resource "null_resource" "wait_for_ords_version_script" {
-  depends_on = [module.oracle_free.instance, local_file.poll_script]
+  depends_on = [module.oracle_free.startup_script_wait, local_file.poll_script]
 
   provisioner "local-exec" {
     command = "chmod +x ${local_file.poll_script.filename} && ${local_file.poll_script.filename}"
