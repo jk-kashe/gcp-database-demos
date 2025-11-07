@@ -141,22 +141,8 @@ resource "null_resource" "grant_iap_access" {
   }
 
   provisioner "local-exec" {
-    when    = create
     command = <<-EOT
       gcloud beta iap web add-iam-policy-binding \
-        --member=${each.value} \
-        --role=roles/iap.httpsResourceAccessor \
-        --region=${self.triggers.location} \
-        --resource-type=cloud-run \
-        --service=${self.triggers.service_name} \
-        --project=${self.triggers.project_id}
-    EOT
-  }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<-EOT
-      gcloud beta iap web remove-iam-policy-binding \
         --member=${each.value} \
         --role=roles/iap.httpsResourceAccessor \
         --region=${self.triggers.location} \
