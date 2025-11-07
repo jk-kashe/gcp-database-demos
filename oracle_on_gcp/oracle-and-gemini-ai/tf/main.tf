@@ -193,6 +193,10 @@ data "external" "gcloud_user" {
   program = ["bash", "${path.module}/files/get_user_email.sh"]
 }
 
+locals {
+  invoker_users = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
+}
+
 module "cloud_run_ords" {
   source = "../../../modules/oracle/cloud-run-ords"
 
@@ -205,6 +209,7 @@ module "cloud_run_ords" {
   ords_container_tag     = data.local_file.ords_version.content
   db_instance_dependency = module.oracle_free.startup_script_wait
   gcs_bucket_name        = google_storage_bucket.ords_config.name
+  invoker_users          = local.invoker_users
   iam_dependency = [
     google_storage_bucket_iam_member.compute_gcs_access,
     google_storage_bucket_iam_member.cloudbuild_gcs_access,
@@ -233,7 +238,7 @@ module "mcp_toolbox_oracle" {
   oracle_password = module.oracle_free.additional_db_user_passwords["MCP_DEMO_USER"]
   oracle_service  = "FREEPDB1"
   vpc_connector_id = module.landing_zone.vpc_connector_id
-  invoker_users    = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
+  invoker_users    = local.invoker_users
 
   depends_on = [
     module.oracle_free,
