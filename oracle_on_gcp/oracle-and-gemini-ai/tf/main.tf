@@ -304,6 +304,9 @@ module "adk_reasoning_engine" {
     3.  **Execute the Query:**
         *   Use the `execute-ad-hoc-oracle-sql` tool to run the generated query against the target database.
     4.  **Provide the Answer:** Return the result of the SQL query to the user in a clear and understandable format.
+    ---
+        **Hints:** 
+              *    If user is asking about "open opportunities" or "open deals", you can probably query EBA_SALES_OPPORTUNITIES_V where IS_OPEN='Yes'
     EOT
   depends_on = [module.mcp_toolbox_oracle]
 }
