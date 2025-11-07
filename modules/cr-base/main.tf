@@ -129,3 +129,40 @@ resource "google_cloud_run_v2_service_iam_member" "user_invokers" {
   role     = "roles/run.invoker"
   member   = each.value
 }
+
+resource "null_resource" "grant_iap_access" {
+  for_each = var.use_iap ? toset(var.invoker_users) : toset([])
+
+  triggers = {
+    service_name = google_cloud_run_v2_service.iap_service.name
+    location     = google_cloud_run_v2_service.iap_service.location
+    project_id   = var.project_id
+    member       = each.value
+  }
+
+  provisioner "local-exec" {
+    when    = create
+    command = <<-EOT
+      gcloud beta iap web add-iam-policy-binding \
+        --member=${each.value} \
+        --role=roles/iap.httpsResourceAccessor \
+        --region=${self.triggers.location} \
+        --resource-type=cloud-run \
+        --service=${self.triggers.service_name} \
+        --project=${self.triggers.project_id}
+    EOT
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      gcloud beta iap web remove-iam-policy-binding \
+        --member=${each.value} \
+        --role=roles/iap.httpsResourceAccessor \
+        --region=${self.triggers.location} \
+        --resource-type=cloud-run \
+        --service=${self.triggers.service_name} \
+        --project=${self.triggers.project_id}
+    EOT
+  }
+}
