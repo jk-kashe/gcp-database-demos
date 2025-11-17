@@ -67,3 +67,15 @@ variable "ords_version" {
   type        = string
   default     = "25.3.0"
 }
+
+variable "oracle_free_tag" {
+  description = "The Docker image tag for the Oracle Free Database."
+  type        = string
+  default     = "23.9.0.0"
+}
+
+variable "apex_download_url" {
+  description = "The URL to download the APEX zip file from."
+  type        = string
+  default     = "https://download.oracle.com/otn_software/apex/apex_24.2.zip"
+}

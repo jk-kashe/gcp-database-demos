@@ -37,6 +37,11 @@ sudo chmod -R 777 /mnt/ords_config
 
 curl -o /tmp/unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
 
+# Modify the installer script to use the specified APEX download URL and filename
+APEX_ZIP_FILENAME=$(basename "${apex_download_url}")
+sudo sed -i "s|https://download.oracle.com/otn_software/apex/apex-latest.zip|${apex_download_url}|g" /tmp/unattended_apex_install_23c.sh
+sudo sed -i "s|apex-latest.zip|$${APEX_ZIP_FILENAME}|g" /tmp/unattended_apex_install_23c.sh
+
 # If a specific ORDS version is provided, modify the installer script to use it.
 %{ if ords_version != "" ~}
 sudo sed -i 's/dnf install ords -y/dnf install ords-${ords_version} -y/g' /tmp/unattended_apex_install_23c.sh
@@ -101,7 +106,7 @@ if [ ! "$(sudo docker ps -a -q -f name=oracle-free)" ]; then
   echo "Removing old ORDS configuration from GCS mount..."
   sudo rm -rf /mnt/ords_config/*
   sudo docker rm -f oracle-free || true
-  sudo docker create --name oracle-free --hostname=$${VM_HOSTNAME} -p 1521:1521 -p 8080:8080 -v /mnt/ords_config:/etc/ords/config --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:latest
+  sudo docker create --name oracle-free --hostname=$${VM_HOSTNAME} -p 1521:1521 -p 8080:8080 -v /mnt/ords_config:/etc/ords/config --log-driver=gcplogs --restart=always -e ORACLE_PWD=${vm_oracle_password} container-registry.oracle.com/database/free:${oracle_free_tag}
   sudo docker cp /tmp/unattended_apex_install_23c.sh oracle-free:/home/oracle/unattended_apex_install_23c.sh
   sudo docker cp /tmp/00_start_apex_ords_installer.sh oracle-free:/opt/oracle/scripts/startup/00_start_apex_ords_installer.sh
   sudo docker cp /tmp/99_configure_apex_cdn.sh oracle-free:/opt/oracle/scripts/startup/99_configure_apex_cdn.sh
