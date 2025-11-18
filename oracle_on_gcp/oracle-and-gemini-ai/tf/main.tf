@@ -60,6 +60,7 @@ module "oracle_free" {
   project_id         = module.landing_zone.project_id
   network_name       = module.landing_zone.demo_network.name
   network_id         = module.landing_zone.demo_network.id
+  subnetwork_id      = module.landing_zone.demo_subnetwork_self_link
   zone               = module.landing_zone.zone
   vm_oracle_password = var.vm_oracle_password
   client_script_path = "../sqlplus.sh"
@@ -70,6 +71,7 @@ module "oracle_free" {
       grants   = ["CONNECT", "RESOURCE", "SELECT ANY TABLE", "SELECT ANY DICTIONARY"]
     },
   ]
+  allowed_source_ranges = [module.landing_zone.demo_subnetwork_cidr, module.landing_zone.vpc_connector_range]
 
   depends_on = [time_sleep.wait_for_iam_propagation]
 }

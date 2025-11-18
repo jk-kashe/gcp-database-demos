@@ -37,3 +37,18 @@ output "vpc_connector_id" {
   description = "The ID of the VPC connector."
   value       = var.provision_vpc_connector ? google_vpc_access_connector.connector[0].id : null
 }
+
+output "demo_subnetwork_cidr" {
+  description = "The IP CIDR range of the demo subnetwork."
+  value       = google_compute_subnetwork.demo_subnetwork.ip_cidr_range
+}
+
+output "vpc_connector_range" {
+  description = "The IP CIDR range of the VPC connector."
+  value       = var.provision_vpc_connector ? google_vpc_access_connector.connector[0].ip_cidr_range : null
+}
+
+output "demo_subnetwork_self_link" {
+  description = "The self_link of the demo subnetwork."
+  value       = google_compute_subnetwork.demo_subnetwork.self_link
+}

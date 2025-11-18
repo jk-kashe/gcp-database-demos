@@ -7,6 +7,16 @@ terraform {
   }
 }
 
+# Get the subnetwork details to use for the firewall rule
+data "google_compute_subnetwork" "oracle_vm_subnetwork" {
+  self_link = var.subnetwork_id
+}
+
+locals {
+  # If allowed_source_ranges is provided, use it. Otherwise, default to only the VM's subnetwork.
+  firewall_source_ranges = var.allowed_source_ranges != null ? var.allowed_source_ranges : [data.google_compute_subnetwork.oracle_vm_subnetwork.ip_cidr_range]
+}
+
 # Create a firewall rule to allow access to the Oracle database
 resource "google_compute_firewall" "allow_oracle_vm" {
   name    = "allow-oracle-vm"
@@ -15,7 +25,7 @@ resource "google_compute_firewall" "allow_oracle_vm" {
     protocol = "tcp"
     ports    = ["1521"]
   }
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = local.firewall_source_ranges
 }
 
 # Create a Compute Engine instance with OS Login enabled

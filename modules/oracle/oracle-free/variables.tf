@@ -79,3 +79,9 @@ variable "apex_download_url" {
   type        = string
   default     = "https://download.oracle.com/otn_software/apex/apex_24.2.zip"
 }
+
+variable "allowed_source_ranges" {
+  description = "A list of source IP ranges to allow access to the Oracle VM. If null, defaults to the VM's subnetwork."
+  type        = list(string)
+  default     = null
+}
