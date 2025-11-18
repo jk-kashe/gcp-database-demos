@@ -44,3 +44,13 @@ alloydb/cymbal-air/combine.sh
 alloydb/cymbal-air/combined.txt
 spanner/finance-advisor/spanner-client.sh
 .vscode/settings.json
+*-credentials.txt
+*.swp
+*.tmp
+oracle_on_gcp/.gemini/settings.json
+oracle_on_gcp/apex/00_start_apex_ords_installer.sh
+oracle_on_gcp/apex/ords-connect.sh
+oracle_on_gcp/apex/sqlplus.sh
+oracle_on_gcp/apex/unattended_apex_install_23c.sh
+oracle_on_gcp/apex/update_settings.sh
+oracle_on_gcp/apex/.gemini/settings.json
