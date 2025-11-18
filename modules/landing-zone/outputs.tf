@@ -40,7 +40,7 @@ output "vpc_connector_id" {
 
 output "demo_subnetwork_cidr" {
   description = "The IP CIDR range of the demo subnetwork."
-  value       = google_compute_subnetwork.demo_subnetwork.ip_cidr_range
+  value       = data.google_compute_subnetwork.demo_subnetwork.ip_cidr_range
 }
 
 output "vpc_connector_range" {
@@ -50,5 +50,5 @@ output "vpc_connector_range" {
 
 output "demo_subnetwork_self_link" {
   description = "The self_link of the demo subnetwork."
-  value       = google_compute_subnetwork.demo_subnetwork.self_link
+  value       = data.google_compute_subnetwork.demo_subnetwork.self_link
 }

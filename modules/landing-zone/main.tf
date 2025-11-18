@@ -6,6 +6,12 @@ resource "google_compute_network" "demo_network" {
   project                 = local.project_id
 }
 
+data "google_compute_subnetwork" "demo_subnetwork" {
+  name    = google_compute_network.demo_network.name
+  project = local.project_id
+  region  = var.region
+}
+
 # Enable PGA
 resource "null_resource" "demo_network_pga" {
   provisioner "local-exec" {
