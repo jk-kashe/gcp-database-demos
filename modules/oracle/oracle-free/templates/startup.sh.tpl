@@ -35,7 +35,7 @@ done
 
 sudo chmod -R 777 /mnt/ords_config
 
-curl -o /tmp/unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
+curl -o /tmp/unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/2e0c25dcdc65940ce926c14e9ac368217f7abaf9/src/unattended_apex_install_23c.sh
 
 # Modify the installer script to use the specified APEX download URL and filename
 APEX_ZIP_FILENAME=$(basename "${apex_download_url}")
