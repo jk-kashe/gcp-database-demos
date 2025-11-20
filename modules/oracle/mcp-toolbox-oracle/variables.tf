@@ -58,3 +58,9 @@ variable "invoker_users" {
   type        = list(string)
   default     = []
 }
+
+variable "container_image" {
+  description = "The container image to deploy for the MCP toolbox."
+  type        = string
+  default     = null
+}
