@@ -17,7 +17,6 @@ echo ">>> Setting up Python virtual environment in $${VENV_DIR}..."
 python3 -m venv "$${VENV_DIR}"
 source "$${VENV_DIR}/bin/activate"
 pip install -r "$${REQS_FILE}"
-pip install "google-cloud-aiplatform[adk,agent_engines]>=1.111"
 
 # Navigate into the agent source directory to treat it as the root for packaging.
 cd "$${AGENT_SRC_DIR}"

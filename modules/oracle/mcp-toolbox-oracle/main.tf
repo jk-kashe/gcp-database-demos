@@ -96,6 +96,7 @@ module "mcp_toolbox" {
   service_name                  = var.service_name
   vpc_connector_id            = var.vpc_connector_id
   invoker_users                 = var.invoker_users
+  container_image               = var.container_image
 
   depends_on = [time_sleep.wait_for_oracle]
 }

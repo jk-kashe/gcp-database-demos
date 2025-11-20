@@ -241,6 +241,7 @@ module "mcp_toolbox_oracle" {
   oracle_service  = "FREEPDB1"
   vpc_connector_id = module.landing_zone.vpc_connector_id
   invoker_users    = local.invoker_users
+  container_image  = "us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox@sha256:d66bbe0499754acf331c488cf2f4d1d543385fb3325dc589dac5c1d986e1943f"
 
   depends_on = [
     module.oracle_free,

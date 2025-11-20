@@ -16,7 +16,6 @@ if [ ! -d "$${VENV_DIR}" ]; then
     python3 -m venv "$${VENV_DIR}"
     source "$${VENV_DIR}/bin/activate"
     pip install -r "$${REQS_FILE}" > /dev/null
-    pip install "google-cloud-aiplatform[adk,agent_engines]>=1.111" > /dev/null
 else
     echo ">>> Reusing existing Python virtual environment..."
     source "$${VENV_DIR}/bin/activate"
