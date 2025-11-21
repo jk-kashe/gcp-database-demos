@@ -6,9 +6,6 @@ server {
     port_in_redirect off;
     absolute_redirect off;
 
-    # Required when proxy_pass uses a variable
-    resolver 8.8.8.8 8.8.4.4 valid=300s ipv6=off;
-
     location / {
         proxy_http_version 1.1;
         proxy_set_header Connection "";
@@ -17,8 +14,8 @@ server {
         proxy_set_header Accept-Encoding "";
 
         # Upstream
-        set $backend https://${ADB_HOSTNAME};
-        proxy_pass $backend;
+        # envsubst replaces ${ADB_HOSTNAME} at startup, so we don't need a resolver
+        proxy_pass https://${ADB_HOSTNAME};
         proxy_ssl_server_name on;
         proxy_ssl_name ${ADB_HOSTNAME}; # SNI requires the real ADB hostname
         proxy_ssl_protocols TLSv1.2 TLSv1.3;
