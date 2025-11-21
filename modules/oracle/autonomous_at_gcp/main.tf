@@ -96,7 +96,7 @@ gcloud compute ssh ${module.client_vm[0].client_vm_name} --zone=${module.client_
     export PATH=$PATH:/home/oracle/instantclient/instantclient_23_4
     export TNS_ADMIN=/home/oracle/instantclient/instantclient_23_4/network/admin
     
-    sqlplus admin/${local.admin_password}@${local.oracle_profiles["high"].value}
+    sqlplus admin/${local.admin_password}@'${local.oracle_profiles["high"].value}'
   "
 '
   EOT
