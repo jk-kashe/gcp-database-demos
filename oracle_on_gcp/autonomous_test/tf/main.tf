@@ -46,6 +46,10 @@ data "external" "gcloud_user" {
   depends_on = [null_resource.make_get_user_email_executable]
 }
 
+locals {
+  invoker_users = ["user:${trimspace(data.external.gcloud_user.result.email)}"]
+}
+
 module "ords_proxy" {
   source = "../../../modules/oracle/ords-proxy"
 
@@ -53,7 +57,7 @@ module "ords_proxy" {
   region           = var.region
   ords_uri         = module.autonomous_db.ords_uri
   vpc_connector_id = module.landing_zone.vpc_connector_id
-  invoker_users    = ["user:${data.external.gcloud_user.result.email}"]
+  invoker_users    = local.invoker_users
   use_iap          = true
 
   depends_on = [module.autonomous_db]
