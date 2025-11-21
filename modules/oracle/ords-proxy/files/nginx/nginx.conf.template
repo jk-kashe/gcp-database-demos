@@ -10,10 +10,9 @@ server {
         
         # Rewrite Location headers in redirects
         proxy_redirect https://${ADB_HOSTNAME}/ /;
-        # Fix redirects that incorrectly use the internal container port/scheme
-        proxy_redirect http://$host:8080/ /;
-        proxy_redirect https://$host:8080/ /;
-        proxy_redirect http://$host/ /;
+        
+        # Aggressively catch any redirect with port 8080 (http or https) and rewrite to relative
+        proxy_redirect ~^https?://[^/]+:8080(/.*)$ $1;
 
         # Pass through headers
         proxy_set_header X-Real-IP $remote_addr;
