@@ -23,8 +23,8 @@ server {
         proxy_ssl_name ${ADB_HOSTNAME}; # SNI requires the real ADB hostname
         proxy_ssl_protocols TLSv1.2 TLSv1.3;
 
-        # What the upstream sees (use the public host)
-        proxy_set_header Host $host;
+        # Upstream sees its own host (Variant A)
+        proxy_set_header Host ${ADB_HOSTNAME};
         
         proxy_set_header X-Real-IP          $remote_addr;
         proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
@@ -33,9 +33,7 @@ server {
         proxy_set_header X-Forwarded-Host   $host;
         proxy_set_header X-Forwarded-Port   443;
 
-        # Stop nginx from auto-rewriting Location at all
-        proxy_redirect off;
-
+        # DO NOT turn it off; instead, rewrite to relative
         # Collapse absolute URLs to relative paths (catches upstream :8080)
         proxy_redirect ~^https?://[^/]+(:\d+)?(/.*)$ $2;
 
