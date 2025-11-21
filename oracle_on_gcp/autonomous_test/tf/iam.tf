@@ -40,3 +40,14 @@ resource "google_project_iam_member" "compute_ar_writer_workaround" {
   role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${module.landing_zone.project_number}-compute@developer.gserviceaccount.com"
 }
+
+resource "time_sleep" "wait_for_iam_propagation" {
+  create_duration = "30s"
+
+  depends_on = [
+    google_storage_bucket_iam_member.cloudbuild_gcs_access,
+    google_project_iam_member.cloudbuild_ar_writer,
+    google_storage_bucket_iam_member.compute_gcs_access_workaround,
+    google_project_iam_member.compute_ar_writer_workaround
+  ]
+}
