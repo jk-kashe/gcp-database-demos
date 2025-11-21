@@ -48,3 +48,10 @@ variable "oracle_database_version" {
   description = "Oracle Autonomous Database version."
   default     = "23ai"
 }
+
+variable "admin_password" {
+  type        = string
+  description = "The admin password for the Autonomous Database. If not provided, a random password will be generated."
+  default     = null
+  sensitive   = true
+}

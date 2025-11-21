@@ -10,7 +10,7 @@ output "autonomous_database_name" {
 
 output "admin_password" {
   description = "The admin password for the Autonomous Database."
-  value       = random_password.oracle_adb.result
+  value       = local.admin_password
   sensitive   = true
 }
 

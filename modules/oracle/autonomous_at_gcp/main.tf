@@ -1,9 +1,14 @@
 resource "random_password" "oracle_adb" {
+  count       = var.admin_password == null ? 1 : 0
   length      = 16
   special     = false
   min_lower   = 1
   min_upper   = 1
   min_numeric = 1
+}
+
+locals {
+  admin_password = var.admin_password != null ? var.admin_password : random_password.oracle_adb[0].result
 }
 
 resource "google_oracle_database_autonomous_database" "oracle" {
@@ -14,7 +19,7 @@ resource "google_oracle_database_autonomous_database" "oracle" {
   display_name           = var.oracle_adb_instance_name
   location               = var.region
   database               = var.oracle_adb_database_name
-  admin_password         = random_password.oracle_adb.result
+  admin_password         = local.admin_password
   network                = var.network_id
   cidr                   = var.oracle_subnet_cidr_range
 
@@ -31,7 +36,7 @@ resource "google_oracle_database_autonomous_database" "oracle" {
 }
 
 locals {
-  oracle_database_url = "oracle+oracledb://admin:${random_password.oracle_adb.result}@${google_oracle_database_autonomous_database.oracle.autonomous_database_id}"
+  oracle_database_url = "oracle+oracledb://admin:${local.admin_password}@${google_oracle_database_autonomous_database.oracle.autonomous_database_id}"
   oracle_profiles     = { for profile in google_oracle_database_autonomous_database.oracle.properties[0].connection_strings[0].profiles : lower(profile.consumer_group) => profile if profile.tls_authentication == "SERVER" }
 }
 

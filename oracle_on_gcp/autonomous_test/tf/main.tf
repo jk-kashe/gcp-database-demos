@@ -22,6 +22,7 @@ module "autonomous_db" {
   region                   = var.region
   network_id               = module.landing_zone.demo_network.id
   oracle_adb_instance_name = var.oracle_adb_instance_name
+  admin_password           = var.admin_password
   
   depends_on = [module.landing_zone]
 }
