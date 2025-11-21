@@ -26,3 +26,17 @@ resource "google_project_iam_member" "cloudbuild_ar_writer" {
   role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${module.landing_zone.project_number}@cloudbuild.gserviceaccount.com"
 }
+
+# Grant the Compute Engine SA permissions as a workaround for the build error
+resource "google_storage_bucket_iam_member" "compute_gcs_access_workaround" {
+  bucket = google_storage_bucket.cloudbuild_bucket.name
+  role   = "roles/storage.objectAdmin" # Granting Admin to be safe, covers get/list/create
+  member = "serviceAccount:${module.landing_zone.project_number}-compute@developer.gserviceaccount.com"
+  depends_on = [google_storage_bucket.cloudbuild_bucket]
+}
+
+resource "google_project_iam_member" "compute_ar_writer_workaround" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${module.landing_zone.project_number}-compute@developer.gserviceaccount.com"
+}
