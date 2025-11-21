@@ -30,6 +30,12 @@ variable "oracle_adb_instance_name" {
   default     = "adb-test"
 }
 
+variable "oracle_adb_database_name" {
+  type        = string
+  description = "Name of Oracle Autonomous Database database."
+  default     = "coffee"
+}
+
 variable "admin_password" {
   type        = string
   description = "The admin password for the Autonomous Database. If not provided, a random password will be generated."

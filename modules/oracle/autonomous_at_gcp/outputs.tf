@@ -34,3 +34,13 @@ output "connection_profiles" {
   description = "The connection profiles for the Autonomous Database."
   value       = local.oracle_profiles
 }
+
+output "ords_uri" {
+  description = "The ORDS URI for the Autonomous Database."
+  value       = google_oracle_database_autonomous_database.oracle.properties[0].connection_urls[0].ords_uri
+}
+
+output "apex_uri" {
+  description = "The APEX URI for the Autonomous Database."
+  value       = google_oracle_database_autonomous_database.oracle.properties[0].connection_urls[0].apex_uri
+}
