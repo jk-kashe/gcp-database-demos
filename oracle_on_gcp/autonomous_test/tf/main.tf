@@ -35,8 +35,15 @@ module "autonomous_db" {
   depends_on = [module.landing_zone]
 }
 
+resource "null_resource" "make_get_user_email_executable" {
+  provisioner "local-exec" {
+    command = "chmod +x ${path.module}/files/get_user_email.sh"
+  }
+}
+
 data "external" "gcloud_user" {
-  program = ["bash", "-c", "echo \"{\"email\": \"$(gcloud auth list --format='value(account)' | head -n 1)\"}\" "]
+  program = ["bash", "${path.module}/files/get_user_email.sh"]
+  depends_on = [null_resource.make_get_user_email_executable]
 }
 
 module "ords_proxy" {
