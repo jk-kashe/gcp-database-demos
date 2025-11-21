@@ -2,32 +2,37 @@ server {
     listen 8080;
     server_name _;
 
+    # IMPORTANT: NGINX-generated redirects should not include :8080
+    port_in_redirect off;       # don't append the listen port
+    absolute_redirect off;      # prefer relative redirects
+
+    # Needed when proxy_pass uses a variable host
+    resolver 8.8.8.8 8.8.4.4 valid=300s ipv6=off;
+
     location / {
-        # CRITICAL: Disable compression so sub_filter can work
+        # allow sub_filter to work
         proxy_set_header Accept-Encoding "";
 
-        proxy_pass https://${ADB_HOSTNAME};
-        proxy_set_header Host ${ADB_HOSTNAME};
+        # Upstream
+        set $backend https://${ADB_HOSTNAME};
+        proxy_pass $backend;
         proxy_ssl_server_name on;
         proxy_ssl_protocols TLSv1.2 TLSv1.3;
-        
-        # Rewrite Location headers in redirects
-        proxy_redirect https://${ADB_HOSTNAME}/ /;
-        
-        # Aggressively catch any redirect with port 8080 (http or https) and rewrite to relative
-        proxy_redirect ~^https?://[^/]+:8080(/.*)$ $1;
 
-        # Pass through headers
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
-        proxy_set_header X-Forwarded-Ssl on;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_set_header X-Forwarded-Port 443;
+        # What the upstream sees
+        proxy_set_header Host ${ADB_HOSTNAME};
+        proxy_set_header X-Real-IP          $remote_addr;
+        proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto  https;
+        proxy_set_header X-Forwarded-Ssl    on;
+        proxy_set_header X-Forwarded-Host   $host;
+        proxy_set_header X-Forwarded-Port   443;
 
-        # THE DEFINITIVE FIX:
-        # This inspects the HTML/JS response body and removes the incorrect port,
-        # fixing JavaScript-based redirects.
+        # Rewrite upstream Location headers (not NGINX's own)
+        # 1) convert absolute upstream URL to relative
+        proxy_redirect ~^https?://[^/]+(:\d+)?(/.*)$ $2;
+
+        # Optional: fix HTML/JS that bakes in :8080
         sub_filter_types *;
         sub_filter_once off;
         sub_filter ':8080' '';
