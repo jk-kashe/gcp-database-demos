@@ -33,8 +33,8 @@ set -e
 # Create Oracle user and install dependencies
 sudo useradd -m -s /bin/bash oracle || true
 sudo apt-get update
-sudo apt-get -o DPkg::Lock::Timeout=600 -y install unzip libaio1t64 wget
-sudo ln -sf /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1
+sudo apt-get -o DPkg::Lock::Timeout=600 -y install unzip libaio1 wget
+# sudo ln -sf /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1
 
 # Switch to oracle user to install Instant Client
 sudo -u oracle bash -c '
