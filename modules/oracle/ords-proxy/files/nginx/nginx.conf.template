@@ -10,11 +10,16 @@ server {
         
         # Rewrite Location headers in redirects
         proxy_redirect https://${ADB_HOSTNAME}/ /;
+        # Fix redirects that incorrectly use the internal container port/scheme
+        proxy_redirect http://$host:8080/ /;
+        proxy_redirect https://$host:8080/ /;
+        proxy_redirect http://$host/ /;
 
         # Pass through headers
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Ssl on;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port 443;
     }
