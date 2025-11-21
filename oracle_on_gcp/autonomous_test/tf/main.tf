@@ -19,10 +19,13 @@ module "autonomous_db" {
   source = "../../../modules/oracle/autonomous_at_gcp"
 
   project_id               = module.landing_zone.project_id
+  project_number           = module.landing_zone.project_number
   region                   = var.region
+  zone                     = var.zone
   network_id               = module.landing_zone.demo_network.id
   oracle_adb_instance_name = var.oracle_adb_instance_name
   admin_password           = var.admin_password
+  client_script_path       = "${path.module}/../sqlplus.sh"
   
   depends_on = [module.landing_zone]
 }

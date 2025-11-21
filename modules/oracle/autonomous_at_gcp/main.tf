@@ -58,3 +58,54 @@ resource "google_secret_manager_secret_version" "oracle_database_url" {
   secret      = google_secret_manager_secret.oracle_database_url.id
   secret_data = local.oracle_database_url
 }
+
+resource "random_password" "additional_db_user_passwords" {
+  for_each = { for user in var.additional_db_users : user.username => user }
+  length   = 16
+  special  = false
+}
+
+module "client_vm" {
+  count  = var.provision_client_vm ? 1 : 0
+  source = "../../oracle-client-vm"
+
+  project_id     = var.project_id
+  project_number = var.project_number
+  region         = var.region
+  zone           = var.zone
+  network_id     = var.network_id
+  clientvm_name  = "client-${var.oracle_adb_instance_name}"
+}
+
+resource "local_file" "sqlplus_client_script" {
+  count    = var.client_script_path == null ? 0 : 1
+  filename = var.client_script_path
+  content  = <<-EOT
+#!/bin/bash
+# This script connects to the Oracle Autonomous Database via the Client VM.
+# It requires gcloud to be authenticated and configured.
+
+gcloud compute ssh ${module.client_vm[0].client_vm_name} --zone=${module.client_vm[0].client_vm_zone} --tunnel-through-iap \
+--project ${var.project_id} --command='
+  sudo -u oracle bash -c "
+    export LD_LIBRARY_PATH=/home/oracle/instantclient/instantclient_23_4
+    export PATH=$PATH:/home/oracle/instantclient/instantclient_23_4
+    export TNS_ADMIN=/home/oracle/instantclient/instantclient_23_4/network/admin
+    
+    sqlplus admin/${local.admin_password}@${local.oracle_profiles["high"].value}
+  "
+'
+  EOT
+}
+
+resource "null_resource" "make_scripts_executable" {
+  count = var.client_script_path == null ? 0 : 1
+
+  triggers = {
+    sqlplus_script = local_file.sqlplus_client_script[0].filename
+  }
+
+  provisioner "local-exec" {
+    command = "chmod +x ${local_file.sqlplus_client_script[0].filename}"
+  }
+}

@@ -3,9 +3,19 @@ variable "project_id" {
   description = "The project ID to deploy to."
 }
 
+variable "project_number" {
+  type        = string
+  description = "The project number."
+}
+
 variable "region" {
   type        = string
   description = "The region to deploy to."
+}
+
+variable "zone" {
+  type        = string
+  description = "The zone to deploy to."
 }
 
 variable "network_id" {
@@ -54,4 +64,25 @@ variable "admin_password" {
   description = "The admin password for the Autonomous Database. If not provided, a random password will be generated."
   default     = null
   sensitive   = true
+}
+
+variable "client_script_path" {
+  type        = string
+  description = "The local path to write the sqlplus.sh script to."
+  default     = null
+}
+
+variable "additional_db_users" {
+  description = "A list of additional database users to create (Note: User creation logic is not yet implemented in this module, but passwords will be generated)."
+  type = list(object({
+    username = string
+    grants   = list(string)
+  }))
+  default = []
+}
+
+variable "provision_client_vm" {
+  type        = bool
+  description = "Whether to provision a client VM for database access."
+  default     = true
 }
