@@ -3,8 +3,7 @@ server {
     server_name _;
 
     location / {
-        # This is the crucial line: It forces the backend to send an uncompressed
-        # response, which is required for sub_filter to work.
+        # CRITICAL: Disable compression so sub_filter can work
         proxy_set_header Accept-Encoding "";
 
         proxy_pass https://${ADB_HOSTNAME};
@@ -29,6 +28,7 @@ server {
         # THE DEFINITIVE FIX:
         # This inspects the HTML/JS response body and removes the incorrect port,
         # fixing JavaScript-based redirects.
+        sub_filter_types *;
         sub_filter_once off;
         sub_filter ':8080' '';
     }
