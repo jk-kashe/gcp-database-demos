@@ -2,14 +2,17 @@ server {
     listen 8080;
     server_name _;
 
-    # IMPORTANT: NGINX-generated redirects should not include :8080
-    port_in_redirect off;       # don't append the listen port
-    absolute_redirect off;      # prefer relative redirects
+    # Keep NGINX from manufacturing absolute redirects + ports
+    port_in_redirect off;
+    absolute_redirect off;
 
-    # Needed when proxy_pass uses a variable host
+    # Required when proxy_pass uses a variable
     resolver 8.8.8.8 8.8.4.4 valid=300s ipv6=off;
 
     location / {
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        
         # allow sub_filter to work
         proxy_set_header Accept-Encoding "";
 
@@ -17,10 +20,12 @@ server {
         set $backend https://${ADB_HOSTNAME};
         proxy_pass $backend;
         proxy_ssl_server_name on;
+        proxy_ssl_name ${ADB_HOSTNAME}; # SNI requires the real ADB hostname
         proxy_ssl_protocols TLSv1.2 TLSv1.3;
 
-        # What the upstream sees
-        proxy_set_header Host ${ADB_HOSTNAME};
+        # What the upstream sees (use the public host)
+        proxy_set_header Host $host;
+        
         proxy_set_header X-Real-IP          $remote_addr;
         proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto  https;
@@ -28,11 +33,13 @@ server {
         proxy_set_header X-Forwarded-Host   $host;
         proxy_set_header X-Forwarded-Port   443;
 
-        # Rewrite upstream Location headers (not NGINX's own)
-        # 1) convert absolute upstream URL to relative
+        # Stop nginx from auto-rewriting Location at all
+        proxy_redirect off;
+
+        # Collapse absolute URLs to relative paths (catches upstream :8080)
         proxy_redirect ~^https?://[^/]+(:\d+)?(/.*)$ $2;
 
-        # Optional: fix HTML/JS that bakes in :8080
+        # Fix HTML/JS that bakes in :8080
         sub_filter_types *;
         sub_filter_once off;
         sub_filter ':8080' '';
