@@ -90,15 +90,15 @@ resource "local_file" "sqlplus_client_script" {
 # It requires gcloud to be authenticated and configured.
 
 gcloud compute ssh ${module.client_vm[0].client_vm_name} --zone=${module.client_vm[0].client_vm_zone} --tunnel-through-iap \
---project ${var.project_id} --command='
-  sudo -u oracle bash -c "
+--project ${var.project_id} --command="
+  sudo -u oracle bash -c \"
     export LD_LIBRARY_PATH=/home/oracle/instantclient/instantclient_23_4
     export PATH=$PATH:/home/oracle/instantclient/instantclient_23_4
     export TNS_ADMIN=/home/oracle/instantclient/instantclient_23_4/network/admin
     
     sqlplus admin/${local.admin_password}@'${local.oracle_profiles["high"].value}'
-  "
-'
+  \"
+"
   EOT
 }
 
