@@ -33,6 +33,10 @@ resource "google_oracle_database_autonomous_database" "oracle" {
     license_type                    = "LICENSE_INCLUDED"
     backup_retention_period_days    = 1
   }
+
+  lifecycle {
+    ignore_changes = [odb_network, odb_subnet, admin_password]
+  }
 }
 
 locals {
