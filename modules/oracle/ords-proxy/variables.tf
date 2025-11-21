@@ -41,3 +41,9 @@ variable "iam_dependency" {
   description = "A resource to depend on before starting the container build, to ensure IAM permissions are propagated."
   default     = null
 }
+
+variable "gcs_staging_bucket" {
+  type        = string
+  description = "GCS bucket to use for Cloud Build source staging. If not provided, the default bucket is used."
+  default     = ""
+}

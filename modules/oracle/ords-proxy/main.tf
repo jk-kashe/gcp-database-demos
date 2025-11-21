@@ -28,7 +28,7 @@ resource "null_resource" "proxy_container_build" {
   }
 
   provisioner "local-exec" {
-    command = "gcloud builds submit --tag ${google_artifact_registry_repository.ords_proxy.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_proxy.repository_id}/ords-proxy:latest ${path.module}/files/nginx --project ${var.project_id}"
+    command = "gcloud builds submit --tag ${google_artifact_registry_repository.ords_proxy.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ords_proxy.repository_id}/ords-proxy:latest ${path.module}/files/nginx --project ${var.project_id} ${var.gcs_staging_bucket != "" ? "--gcs-source-staging-dir=gs://${var.gcs_staging_bucket}/source" : ""}"
   }
 
   depends_on = [

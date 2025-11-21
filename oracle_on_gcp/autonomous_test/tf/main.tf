@@ -53,6 +53,7 @@ module "ords_proxy" {
   invoker_users    = local.invoker_users
   use_iap          = true
   iam_dependency   = time_sleep.wait_for_iam_propagation
+  gcs_staging_bucket = google_storage_bucket.cloudbuild_bucket.name
 
   depends_on = [module.autonomous_db]
 }
