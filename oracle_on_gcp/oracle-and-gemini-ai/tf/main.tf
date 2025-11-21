@@ -10,7 +10,7 @@ resource "random_shuffle" "zone" {
 }
 
 resource "random_string" "bucket_suffix" {
-  length  = 4
+  length  = 8
   special = false
   upper   = false
 }
@@ -23,7 +23,7 @@ resource "google_storage_bucket" "ords_config" {
 }
 
 resource "google_storage_bucket" "cloudbuild_bucket" {
-  name          = "${var.project_id}_cloudbuild"
+  name          = "${var.project_id}-cloudbuild-${random_string.bucket_suffix.result}"
   location      = var.region
   force_destroy = true
   uniform_bucket_level_access = true
