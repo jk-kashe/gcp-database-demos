@@ -3,6 +3,10 @@ server {
     server_name _;
 
     location / {
+        # This is the crucial line: It forces the backend to send an uncompressed
+        # response, which is required for sub_filter to work.
+        proxy_set_header Accept-Encoding "";
+
         proxy_pass https://${ADB_HOSTNAME};
         proxy_set_header Host ${ADB_HOSTNAME};
         proxy_ssl_server_name on;
@@ -21,5 +25,11 @@ server {
         proxy_set_header X-Forwarded-Ssl on;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port 443;
+
+        # THE DEFINITIVE FIX:
+        # This inspects the HTML/JS response body and removes the incorrect port,
+        # fixing JavaScript-based redirects.
+        sub_filter_once off;
+        sub_filter ':8080' '';
     }
 }
