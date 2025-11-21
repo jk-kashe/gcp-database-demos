@@ -33,7 +33,8 @@ resource "null_resource" "proxy_container_build" {
 
   depends_on = [
     google_artifact_registry_repository.ords_proxy,
-    google_project_service.api["cloudbuild.googleapis.com"]
+    google_project_service.api["cloudbuild.googleapis.com"],
+    var.iam_dependency
   ]
 }
 

@@ -52,6 +52,10 @@ module "ords_proxy" {
   vpc_connector_id = module.landing_zone.vpc_connector_id
   invoker_users    = local.invoker_users
   use_iap          = true
+  iam_dependency   = [
+    google_storage_bucket_iam_member.cloudbuild_gcs_access,
+    google_project_iam_member.cloudbuild_ar_writer
+  ]
 
   depends_on = [module.autonomous_db]
 }

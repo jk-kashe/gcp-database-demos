@@ -35,3 +35,9 @@ variable "use_iap" {
   description = "Whether to enable IAP for the service."
   default     = true
 }
+
+variable "iam_dependency" {
+  type        = any
+  description = "A resource to depend on before starting the container build, to ensure IAM permissions are propagated."
+  default     = null
+}
