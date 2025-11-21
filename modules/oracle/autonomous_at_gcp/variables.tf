@@ -32,7 +32,7 @@ variable "oracle_adb_instance_name" {
 variable "oracle_adb_database_name" {
   type        = string
   description = "Name of Oracle Autonomous Database database."
-  default     = "coffee"
+  default     = "adb"
 }
 
 variable "oracle_subnet_cidr_range" {
