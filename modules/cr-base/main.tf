@@ -148,7 +148,8 @@ resource "null_resource" "grant_iap_access" {
         --region=${self.triggers.location} \
         --resource-type=cloud-run \
         --service=${self.triggers.service_name} \
-        --project=${self.triggers.project_id}
+        --project=${self.triggers.project_id} \
+        --condition=None
     EOT
   }
 }
