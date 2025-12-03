@@ -51,6 +51,9 @@ Once the `make apply` command completes, follow these steps to set up the APEX a
     *   **Password:** The same password you provided for the Oracle database `sys` user during setup.
 4.  In the APEX dashboard, navigate to the **App Gallery**, find the **Starter Apps**, and install the **Opportunities** application.
 5.  After installation, click **Run Application** to complete the setup.
+    * Log-in with DEMO user and your password
+    * Click "complete setup" button at the bottom of the screen
+
 
     > **Known Issue:** When you run the app, the URL may incorrectly include port `:80`. If the page doesn't load, simply **remove `:80`** from the URL in your browser's address bar and press Enter. You will be prompted to log in again with the `DEMO` user and password.
 
